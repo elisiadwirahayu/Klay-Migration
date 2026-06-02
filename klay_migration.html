@@ -211,6 +211,12 @@ input,select{font-family:inherit}
 .acc-chev{display:inline-flex;color:var(--color-text-tertiary);transition:transform .2s}
 .acc-chev.open{transform:rotate(180deg)}
 .acc-chev svg{width:15px;height:15px}
+.ws-2col{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:22px;align-items:start}
+.ws-2col .ws-main{min-width:0}
+.ws-2col .ws-rail{position:sticky;top:72px}
+@media(max-width:1080px){.ws-2col{grid-template-columns:1fr}.ws-2col .ws-rail{position:static}}
+.ai-dot{display:inline-flex;align-items:center;justify-content:center;color:var(--warning-text)}
+.ai-dot svg{width:13px;height:13px}
 @keyframes impactPulse{0%{background:var(--warning-surface)}60%{background:var(--warning-surface)}100%{background:transparent}}
 .impact-row{animation:impactPulse 1.6s ease-out 1}
 .impact-row td:first-child{box-shadow:inset 3px 0 0 var(--warning-text)}
@@ -1195,8 +1201,8 @@ var _PREVIEW_DEFS_PLACEHOLDER=1;
 var STAGES = [
   {n:1, key:'upload', short:'Upload Data', title:'Upload Data', sub:'Upload foundational and master data to prepare your migration.', est:'3–4 days', day:4},
   {n:2, key:'mapping', short:'Account Mapping', title:'Account Mapping', sub:"Link your legacy accounts to Klay's new structure Chart of Accounts.", est:'4–5 days', day:9},
-  {n:3, key:'posting', short:'Posting Rules', title:'Posting Rules Setup', sub:'Configure how business events become journal entries before go-live.', est:'3–4 days', day:13},
-  {n:4, key:'tax', short:'Tax Config', title:'Tax Configuration', sub:'Set the tax profile, rates, and accounts that drive PPN and PPh treatment.', est:'2–3 days', day:16},
+  {n:3, key:'tax', short:'Tax Config', title:'Tax Configuration', sub:'Set the tax rates and accounts that drive PPN and PPh treatment.', est:'2–3 days', day:13},
+  {n:4, key:'posting', short:'Posting Rules', title:'Posting Rules Setup', sub:'Set up the journal templates that turn business events into entries in the live ERP.', est:'3–4 days', day:16},
   {n:5, key:'uat', short:'UAT', title:'User Acceptance Testing', sub:'Try the live ERP — post journals, create bills and invoices — in a sandbox.', est:'8–10 days', day:25},
   {n:6, key:'signoff', short:'Sign Off', title:'Sign Off', sub:'Final checklist and approvals before your entity goes live.', est:'2–4 days', day:29}
 ];
@@ -1335,8 +1341,8 @@ function renderPage(){
   switch(APP.stage){
     case 1: el.innerHTML=renderUpload(); break;
     case 2: ensureMapRows(); el.innerHTML = (APP.ws ? renderWorkspace() : renderMappingOverview()); break;
-    case 3: el.innerHTML=renderPosting(); break;
-    case 4: el.innerHTML=renderTax(); break;
+    case 3: el.innerHTML=renderTax(); break;
+    case 4: el.innerHTML=renderPosting(); break;
     case 5: el.innerHTML=renderUAT(); break;
     case 6: el.innerHTML=renderSignoff(); break;
   }
@@ -1397,10 +1403,10 @@ function stageProgress(){
 
 function stageCompletion(){
   var s1 = APP.uploads.every(function(u){return u.status==='locked';});
-  var s2 = !!APP.mapRows && (function(){var c=mapCounts();return c.confirmed+c.deactivated===c.all;})();
+  var s2 = !!APP.mapRows && (function(){var c=mapCounts();return c.mapped+c.deactivated===c.all;})();
   var reached = APP.maxStageReached||APP.stage;
-  var s3 = reached>3;   // moved past posting rules
-  var s4 = reached>4;   // moved past tax config
+  var s3 = reached>3;   // moved past tax config
+  var s4 = reached>4;   // moved past posting rules
   var s5 = APP.uat && uatDone()===APP.uat.tasks.length;
   var s6 = APP.checklist && (function(){try{return checklistState().every(Boolean)&&APP.approvals.every(function(a){return a.signed;});}catch(e){return false;}})();
   return [!!s1,!!s2,!!s3,!!s4,!!s5,!!s6];
@@ -1409,13 +1415,13 @@ function stageStarted(n){
   // has the user begun working on stage n?
   if(n===1) return APP.migrationStarted || APP.uploads.some(function(u){return u.status!=='pending';});
   if(n===2) return !!APP.mapRows && (APP.ws || (APP.maxStageReached||1)>2 || APP.mapRows.some(function(r){return r.mapStatus==='mapped';}));
-  if(n===3) return (APP.maxStageReached||1)>=3 && (!!APP.rules);
-  if(n===4) return (APP.maxStageReached||1)>=4;
+  if(n===3) return (APP.maxStageReached||1)>=3 && (!!APP.taxCfg);
+  if(n===4) return (APP.maxStageReached||1)>=4 && (!!APP.rules);
   if(n===5) return (APP.maxStageReached||1)>=5 && !!APP.uat;
   if(n===6) return (APP.maxStageReached||1)>=6;
   return false;
 }
-function stageActionWord(n){ return n===1?'upload data':n===2?'account mapping':n===3?'posting rules':n===4?'tax config':n===5?'UAT':'sign off'; }
+function stageActionWord(n){ return n===1?'upload data':n===2?'account mapping':n===3?'tax config':n===4?'posting rules':n===5?'UAT':'sign off'; }
 function activeStageInfo(){
   // first incomplete stage is the active one
   var done=stageCompletion();
@@ -1529,13 +1535,24 @@ function renderHome(){
         + cashRow('No cashback','Go live after 60 days','0%',false)
       + '</div>'
       // configured by IA
-      + '<div class="card card-pad">'
-        + '<div class="fw7 fs17 mb4" style="font-family:var(--font-display);font-weight:800">Configured by Your IA</div>'
+      + (function(){ ensureTax(); var t=APP.taxCfg; var npwp=t.npwp||'01.234.567.8-091.000';
+        return '<div class="card card-pad">'
+        + '<div class="flex jb ac mb4"><span class="fw7 fs17" style="font-family:var(--font-display);font-weight:800">Configured by Your IA</span>'
+          + '<button class="btn btn-ghost btn-xs" onclick="openEntityProfile()">'+svg('edit')+'Edit tax</button></div>'
         + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px 12px">'
         + iaField('Entity','PT Makmur Jaya')+iaField('Cut-off Date','31 Dec 2025')
         + iaField('Source System','Accurate')+iaField('Fiscal Year Start','1 Jan 2025')
         + iaField('Accounting Basis','Accrual')+iaField('Migration Tier','Standard (30 days)')
-        + '</div></div>'
+        + '</div>'
+        + '<div class="hr" style="margin:16px 0"></div>'
+        + '<div class="section-label mb3" style="color:rgba(140,133,124,.9)">Tax profile</div>'
+        + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px 12px">'
+        + iaField('NPWP','<span class="mono fs12">'+npwp+'</span>')
+        + iaField('PKP status', t.pkp?'Registered (PKP)':'Non-PKP')
+        + iaField('e-Faktur', t.efaktur?'Connected':'Off')
+        + iaField('Default PPN', t.pkp?(t.ppnRate+'%'):'—')
+        + '</div></div>';
+      })()
       // team
       + '<div class="card card-pad">'
         + '<div class="flex jb ac mb3"><span class="fw7 fs17" style="font-family:var(--font-display);font-weight:800">Migration Team ('+TEAM.length+')</span><button class="btn-soft btn btn-xs" onclick="toast(\'Invite teammate\',\'Opens the invite flow.\',\'info\')">'+svg('plus')+'Add</button></div>'
@@ -1563,6 +1580,34 @@ function iaField(l,v){ return '<div><div class="section-label" style="color:rgba
 /* Cashback tracker bar for the hero — mirrors the in-progress reference.
    0–30 days: full month cashback (on track). 31–60: 50%. >60: none.
    The fill advances with APP.elapsedDay. */
+function entityProfileCard(){
+  ensureTax(); var t=APP.taxCfg;
+  function fld(label,val,sub){ return '<div><div class="section-label mb1">'+label+'</div><div class="fw6 fs14">'+val+'</div>'+(sub?'<div class="fs11 muted mt1">'+sub+'</div>':'')+'</div>'; }
+  var pkpBadge = t.pkp?'<span class="badge b-success" style="font-size:10px">'+svg('check')+'PKP</span>':'<span class="badge b-neutral" style="font-size:10px">Non-PKP</span>';
+  var npwp = t.npwp || '01.234.567.8-091.000';
+  return '<div class="card card-pad">'
+    + '<div class="flex jb ac mb3"><div class="flex ac g2"><span class="fw7 fs17" style="font-family:var(--font-display);font-weight:800">Entity Tax Profile</span>'+pkpBadge+'</div>'
+      + '<button class="btn btn-ghost btn-xs" onclick="openEntityProfile()">'+svg('edit')+'Edit</button></div>'
+    + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px 12px">'
+      + fld('Entity','PT Makmur Jaya')
+      + fld('NPWP','<span class="mono fs12">'+npwp+'</span>')
+      + fld('PKP status', t.pkp?'Registered':'Non-PKP', t.pkp?'Collects &amp; remits PPN':'No PPN')
+      + fld('e-Faktur', t.efaktur?'Connected':'Off')
+    + '</div></div>';
+}
+function openEntityProfile(){
+  ensureTax(); var t=APP.taxCfg;
+  openDrawer('<div class="drawer-head"><div><div class="section-label mb2">Migration dashboard</div><div class="fw7 fs17" style="font-family:var(--font-display);font-weight:800">Entity Tax Profile</div></div><button class="x-btn" onclick="closeDrawer()">'+svg('x')+'</button></div>'
+    + '<div class="drawer-body">'
+      + '<div class="fs13 muted mb5" style="line-height:1.55">Captured during onboarding. This drives whether PPN and Faktur Pajak apply across the migration.</div>'
+      + '<div class="section-label mb2">Entity name</div><input class="cfg-input2 mb5" value="PT Makmur Jaya" disabled style="opacity:.7">'
+      + '<div class="section-label mb2">NPWP</div><input class="cfg-input2 mb5" id="epNpwp" value="'+(t.npwp||'01.234.567.8-091.000').replace(/"/g,'&quot;')+'" onchange="APP.taxCfg.npwp=this.value">'
+      + '<div class="flex jb ac mb4" style="background:var(--color-surface-base);border:1px solid var(--color-border-default);border-radius:var(--radius-md);padding:14px"><div><div class="fs13 fw6">Taxable Entity (PKP)</div><div class="fs12 muted mt1">Registered to collect &amp; remit PPN</div></div><label class="switch"><input type="checkbox" '+(t.pkp?'checked':'')+' onchange="APP.taxCfg.pkp=this.checked;openEntityProfile()"><span class="track"></span></label></div>'
+      + '<div class="flex jb ac mb4" style="background:var(--color-surface-base);border:1px solid var(--color-border-default);border-radius:var(--radius-md);padding:14px"><div><div class="fs13 fw6">e-Faktur integration</div><div class="fs12 muted mt1">Generate faktur pajak numbers automatically</div></div><label class="switch"><input type="checkbox" '+(t.efaktur?'checked':'')+' onchange="APP.taxCfg.efaktur=this.checked"><span class="track"></span></label></div>'
+    + '</div>'
+    + '<div class="drawer-foot"><button class="btn btn-primary btn-block" onclick="closeDrawer();renderPage()">'+svg('check')+'Done</button></div>'
+    + '<style>.cfg-input2{width:100%;border:1px solid var(--color-border-default);border-radius:var(--radius-sm);padding:9px 11px;font-size:13px;font-family:var(--font-sans);background:#fff}.cfg-input2:focus{outline:none;border-color:var(--color-action)}</style>');
+}
 function cashbackTracker(){
   var d=APP.elapsedDay||0;
   var tier, daysLeftLabel, leftLabel, toneFill, twoSeg;
@@ -2357,7 +2402,50 @@ function mappingActivityLog(){
     + timelineHTML(logs)
   + '</div>';
 }
-
+function aiSummaryCard(stage){
+  var title, body, action;
+  if(stage==='tax'){
+    title='Klay set up your tax codes';
+    body='Your tax code list is pre-filled to Indonesian standards (PPN, PPh, PPN BM) with the correct rate and tax base. Each code\'s posting <b>Account</b> is AI-recommended from your chart of accounts. Standard codes keep their category and tax base locked; you edit the rate, account, recoverable flag, notes, and which codes are active.';
+  } else if(stage==='posting'){
+    var n=APP.rules?APP.rules.length:0;
+    title='Klay prepared '+n+' posting templates';
+    body='These are the journal templates Indonesian SMEs use most. Each maps a business event to its debit/credit lines with the right tax and dimensions. Edit or remove any you don\'t need, or add your own.';
+  } else { title='AI summary'; body=''; }
+  return '<div class="card mb4" style="overflow:hidden;border-color:var(--warning-border);background:linear-gradient(160deg,var(--warning-surface),#fff)">'
+    + '<div style="padding:16px 18px">'
+      + '<div class="flex g2 ac mb2"><span style="width:30px;height:30px;border-radius:var(--radius-md);background:#fff;border:1px solid var(--warning-border);display:flex;align-items:center;justify-content:center;color:var(--warning-text);flex-shrink:0">'+svg('spark')+'</span>'
+        + '<span class="fw7 fs14" style="color:var(--warning-text)">'+title+'</span></div>'
+      + '<div class="fs12 sec" style="line-height:1.55">'+body+'</div>'
+    + '</div></div>';
+}
+function activityLogCard(stage){
+  var logs;
+  if(stage==='posting'){
+    var pc=postingCounts();
+    logs=[
+      {icon:'book',tone:'info',t:pc.total+' posting templates loaded',s:'by system · 16 May 2026 (10:12)'},
+      {icon:'edit',tone:'neutral',t:'Vendor Bill (AP Invoice) edited',s:'by Ron Weasly · 16 May 2026 (10:20)'},
+      {icon:'check',tone:'success',t:'Templates ready for the live ERP',s:'by system · 16 May 2026 (10:08)'}
+    ];
+  } else if(stage==='tax'){
+    logs=[
+      {icon:'receipt',tone:'info',t:'Tax rates initialized (PPN 11%, PPh schedule)',s:'by system · 14 May 2026 (09:40)'},
+      {icon:'edit',tone:'neutral',t:'PPN Keluaran account set to 22000',s:'by Ron Weasly · 14 May 2026 (09:52)'},
+      {icon:'check',tone:'success',t:'Tax configuration drafted',s:'by system · 14 May 2026 (09:38)'}
+    ];
+  } else { // uat
+    var done=APP.uat?uatDone():0;
+    logs=[
+      {icon:'book',tone:'info',t:'Sandbox seeded with opening balances',s:'by system · 18 May 2026 (11:00)'},
+      {icon:'check',tone:'success',t:done+' of '+(APP.uat?APP.uat.tasks.length:4)+' test scenarios completed',s:'by Finance team · 18 May 2026 (11:30)'},
+      {icon:'book',tone:'neutral',t:'Sandbox General Ledger available for review',s:'by system · 18 May 2026 (11:02)'}
+    ];
+  }
+  return '<div class="card card-pad" style="margin-top:18px"><div class="flex jb ac mb4"><span class="fw7 fs15" style="font-family:var(--font-display);font-weight:800">Activity Log</span><span class="clickable fs12 fw6" style="color:var(--color-action)">See all log</span></div>'
+    + timelineHTML(logs)
+  + '</div>';
+}
 function paginationLayout(total,page,pc,size,sizeOnChange,pageOnClickFn){
   // page numbers w/ ellipsis (matches reference: 1 2 3 … 8 9 10)
   var nums=[];
@@ -2833,24 +2921,33 @@ function renderConfigDims(){
       : d.rec==='detected'?'<span class="badge b-info" style="font-size:10px">Detected</span>'
       : d.rec==='strong'?'<span class="badge b-brand" style="font-size:10px">Strongly recommended</span>'
       : '<span class="badge b-neutral" style="font-size:10px">Optional</span>';
-    var vals=d.values.map(function(v,vi){return '<span class="badge b-neutral" style="font-size:11.5px">'+v+(d.system?'':' <span class="clickable" style="opacity:.5" onclick="removeDimVal(\''+d.id+'\','+vi+')">×</span>')+'</span>';}).join(' ');
-    // inline add-value field (no popup)
+    var vals=d.values.map(function(v,vi){return '<span class="dimval">'+v+(d.system?'':'<button class="dimval-x" onclick="removeDimVal(\''+d.id+'\','+vi+')">'+svg('x')+'</button>')+'</span>';}).join('');
+    // inline add-value field (no popup) — tidy single row
     var addInline = d.system ? '' :
-      '<div class="flex g1 ac mt3" style="max-width:340px"><input class="cfg-input2" style="flex:1" placeholder="Add a '+d.name+' value…" onkeydown="if(event.key===\'Enter\'){doAddDimValInline(\''+d.id+'\',this)}"><button class="btn btn-soft btn-sm" onclick="doAddDimValInline(\''+d.id+'\',this.previousElementSibling)">'+svg('plus')+'Add</button></div>';
+      '<div class="dimadd"><span class="dimadd-ic">'+svg('plus')+'</span><input class="dimadd-in" placeholder="Add a '+d.name.toLowerCase()+' value…" onkeydown="if(event.key===\'Enter\'){doAddDimValInline(\''+d.id+'\',this)}"><button class="btn btn-soft btn-sm" onclick="doAddDimValInline(\''+d.id+'\',this.previousElementSibling)">Add</button></div>';
     var delBtn = d.system ? '<span class="fs12 muted">Managed by Klay</span>'
       : '<button class="btn btn-ghost btn-xs" style="color:var(--danger-text)" onclick="deleteDimension(\''+d.id+'\')">'+svg('trash')+'Delete</button>';
     return '<div class="card card-pad mb4"><div class="flex jb ac mb3"><div class="flex ac g3"><span class="dot" style="background:'+d.color+';width:12px;height:12px"></span><span class="fw7 fs15">'+d.name+'</span>'+recBadge+(d.system?'':'<span class="badge b-success" style="font-size:10px">Active</span>')+'</div>'
       + delBtn+'</div>'
       + '<div class="fs12 muted mb3" style="line-height:1.5">'+d.why+'</div>'
-      + '<div class="flex g1 ac" style="flex-wrap:wrap">'+(vals||'<span class="fs12 muted">No values yet</span>')+'</div>'
+      + '<div class="dimvals">'+(vals||'<span class="fs12 muted">No values yet</span>')+'</div>'
       + addInline+'</div>';
   }).join('');
+  var dimStyle='<style>'
+    + '.dimvals{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}'
+    + '.dimval{display:inline-flex;align-items:center;gap:4px;background:var(--color-surface-sunken);border:1px solid var(--color-border-default);border-radius:var(--radius-full);padding:5px 6px 5px 12px;font-size:12.5px;font-weight:600;color:var(--color-text-secondary)}'
+    + '.dimval-x{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border:none;background:none;border-radius:50%;color:var(--color-text-tertiary);cursor:pointer}.dimval-x:hover{background:var(--danger-surface);color:var(--danger-text)}.dimval-x svg{width:12px;height:12px}'
+    + '.dimadd{display:flex;align-items:center;gap:8px;border:1px dashed var(--color-border-strong);border-radius:var(--radius-md);padding:6px 8px 6px 12px;max-width:380px}'
+    + '.dimadd:focus-within{border-color:var(--color-action);border-style:solid}'
+    + '.dimadd-ic{display:inline-flex;color:var(--color-text-tertiary)}.dimadd-ic svg{width:15px;height:15px}'
+    + '.dimadd-in{flex:1;border:none;background:none;outline:none;font-size:13px;font-family:var(--font-sans);color:var(--color-text-primary)}'
+    + '</style>';
   return '<div class="canvas narrow">'
     + '<div class="flex ac g2 fs13 mb4"><span class="clickable" style="color:var(--color-action);font-weight:600" onclick="backToWorkspace()">Mapping workspace</span><span class="muted">/</span><span class="muted">Configure Dimensions</span></div>'
     + '<div class="page-head-row"><div><div class="page-title" style="font-size:30px">Configure Dimensions</div>'
       + '<div class="page-sub mt2">Dimensions tag every transaction so you can slice reports by department, branch, currency and more. Add or remove values inline, then assign dimensions to accounts in the workspace.</div></div>'
       + '<div class="flex g2"><button class="btn btn-ghost" onclick="addDimensionPrompt()">'+svg('plus')+'New dimension</button><button class="btn btn-primary" onclick="backToWorkspace()">'+svg('check')+'Done</button></div></div>'
-    + blocks + '</div>';
+    + blocks + dimStyle + '</div>';
 }
 function doAddDimValInline(id,inputEl){
   var d=dimById(id); var v=(inputEl&&inputEl.value||'').trim();
@@ -2894,106 +2991,81 @@ function doAddDimension(){
    ============================================================ */
 function ensurePosting(){
   if(APP.rules) return;
+  // Deterministic, pre-defined journal posting templates commonly used by Indonesian SMEs.
+  // No AI, no auto-post, no confidence, no trigger/category — these are reusable journal templates.
   APP.rules = [
-    {id:'ap_inv', cat:'Purchasing', name:'Vendor Bill (AP Invoice)', trigger:'A vendor bill is received and approved', auto:true, conf:96, status:'active', ai:true,
+    {id:'ap_inv', name:'Vendor Bill (AP Invoice)', status:'active',
      lines:[{dr:'Expense / Inventory (by item)',drc:'var'},{dr:'PPN Masukan',drc:'11400',tax:true},{cr:'Utang Usaha',crc:'21000',ctrl:true}],
-     tax:'PPN 11% if vendor is PKP · PPh 23 2% withheld on services', dims:['dept','branch','cur'], note:'Posts on approval. PPh is withheld to the matching tax-payable account.',
+     note:'PPN Masukan accrues when the vendor is PKP. PPh 23 (2%) is withheld on services to the matching tax-payable account.',
      overrides:[{who:'PT Konsultan Andal (V-003)',rule:'Non-PKP — no PPN Masukan line'}]},
-    {id:'ar_inv', cat:'Sales', name:'Customer Invoice (AR Invoice)', trigger:'A sales invoice is issued to a customer', auto:true, conf:97, status:'active', ai:true,
+    {id:'ar_inv', name:'Customer Invoice (AR Invoice)', status:'active',
      lines:[{dr:'Piutang Usaha',drc:'11200',ctrl:true},{cr:'Pendapatan Penjualan',crc:'41000'},{cr:'PPN Keluaran',crc:'22000',tax:true}],
-     tax:'PPN Keluaran 11% if entity is PKP', dims:['branch','channel','cur'], note:'COGS recognition posts a paired entry if the item is tracked inventory.', overrides:[]},
-    {id:'ap_pay', cat:'Cash', name:'Vendor Payment', trigger:'A bill is paid from a bank account', auto:true, conf:99, status:'active', ai:true,
+     note:'COGS recognition posts a paired entry when the item is tracked inventory.', overrides:[]},
+    {id:'ap_pay', name:'Vendor Payment', status:'active',
      lines:[{dr:'Utang Usaha',drc:'21000',ctrl:true},{cr:'Bank',crc:'11110'}],
-     tax:'—', dims:['branch','cur'], note:'Realized FX gain/loss posts automatically for foreign-currency settlement.', overrides:[]},
-    {id:'ar_rcpt', cat:'Cash', name:'Customer Receipt', trigger:'Payment is received against an invoice', auto:true, conf:99, status:'active', ai:true,
+     note:'Realized FX gain/loss posts for foreign-currency settlement.', overrides:[]},
+    {id:'ar_rcpt', name:'Customer Receipt', status:'active',
      lines:[{dr:'Bank',drc:'11110'},{cr:'Piutang Usaha',crc:'11200',ctrl:true}],
-     tax:'—', dims:['branch','cur'], note:'Matches to the open invoice; partial receipts supported.', overrides:[]},
-    {id:'payroll', cat:'Payroll', name:'Payroll Run', trigger:'Monthly payroll is finalized', auto:false, conf:88, status:'active', ai:true,
+     note:'Matches to the open invoice; partial receipts supported.', overrides:[]},
+    {id:'payroll', name:'Payroll Run', status:'active',
      lines:[{dr:'Gaji & Upah',drc:'61000'},{cr:'Utang PPh 21',crc:'22100',tax:true},{cr:'Utang BPJS',crc:'22200',tax:true},{cr:'Bank / Accrued Salaries',crc:'21110'}],
-     tax:'PPh 21 + BPJS employee withholding', dims:['dept','branch'], note:'Requires review before posting — sits below the auto-post confidence threshold.', overrides:[]},
-    {id:'expense', cat:'Purchasing', name:'Cash / Petty Expense', trigger:'An out-of-pocket or petty cash expense is recorded', auto:true, conf:91, status:'active', ai:true,
+     note:'PPh 21 and BPJS employee contributions are withheld to their payable accounts.', overrides:[]},
+    {id:'expense', name:'Cash / Petty Expense', status:'active',
      lines:[{dr:'Operating Expense (by category)',drc:'var'},{cr:'Kas / Bank',crc:'11100'}],
-     tax:'PPN Masukan if a valid faktur is attached', dims:['dept','branch'], note:'Expense account inferred from the description and the vendor category.', overrides:[]},
-    {id:'inv_adj', cat:'Inventory', name:'Inventory Adjustment', trigger:'Stock count or write-off adjusts inventory', auto:false, conf:80, status:'active', ai:true,
+     note:'PPN Masukan accrues if a valid faktur is attached.', overrides:[]},
+    {id:'inv_adj', name:'Inventory Adjustment', status:'active',
      lines:[{dr:'COGS / Loss',drc:'51000'},{cr:'Persediaan',crc:'11620'}],
-     tax:'—', dims:['loc','prodcat'], note:'Always routed to review; large variances flagged.', overrides:[]},
-    {id:'depr', cat:'Period-end', name:'Depreciation (Recurring)', trigger:'Runs automatically at each period close', auto:true, conf:100, status:'active', ai:true, recurring:'Monthly · last calendar day',
+     note:'Used for stock-count differences and write-offs.', overrides:[]},
+    {id:'depr', name:'Depreciation', status:'active', recurring:'Monthly · last calendar day',
      lines:[{dr:'Beban Penyusutan',drc:'63000'},{cr:'Akumulasi Penyusutan',crc:'12200',contra:true}],
-     tax:'—', dims:['branch'], note:'Straight-line schedule generated from the Fixed Asset register.', overrides:[]}
+     note:'Straight-line schedule generated from the Fixed Asset register.', overrides:[]}
   ];
 }
+// dimensions are derived from the required dimensions of the accounts a template touches
+function postingRuleDims(r){
+  var set={};
+  (r.lines||[]).forEach(function(l){
+    var code=l.drc||l.crc;
+    if(!code||code==='var') return;
+    var req=(APP.acctReqDims&&APP.acctReqDims[code])||[];
+    req.forEach(function(d){ set[d]=1; });
+  });
+  return Object.keys(set);
+}
 function postingCounts(){
-  var r=APP.rules; return {
-    total:r.length, active:r.filter(function(x){return x.status==='active';}).length,
-    auto:r.filter(function(x){return x.auto;}).length, review:r.filter(function(x){return !x.auto;}).length
-  };
+  var r=APP.rules; return { total:r.length, active:r.filter(function(x){return x.status==='active';}).length,
+    recurring:r.filter(function(x){return x.recurring;}).length };
 }
 function renderPosting(){
   ensurePosting();
   var c=postingCounts();
-  var cats={};
-  APP.rules.forEach(function(r){ (cats[r.cat]=cats[r.cat]||[]).push(r); });
-  var catHTML=Object.keys(cats).map(function(cat){
-    var cards=cats[cat].map(postingCard).join('');
-    return '<div class="mb6"><div class="flex ac g2 mb3"><span class="disp" style="font-size:18px">'+cat+'</span><span class="pill-count">'+cats[cat].length+'</span></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">'+cards+'</div></div>';
-  }).join('');
+  var cards='<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">'+APP.rules.map(postingCard).join('')+'</div>';
+
+  var workspace = ''
+    + '<div class="flex g2 ac mb5" style="align-items:flex-start;background:var(--color-action-wash);border:1px solid var(--color-action-subtle);border-radius:var(--radius-md);padding:12px 15px;font-size:12.5px;color:var(--color-action);line-height:1.55">'+svg('info')+'<span>These templates follow standard Indonesian SME bookkeeping. They make journals consistent and fast to draft — they do <b>not</b> auto-post. Nothing hits the ledger until someone reviews and approves it in the live ERP.</span></div>'
+    + '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:18px">'
+      + statCard('Posting templates',c.total,'book','var(--color-action)')
+      + statCard('Active',c.active,'checkCircle','var(--success-text)')
+      + statCard('Recurring',c.recurring,'clock','var(--color-brand)')
+    + '</div>'
+    + '<div class="flex jb ac mb3"><span class="disp" style="font-size:18px">Journal templates <span class="pill-count">'+c.total+'</span></span>'
+      + '<button class="btn btn-ghost btn-sm" onclick="addPostingRule()">'+svg('plus')+'New template</button></div>'
+    + cards;
+
+  var rail = aiSummaryCard('posting') + activityLogCard('posting');
 
   return '<div class="canvas">'
-    + '<div class="page-head-row"><div><div class="page-eyebrow">Stage 3 of 6 · <span class="days">Day '+STAGES[2].day+' of 30</span></div>'
+    + '<div class="page-head-row"><div><div class="page-eyebrow">Stage 4 of 6 · <span class="days">Day '+STAGES[3].day+' of 30</span></div>'
       + '<div class="page-title">Posting Rules Setup</div>'
-      + '<div class="page-sub">Define how each business event becomes a journal entry. Klay drafts these rules for you from your data — review them, edit where your business differs, and add your own.</div></div>'
+      + '<div class="page-sub">Pre-defined journal templates for the events an Indonesian SME records most often. Each maps to its debit/credit lines — review, edit, or remove what you don\'t need.</div></div>'
       + '<div class="flex g2"><button class="btn btn-ghost" onclick="skipPostingRules()">'+svg('arrowRight')+'Skip for now</button>'
-      + '<button class="btn btn-ghost" onclick="addPostingRule()">'+svg('plus')+'New rule</button>'
-      + '<button class="btn btn-primary" onclick="jumpStage(4)">Continue to tax config '+svg('arrowRight')+'</button></div></div>'
-    // education panel (collapsible feel)
-    + postingEducation()
-    // AI-draft notice + bulk save
-    + (function(){
-        var unsaved=APP.rules.filter(function(r){return !r.saved;}).length;
-        if(!unsaved) return '<div class="ai-banner mb5" style="background:var(--success-surface);border-color:var(--success-border)">'+svg('checkCircle')+'<div><div class="fw7 fs13" style="color:var(--success-text)">All rules saved</div><div class="fs12" style="color:var(--color-text-secondary);line-height:1.5;margin-top:2px">Every posting rule is active in your live ERP.</div></div></div>';
-        return '<div class="ai-banner mb5" style="justify-content:space-between"><div class="flex g2" style="align-items:flex-start">'+svg('spark')+'<div><div class="fw7 fs13" style="color:#6B4FD8">These rules are AI drafts — save them to use</div><div class="fs12" style="color:var(--color-text-secondary);line-height:1.5;margin-top:2px">Klay drafted '+unsaved+' rule'+(unsaved>1?'s':'')+' from your data. Review each one and hit <b>Save</b> — only saved rules go live in your ERP.</div></div></div>'
-          + '<button class="btn btn-primary btn-sm" style="white-space:nowrap;flex-shrink:0" onclick="saveAllRules()">'+svg('check')+'Save all ('+unsaved+')</button></div>';
-      })()
-    // overview strip
-    + '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:18px">'
-      + statCard('Posting rules',c.total,'book','var(--color-action)')
-      + statCard('Auto-post',c.auto,'bolt','var(--success-text)')
-      + statCard('Routed to review',c.review,'shield','var(--warning-text)')
-      + statCard('Confidence threshold','90%','spark','var(--color-brand)')
+      + '<button class="btn btn-primary" onclick="jumpStage(5)">Continue to UAT '+svg('arrowRight')+'</button></div></div>'
+    + '<div class="ws-2col">'
+      + '<div class="ws-main">'+workspace+'</div>'
+      + '<div class="ws-rail">'+rail+'</div>'
     + '</div>'
-    + catHTML
     + '</div>';
 }
-function postingEducation(){
-  var open=APP.postingEduOpen!==false;
-  return '<div class="card mb5" style="overflow:hidden;background:linear-gradient(160deg,#F3EFFC,#fff)">'
-    + '<div class="flex jb ac clickable" style="padding:13px 18px" onclick="APP.postingEduOpen='+(open?'false':'true')+';renderPage()">'
-      + '<div class="flex ac g2" style="color:#6B4FD8;font-weight:700;font-size:13.5px">'+svg('light')+'New to posting rules? Start here</div>'
-      + '<span class="acc-chev'+(open?' open':'')+'" style="color:#6B4FD8">'+svg('chevDown')+'</span>'
-    + '</div>'
-    + (open? '<div style="padding:0 18px 18px">'
-      + '<div class="fs13 sec mb4" style="line-height:1.6;text-align:justify">A <b>posting rule</b> is a recipe: when a business event happens (a bill arrives, an invoice is issued, payroll runs), the rule decides which accounts get debited and credited, what tax applies, and which dimensions to tag — so your team never types a journal entry by hand. Klay drafts a starter set from your data; you stay in control.</div>'
-      + '<div class="edu-steps">'
-        + flowStep('1','Capture','A document or event arrives — bill, invoice, payment, payroll.')
-        + flowStep('2','Resolve','The rule picks the transaction type and builds the debit/credit lines.')
-        + flowStep('3','Determine tax &amp; dimensions','PPN/PPh treatment and dimensions are inferred.')
-        + flowStep('4','Draft or post','Above the confidence threshold it posts; below, a draft is queued.')
-      + '</div>'
-      + '<div class="edu-chips">'
-        + eduChip('DR / CR','Every entry has debits equal to credits. Klay fills both sides.')
-        + eduChip('Confidence','Above 90% Klay posts automatically; below, a human checks it.')
-        + eduChip('Override','A per-vendor or per-customer exception to the default rule.')
-      + '</div>'
-      + '<style>.edu-steps{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;padding:14px 0;border-top:1px solid var(--color-brand-subtle)}'
-        + '.edu-chips{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding-top:14px;border-top:1px solid var(--color-brand-subtle)}'
-        + '.edu-step-n{width:20px;height:20px;border-radius:50%;background:var(--color-action);color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}'
-        + '.edu-chip{background:#fff;border:1px solid var(--color-border-default);border-radius:var(--radius-md);padding:10px 12px}'
-        + '@media(max-width:720px){.edu-steps{grid-template-columns:repeat(2,1fr)}.edu-chips{grid-template-columns:1fr}}</style>'
-    + '</div>':'')
-  + '</div>';
-}
-function eduChip(t,s){ return '<div class="edu-chip"><div class="fw7 fs12 mb1">'+t+'</div><div class="fs11 muted" style="line-height:1.4">'+s+'</div></div>'; }
-function flowStep(n,t,s){ return '<div class="flex g2" style="align-items:flex-start"><span class="edu-step-n">'+n+'</span><div><div class="fw7 fs12" style="margin-bottom:2px;line-height:1.3">'+t+'</div><div class="fs11 muted" style="line-height:1.45">'+s+'</div></div></div>'; }
 function statCard(label,val,icon,color){
   return '<div class="card" style="padding:16px 18px"><div class="flex ac g3">'
     + '<div style="width:38px;height:38px;border-radius:var(--radius-md);background:'+hexA(color,.1)+';display:flex;align-items:center;justify-content:center;color:'+color+';flex-shrink:0">'+svg(icon)+'</div>'
@@ -3003,13 +3075,7 @@ function statCard(label,val,icon,color){
 
 function postingCard(r){
   var idx=APP.rules.indexOf(r);
-  var confColor = r.conf>=95?'var(--success-text)':r.conf>=90?'var(--color-action)':'var(--warning-text)';
-  var autoBadge = r.auto? '<span class="badge b-success">'+svg('bolt')+'Auto-post</span>' : '<span class="badge b-warning">'+svg('shield')+'Review first</span>';
   var recBadge = r.recurring? '<span class="badge b-info">'+svg('clock')+'Recurring</span>':'';
-  // tri-state: Saved (green) > Edited (neutral) > AI drafted (purple, unsaved)
-  var stateBadge = r.saved? '<span class="badge b-success" style="font-size:10px">'+svg('checkCircle')+'Saved</span>'
-    : r.ai? '<span class="ai-pill">'+svg('spark')+'AI draft</span>'
-    : '<span class="badge b-warning" style="font-size:10px">'+svg('edit')+'Unsaved edits</span>';
   var ovBadge = (r.overrides&&r.overrides.length)? '<span class="badge b-neutral" style="font-size:10px">'+svg('users')+r.overrides.length+' override'+(r.overrides.length>1?'s':'')+'</span>':'';
   var lines=r.lines.map(function(l){
     var isDr = !!l.dr;
@@ -3018,60 +3084,53 @@ function postingCard(r){
     var tag = l.tax?'<span class="badge b-warning" style="font-size:9px">tax</span>':l.ctrl?'<span class="badge b-danger" style="font-size:9px">CTRL</span>':l.contra?'<span class="badge b-neutral" style="font-size:9px">contra</span>':'';
     return '<div class="flex g2 ac" style="padding:3px 0;font-size:12px"><span class="badge '+(isDr?'b-info':'b-neutral')+'" style="font-size:9.5px;width:26px;justify-content:center">'+(isDr?'DR':'CR')+'</span>'+codeTxt+'<span class="sec" style="flex:1">'+name+'</span>'+tag+'</div>';
   }).join('');
-  // save button on the card itself (for any not-yet-saved rule)
-  var cardFoot = r.saved
-    ? '<div class="flex g2 ac"><button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();openPostingRule('+idx+')">'+svg('edit')+'Edit</button></div>'
-    : '<button class="btn btn-primary btn-sm" onclick="event.stopPropagation();saveRuleFromCard('+idx+')">'+svg('check')+'Save rule</button>';
-  return '<div class="card'+(r.saved?' rule-saved':'')+'" style="padding:16px 18px;'+(r.saved?'border-color:var(--success-border)':'')+'">'
+  var dimIds=postingRuleDims(r);
+  var dimChips = dimIds.length
+    ? dimIds.map(function(d){var dim=dimById(d);return dim?'<span class="badge" style="background:'+hexA(dim.color,.12)+';color:'+dim.color+';border-color:'+hexA(dim.color,.3)+';font-size:9.5px">'+dim.name+'</span>':'';}).join('')
+    : '<span class="fs11 muted">No required dimensions on these accounts</span>';
+  return '<div class="card" style="padding:16px 18px">'
     + '<div class="clickable" onclick="openPostingRule('+idx+')">'
-    + '<div class="flex jb ac mb2" style="align-items:flex-start"><div class="flex ac g2" style="flex-wrap:wrap"><span class="fw7 fs15">'+r.name+'</span>'+stateBadge+'</div><span class="num fs12" style="color:'+confColor+'">'+r.conf+'%</span></div>'
-    + '<div class="fs12 muted mb3" style="line-height:1.45">'+r.trigger+'</div>'
+    + '<div class="flex jb ac mb3" style="align-items:flex-start"><span class="fw7 fs15">'+r.name+'</span>'+(r.recurring?'<span class="badge b-info">'+svg('clock')+'Recurring</span>':'')+'</div>'
     + '<div style="background:var(--color-surface-base);border:1px solid var(--color-border-subtle);border-radius:var(--radius-sm);padding:8px 11px;margin-bottom:10px">'+lines+'</div>'
-    + '<div class="flex g2 ac mb3" style="flex-wrap:wrap">'+autoBadge+recBadge+ovBadge+'</div></div>'
-    + '<div class="flex jb ac" style="border-top:1px solid var(--color-border-subtle);padding-top:10px">'
-      + '<span class="fs11 muted">'+(r.saved?'Active in live ERP':'Review &amp; save to activate')+'</span>'+cardFoot
+    + '<div class="section-label mb2">Dimensions to tag</div><div class="flex g1 ac mb1" style="flex-wrap:wrap">'+dimChips+ovBadge+'</div></div>'
+    + '<div class="flex jb ac" style="border-top:1px solid var(--color-border-subtle);padding-top:10px;margin-top:6px">'
+      + '<span class="fs11 muted">Template — reused in the live ERP</span>'
+      + '<div class="flex g2 ac"><button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();openPostingRule('+idx+')">'+svg('edit')+'Edit</button>'
+        + '<button class="btn btn-ghost btn-sm" style="color:var(--danger-text)" onclick="event.stopPropagation();deletePostingRule('+idx+')">'+svg('trash')+'</button></div>'
     + '</div>'
   + '</div>';
 }
-function saveRuleFromCard(idx){ var r=APP.rules[idx]; r.saved=true; r.ai=false; renderPage(); toast('Rule saved',r.name+' is now active in the live ERP.','success'); }
-function saveAllRules(){ var n=0; APP.rules.forEach(function(r){ if(!r.saved){ r.saved=true; r.ai=false; n++; } }); renderPage(); toast(n+' rules saved','All posting rules are now active in your live ERP.','success'); }
 function openPostingRule(idx){
   var r=APP.rules[idx];
   var lines=postingLinesEditor(idx);
-  var dims=r.dims.map(function(d){var dim=dimById(d);return dim?'<span class="badge" style="background:'+hexA(dim.color,.12)+';color:'+dim.color+';border-color:'+hexA(dim.color,.3)+'">'+dim.name+'</span>':'';}).join(' ');
+  var dimIds=postingRuleDims(r);
+  var dims=dimIds.map(function(d){var dim=dimById(d);return dim?'<span class="badge" style="background:'+hexA(dim.color,.12)+';color:'+dim.color+';border-color:'+hexA(dim.color,.3)+'">'+dim.name+'</span>':'';}).join(' ');
   var overrides = (r.overrides&&r.overrides.length)
     ? r.overrides.map(function(o,oi){return '<div class="flex jb ac" style="border:1px solid var(--color-border-default);border-radius:var(--radius-sm);padding:10px 12px;margin-bottom:6px"><div><div class="fs13 fw6">'+o.who+'</div><div class="fs12 muted">'+o.rule+'</div></div><button class="x-btn" onclick="removeOverride('+idx+','+oi+')">'+svg('trash')+'</button></div>';}).join('')
     : '<div class="fs13 muted mb3" style="line-height:1.55">No overrides yet. Add one to change the accounts for a specific counterparty — e.g. a non-PKP vendor that posts to a different account.</div>';
-  var stateLabel = r.saved?'<span class="badge b-success" style="font-size:9.5px">'+svg('check')+'Saved</span>':(r.ai?'<span class="ai-pill">'+svg('spark')+'AI draft</span>':'<span class="badge b-warning" style="font-size:9.5px">Unsaved</span>');
-  var aiNote = (r.ai&&!r.saved)? '<div class="ai-banner mb5">'+svg('spark')+'<div><div class="fw7 fs13" style="color:#6B4FD8">AI-drafted rule — not yet saved</div><div class="fs12" style="color:var(--color-text-secondary);line-height:1.5;margin-top:2px">Klay generated this from your chart of accounts. Review the journal lines below, then <b>Save</b> to activate it in your live ERP.</div></div></div>':'';
-  openDrawer('<div class="drawer-head"><div><div class="section-label mb2 flex ac g2">'+r.cat+' · posting rule '+stateLabel+'</div><div class="fw7 fs17" style="font-family:var(--font-display);font-weight:800">'+r.name+'</div></div><button class="x-btn" onclick="closeDrawer()">'+svg('x')+'</button></div>'
+  openDrawer('<div class="drawer-head"><div><div class="section-label mb2 flex ac g2">Posting template</div><div class="fw7 fs17" style="font-family:var(--font-display);font-weight:800">'+r.name+'</div></div><button class="x-btn" onclick="closeDrawer()">'+svg('x')+'</button></div>'
     + '<div class="drawer-body">'
-      + aiNote
-      + '<div class="section-label mb2">Rule name</div><input class="cfg-input2 mb5" value="'+r.name.replace(/"/g,'&quot;')+'" onchange="editPostingField('+idx+',\'name\',this.value)">'
-      + '<div class="section-label mb2">Trigger event</div><select class="cfg-input2 mb5" onchange="editPostingField('+idx+',\'trigger\',this.value)">'+triggerOptions(r.trigger)+'</select>'
+      + '<div class="section-label mb2">Template name</div><input class="cfg-input2 mb5" value="'+r.name.replace(/"/g,'&quot;')+'" onchange="editPostingField('+idx+',\'name\',this.value)">'
       + '<div class="flex jb ac mb2"><span class="section-label">Journal template</span><button class="btn btn-ghost btn-xs" onclick="addPostingLine('+idx+')">'+svg('plus')+'Add line</button></div>'
       + '<div class="fs12 muted mb3">Pick the account for each line. Leave a line as <b>Dynamic</b> when the account is resolved at posting time (e.g. expense by item).</div>'
       + '<div class="mb5">'+lines+'</div>'
-      + '<div class="section-label mb2">Dimensions inferred</div><div class="flex g1 mb5" style="flex-wrap:wrap">'+(dims||'<span class="muted fs13">None</span>')+'</div>'
-      + '<div class="section-label mb2">Posting behaviour</div>'
-      + '<div style="background:var(--color-surface-base);border:1px solid var(--color-border-default);border-radius:var(--radius-md);padding:14px;margin-bottom:14px">'
-        + '<div class="flex jb ac mb2"><span class="fs13 fw6">Auto-post when confident</span><label class="switch"><input type="checkbox" '+(r.auto?'checked':'')+' onchange="toggleAuto('+idx+',this.checked)"><span class="track"></span></label></div>'
-        + '<div class="fs12 muted" style="line-height:1.5">'+r.note+'</div>'
-        + '<div class="flex jb ac mt3"><span class="fs12 muted">Confidence</span><span class="mono fs13 fw7">'+r.conf+'% / 90% threshold</span></div>'
-      + '</div>'
+      + '<div class="section-label mb2">Dimensions to tag</div>'
+      + '<div class="fs12 muted mb2" style="line-height:1.5">Derived from the <b>required dimensions</b> of the accounts in this template (set in Configure Klay CoA).</div>'
+      + '<div class="flex g1 mb5" style="flex-wrap:wrap">'+(dims||'<span class="muted fs13">None — these accounts have no required dimensions</span>')+'</div>'
+      + (r.note?'<div class="flex g2 ac mb5" style="align-items:flex-start;background:var(--color-surface-base);border:1px solid var(--color-border-default);border-radius:var(--radius-md);padding:12px 14px;font-size:12.5px;color:var(--color-text-secondary);line-height:1.55">'+svg('info')+'<span>'+r.note+'</span></div>':'')
       + (r.recurring?'<div class="flex ac g2 fs13 mb5" style="color:var(--color-action)">'+svg('clock')+'Recurring schedule: <b>'+r.recurring+'</b></div>':'')
       + '<div class="hr"></div>'
       + '<div class="flex jb ac mb3"><span class="section-label">Vendor / customer overrides</span><span class="pill-count">'+((r.overrides||[]).length)+'</span></div>'
       + overrides
       + '<button class="btn btn-ghost btn-sm btn-block mt2" onclick="addOverride('+idx+')">'+svg('plus')+'Add an override</button>'
       + '<div class="hr"></div>'
-      + '<button class="btn btn-danger-ghost btn-sm btn-block" onclick="deletePostingRule('+idx+')">'+svg('trash')+'Delete this rule</button>'
+      + '<button class="btn btn-danger-ghost btn-sm btn-block" onclick="deletePostingRule('+idx+')">'+svg('trash')+'Delete this template</button>'
     + '</div>'
-    + '<div class="drawer-foot"><button class="btn btn-ghost" onclick="closeDrawer()">Close</button><button class="btn btn-primary" onclick="savePostingRule('+idx+')">'+svg('check')+'Save rule</button></div>'
+    + '<div class="drawer-foot"><button class="btn btn-ghost" onclick="closeDrawer()">Close</button><button class="btn btn-primary" onclick="savePostingRule('+idx+')">'+svg('check')+'Save changes</button></div>'
     + postingSwitchStyle());
 }
 function postingSwitchStyle(){ return '<style>.cfg-input2{width:100%;border:1px solid var(--color-border-default);border-radius:var(--radius-sm);padding:9px 11px;font-size:13px;font-family:var(--font-sans);background:#fff}.cfg-input2:focus{outline:none;border-color:var(--color-action)}</style>'; }
-function markPostingEdited(idx){ if(APP.rules[idx].ai){ APP.rules[idx].ai=false; } APP.rules[idx].saved=false; }
+function markPostingEdited(idx){ /* templates are deterministic; editing just persists in place */ }
 var POSTING_TRIGGERS=[
   'A vendor bill is received and approved',
   'A sales invoice is issued to a customer',
@@ -3133,8 +3192,7 @@ function addPostingLine(idx){ APP.rules[idx].lines.push({dr:'Dynamic (by item)',
 function removePostingLine(idx,li){ APP.rules[idx].lines.splice(li,1); markPostingEdited(idx); reopenPostingDrawer(idx); }
 function reopenPostingDrawer(idx){ openPostingRule(idx); renderPage(); }
 function editPostingField(idx,field,val){ APP.rules[idx][field]=val; markPostingEdited(idx); }
-function toggleAuto(idx,v){ APP.rules[idx].auto=v; markPostingEdited(idx); toast(v?'Auto-post enabled':'Routed to review', APP.rules[idx].name,'info'); }
-function savePostingRule(idx){ APP.rules[idx].saved=true; APP.rules[idx].ai=false; closeDrawer(); renderPage(); toast('Rule saved',APP.rules[idx].name+' is now active in the live ERP.','success'); }
+function savePostingRule(idx){ closeDrawer(); renderPage(); toast('Template saved','Changes to '+APP.rules[idx].name+' saved.','success'); }
 function addOverride(idx){
   openModal('<div class="modal-card"><div class="modal-icon" style="background:var(--color-action-wash)"><svg viewBox="0 0 24 24" style="stroke:var(--color-action)">'+IC.users+'</svg></div>'
     + '<div class="modal-title">Add an override</div><div class="modal-text">Pick a counterparty and describe the exception to this rule.</div>'
@@ -3152,7 +3210,7 @@ function doAddOverride(idx){
   toast('Override added',who+' — '+rule,'success');
 }
 function removeOverride(idx,oi){ APP.rules[idx].overrides.splice(oi,1); markPostingEdited(idx); openPostingRule(idx); renderPage(); }
-function addPostingRule(){ APP.postingNewForm={name:'',cat:'Cash',trigger:POSTING_TRIGGERS[0],lines:[{t:'DR',name:'',code:'var'},{t:'CR',name:'',code:'var'}],dims:['branch'],auto:false}; APP.view='posting-new'; render(); }
+function addPostingRule(){ APP.postingNewForm={name:'',lines:[{t:'DR',name:'',code:'var'},{t:'CR',name:'',code:'var'}]}; APP.view='posting-new'; render(); }
 function cancelNewPostingRule(){ APP.postingNewForm=null; APP.view='stage'; render(); }
 function renderNewPostingRule(){
   var f=APP.postingNewForm;
@@ -3163,36 +3221,22 @@ function renderNewPostingRule(){
       + (f.lines.length>2?'<button class="x-btn" onclick="newRuleRemoveLine('+i+')">'+svg('trash')+'</button>':'<span style="width:28px"></span>')
     + '</div>';
   }).join('');
-  var dimChips=DIMS.filter(function(d){return !d.system;}).map(function(d){
-    var on=f.dims.indexOf(d.id)>=0;
-    return '<button class="dimchip'+(on?' sel':'')+'" style="'+(on?'--c:'+d.color:'')+'" onclick="newRuleToggleDim(\''+d.id+'\')">'+(on?'<span class="dimchip-check">'+svg('check')+'</span>':'')+d.name+'</button>';
-  }).join(' ');
   return '<div class="canvas narrow">'
-    + '<div class="flex ac g2 fs13 mb4"><span class="clickable" style="color:var(--color-action);font-weight:600" onclick="cancelNewPostingRule()">Posting Rules</span><span class="muted">/</span><span class="muted">New rule</span></div>'
-    + '<div class="page-head-row"><div><div class="page-title" style="font-size:30px">New posting rule</div>'
-      + '<div class="page-sub mt2">Define a business event and the journal it should produce. Pick a trigger from the list so the rule engine can recognise it.</div></div>'
+    + '<div class="flex ac g2 fs13 mb4"><span class="clickable" style="color:var(--color-action);font-weight:600" onclick="cancelNewPostingRule()">Posting Rules</span><span class="muted">/</span><span class="muted">New template</span></div>'
+    + '<div class="page-head-row"><div><div class="page-title" style="font-size:30px">New posting template</div>'
+      + '<div class="page-sub mt2">Give the template a name and define the journal it produces. Dimensions are tagged automatically from the required dimensions of the accounts you choose.</div></div>'
       + '<button class="btn btn-ghost" onclick="cancelNewPostingRule()">Cancel</button></div>'
     + '<div class="card card-pad mb5">'
-      + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px 24px;margin-bottom:18px">'
-        + '<div><div class="section-label mb2">Rule name</div><input class="cfg-input2" id="nrName" placeholder="e.g. Bank Charges" value="'+f.name.replace(/"/g,'&quot;')+'" onchange="APP.postingNewForm.name=this.value"></div>'
-        + '<div><div class="section-label mb2">Category</div><select class="cfg-input2" onchange="APP.postingNewForm.cat=this.value">'+['Cash','Purchasing','Sales','Payroll','Inventory','Period-end','Other'].map(function(c){return '<option'+(c===f.cat?' selected':'')+'>'+c+'</option>';}).join('')+'</select></div>'
-      + '</div>'
-      + '<div class="section-label mb2">Trigger event</div>'
-      + '<select class="cfg-input2 mb1" onchange="APP.postingNewForm.trigger=this.value" style="margin-bottom:6px">'+POSTING_TRIGGERS.map(function(t){return '<option'+(t===f.trigger?' selected':'')+'>'+t+'</option>';}).join('')+'</select>'
-      + '<div class="fs12 muted">Choose from recognised events — this is how Klay matches a document to the rule.</div>'
+      + '<div class="section-label mb2">Template name</div><input class="cfg-input2" id="nrName" placeholder="e.g. Bank Charges" value="'+f.name.replace(/"/g,'&quot;')+'" onchange="APP.postingNewForm.name=this.value">'
     + '</div>'
     + '<div class="card card-pad mb5">'
       + '<div class="flex jb ac mb3"><span class="fw7 fs15">Journal template</span><button class="btn btn-ghost btn-sm" onclick="newRuleAddLine()">'+svg('plus')+'Add line</button></div>'
-      + '<div class="fs12 muted mb3">Leave the code blank for a line that\'s resolved dynamically (e.g. expense account by item). Debits and credits must balance at posting time.</div>'
+      + '<div class="fs12 muted mb3">Leave a line as <b>Dynamic</b> for an account resolved at posting time (e.g. expense by item). Debits and credits must balance at posting time.</div>'
       + lineRows
+      + '<div class="flex g2 ac mt3" style="align-items:flex-start;background:var(--color-surface-base);border:1px solid var(--color-border-default);border-radius:var(--radius-md);padding:11px 13px;font-size:12px;color:var(--color-text-secondary);line-height:1.5">'+svg('info')+'<span>Dimensions to tag are inherited from each account\'s required dimensions — configure those in <b>Configure Klay CoA</b>.</span></div>'
     + '</div>'
-    + '<div class="card card-pad mb5">'
-      + '<div class="section-label mb2">Dimensions to tag</div><div class="flex g2 ac" style="flex-wrap:wrap">'+dimChips+'</div>'
-    + '</div>'
-    + '<div class="card card-pad mb5"><div class="flex jb ac"><div><div class="fs13 fw6">Auto-post when confident</div><div class="fs12 muted mt1">New rules default to review-first. Turn on once you trust the mapping.</div></div>'
-      + '<label class="switch"><input type="checkbox" '+(f.auto?'checked':'')+' onchange="APP.postingNewForm.auto=this.checked"><span class="track"></span></label></div></div>'
     + '<div class="flex jb ac"><button class="btn btn-ghost" onclick="cancelNewPostingRule()">Cancel</button>'
-      + '<button class="btn btn-primary" onclick="saveNewPostingRule()">'+svg('check')+'Create rule</button></div>'
+      + '<button class="btn btn-primary" onclick="saveNewPostingRule()">'+svg('check')+'Create template</button></div>'
     + postingSwitchStyle()
     + '</div>';
 }
@@ -3204,9 +3248,9 @@ function newRuleToggleDim(id){ var d=APP.postingNewForm.dims; var i=d.indexOf(id
 function saveNewPostingRule(){
   var f=APP.postingNewForm;
   var lines=f.lines.map(function(l){ var o={}; var nm=l.name||(l.code&&l.code!=='var'?(klayByCode(l.code)||{}).n:'Dynamic (by item)'); if(l.t==='DR'){o.dr=nm||'Account';o.drc=l.code||'var';}else{o.cr=nm||'Account';o.crc=l.code||'var';} var k=klayByCode(l.code); if(k&&k.ctrl)o.ctrl=true; if(k&&k.group&&k.group.indexOf('Tax')>=0)o.tax=true; return o; });
-  APP.rules.push({id:'custom'+APP.rules.length,cat:f.cat,name:f.name||'New Rule',trigger:f.trigger,auto:f.auto,conf:f.auto?90:75,status:'active',ai:false,saved:true,
-    lines:lines,dims:f.dims.slice(),note:'Custom rule you created.',overrides:[]});
-  APP.postingNewForm=null; APP.view='stage'; render(); toast('Rule created',(f.name||'New Rule')+' added and saved.','success');
+  APP.rules.push({id:'custom'+APP.rules.length,name:f.name||'New Template',status:'active',
+    lines:lines,note:'Custom template you created.',overrides:[]});
+  APP.postingNewForm=null; APP.view='stage'; render(); toast('Template created',(f.name||'New Template')+' added.','success');
 }
 function deletePostingRule(idx){
   var name=APP.rules[idx].name;
@@ -3235,86 +3279,129 @@ function ensureTax(){
   APP.taxCfg={
     pkp:true, npwp:'', efaktur:true,
     ppnMode:'percent', ppnRate:11, ppnFixed:0, ppnOut:'22000', ppnIn:'11400',
-    faktur:{ai:true, prefix:'010', serial:'0000001', period:'Monthly', basis:'Accrual'},
+    faktur:{prefix:'010', serial:'0000001', period:'Monthly', basis:'Accrual'},
     pph:[
-      {code:'PPh 21', desc:'Employee income tax (payroll)', rate:'Progressive', acct:'22100', on:true},
-      {code:'PPh 22', desc:'Goods purchases from collectors / import', rate:'1.5%', acct:'22110', on:true},
-      {code:'PPh 23', desc:'Services, rent of movable goods, royalties', rate:'2%', acct:'22120', on:true},
-      {code:'PPh 4(2)', desc:'Final tax — rent of land/building, construction', rate:'10% / 2%', acct:'22130', on:true},
-      {code:'PPh 26', desc:'Payments to non-resident entities', rate:'20%', acct:'22140', on:false},
-      {code:'PPh 25', desc:'Monthly corporate income-tax installment', rate:'Installment', acct:'11420', on:true}
+      {code:'PPh 21', desc:'Employee income tax (payroll)', rateType:'special', rateLabel:'Progressive brackets', rateNote:'5% – 35% by income band (PTKP-based)', acct:'22100', on:true},
+      {code:'PPh 22', desc:'Goods purchases from collectors / import', rateType:'pct', rate:1.5, acct:'22110', on:true},
+      {code:'PPh 23', desc:'Services, rent of movable goods, royalties', rateType:'pct', rate:2, acct:'22120', on:true},
+      {code:'PPh 4(2)', desc:'Final tax — rent of land/building, construction', rateType:'pct', rate:10, acct:'22130', on:true},
+      {code:'PPh 26', desc:'Payments to non-resident entities', rateType:'pct', rate:20, acct:'22140', on:false},
+      {code:'PPh 25', desc:'Monthly corporate income-tax installment', rateType:'special', rateLabel:'Monthly installment', rateNote:'Computed from prior-year corporate tax', acct:'11420', on:true}
     ],
-    rounding:'91100'
+    rounding:'91100',
+    taxCodes:[
+      {code:'PPN11_OUT', name:'PPN 11% Output', cat:'Output VAT', applies:'Sales Invoice', rateType:'pct', rate:11, base:'DPP', recov:false, account:'22000', notes:'Domestic sales', active:true, builtin:true},
+      {code:'PPN11_IN', name:'PPN 11% Input', cat:'Input VAT', applies:'Purchase Invoice', rateType:'pct', rate:11, base:'DPP', recov:true, account:'11400', notes:'Creditable VAT', active:true, builtin:true},
+      {code:'PPN0', name:'PPN 0%', cat:'Output VAT', applies:'Sales Invoice', rateType:'pct', rate:0, base:'DPP', recov:false, account:'22000', notes:'Export', active:true, builtin:true},
+      {code:'PPN_EXEMPT', name:'PPN Dibebaskan', cat:'Non VAT', applies:'Sales/Purchase', rateType:'pct', rate:0, base:'DPP', recov:false, account:'', notes:'Non-taxable transaction', active:false, builtin:true},
+      {code:'PPNBM', name:'PPN Barang Mewah', cat:'Luxury VAT', applies:'Sales Invoice', rateType:'variable', base:'DPP', recov:false, account:'22300', notes:'Luxury goods only', active:true, builtin:true},
+      {code:'PPH21', name:'PPh 21', cat:'Payroll Tax', applies:'Payroll', rateType:'variable', base:'Gross Salary', recov:false, account:'22100', notes:'Employee withholding', active:true, builtin:true},
+      {code:'PPH23', name:'PPh 23 Jasa', cat:'Withholding Tax', applies:'Vendor Payment', rateType:'pct', rate:2, base:'DPP', recov:false, account:'22120', notes:'Non-final withholding', active:true, builtin:true},
+      {code:'PPH4_2', name:'PPh 4(2) Final', cat:'Final Withholding Tax', applies:'Vendor Payment', rateType:'pct', rate:10, base:'DPP', recov:false, account:'22130', notes:'Final tax (sewa/konstruksi)', active:true, builtin:true},
+      {code:'PPH26', name:'PPh 26', cat:'Foreign Withholding', applies:'Vendor Payment', rateType:'pct', rate:20, base:'Gross', recov:false, account:'22140', notes:'Foreign entity payment', active:true, builtin:true},
+      {code:'PPH22_IMPORT', name:'PPh 22 Impor', cat:'Prepaid Income Tax', applies:'Import / Purchase', rateType:'variable', base:'CIF/DPP', recov:true, account:'11410', notes:'Creditable income tax', active:true, builtin:true},
+      {code:'PPH22_SALES', name:'PPh 22 Sales', cat:'Collected Income Tax', applies:'Sales Invoice', rateType:'variable', base:'DPP', recov:false, account:'22110', notes:'If company is collector', active:false, builtin:true},
+      {code:'PPH25', name:'PPh 25', cat:'Corporate Installment', applies:'Manual Journal', rateType:'variable', base:'N/A', recov:false, account:'11420', notes:'Monthly installment', active:true, builtin:true},
+      {code:'PPH29', name:'PPh 29', cat:'Corporate Underpayment', applies:'Year-End Journal', rateType:'calc', base:'N/A', recov:false, account:'22150', notes:'Annual tax payable', active:true, builtin:true}
+    ]
   };
 }
 function renderTax(){
   ensureTax(); var t=APP.taxCfg;
-  function acctPick(code,onchange){ var k=klayByCode(code); var lbl=k?'<span class="mono fs12 muted">'+k.c+'</span> '+shortName(k.n):'Select…'; return '<button class="btn btn-ghost btn-sm" style="justify-content:space-between;width:100%" onclick="'+onchange+'">'+lbl+svg('chevDown')+'</button>'; }
-  var pphRows=t.pph.map(function(p,i){
-    var k=klayByCode(p.acct);
-    return '<tr><td><span class="fw6 fs13">'+p.code+'</span><div class="fs11 muted mt1">'+p.desc+'</div></td>'
-      + '<td><input class="cfg-inline" value="'+p.rate.replace(/"/g,'&quot;')+'" onchange="editPph('+i+',\'rate\',this.value)" style="width:90px"></td>'
-      + '<td>'+(k?'<span class="mono fs12 muted">'+k.c+'</span> '+shortName(k.n)+' '+tierTag(k):'—')+'</td>'
-      + '<td class="tr"><label class="switch"><input type="checkbox" '+(p.on?'checked':'')+' onchange="togglePph('+i+',this.checked)"><span class="track"></span></label></td></tr>';
+  function glPick(code,i,needs){
+    var k=code?klayByCode(code):null;
+    var miss = needs && !code;
+    var lbl=k?('<span class="mono fs11 muted">'+k.c+'</span> '+shortName(k.n)):('<span class="'+(miss?'gl-miss':'muted')+'">'+(miss?'Choose account':'Select…')+'</span>');
+    return '<button class="gl-pick'+(miss?' gl-pick-miss':'')+'" onclick="pickTaxCodeAccount('+i+')">'+lbl+'<span class="gl-chev">'+svg('chevDown')+'</span></button>';
+  }
+  function rateCell(tc,i){
+    if(tc.rateType==='pct') return '<div class="rate-field"><input class="cfg-inline rate-in" value="'+tc.rate+'" onchange="editTaxCode('+i+',\'rate\',this.value)"><span class="rate-suffix">%</span></div>';
+    if(tc.rateType==='variable') return '<span class="badge b-neutral" style="font-size:10px">Variable</span>';
+    if(tc.rateType==='calc') return '<span class="badge b-neutral" style="font-size:10px">Calculated</span>';
+    return '—';
+  }
+  // hide pure-PPN codes when non-PKP
+  var visibleCodes = t.taxCodes.filter(function(tc){
+    if(t.pkp) return true;
+    return tc.cat.indexOf('VAT')<0 && tc.code.indexOf('PPN')<0;
+  });
+  var rows = visibleCodes.map(function(tc){
+    var i = t.taxCodes.indexOf(tc);
+    var locked = !!tc.builtin; // structural fields locked for built-in codes
+    var codeCell = locked
+      ? '<span class="mono fs12 fw7">'+tc.code+'</span>'
+      : '<input class="tc-in mono" style="width:120px;font-weight:700" value="'+tc.code.replace(/"/g,'&quot;')+'" onchange="editTaxCode('+i+',\'code\',this.value)">';
+    var nameCell = locked
+      ? '<span class="fw6 fs13">'+tc.name+'</span>'
+      : '<input class="tc-in" style="width:150px" value="'+tc.name.replace(/"/g,'&quot;')+'" onchange="editTaxCode('+i+',\'name\',this.value)">';
+    var offPill = tc.active ? '' : ' <span class="badge b-neutral" style="font-size:9px">Off</span>';
+    return '<tr style="'+(tc.active?'':'background:var(--color-surface-base)')+'">'
+      + '<td>'+codeCell+'</td>'
+      + '<td><span style="'+(tc.active?'':'opacity:.55')+'">'+nameCell+'</span>'+offPill+'</td>'
+      + '<td><span class="fs12 sec" style="'+(tc.active?'':'opacity:.55')+'">'+tc.cat+'</span></td>'
+      + '<td><span class="fs12 muted" style="'+(tc.active?'':'opacity:.55')+'">'+tc.applies+'</span></td>'
+      + '<td class="tr" style="'+(tc.active?'':'opacity:.55')+'">'+rateCell(tc,i)+'</td>'
+      + '<td><span class="fs12 muted" style="'+(tc.active?'':'opacity:.55')+'">'+tc.base+'</span></td>'
+      + '<td class="tc" style="'+(tc.active?'':'opacity:.55')+'"><label class="switch"><input type="checkbox" '+(tc.recov?'checked':'')+' onchange="editTaxCode('+i+',\'recov\',this.checked)"><span class="track"></span></label></td>'
+      + '<td>'+glPick(tc.account,i,(tc.active))+'</td>'
+      + '<td><input class="tc-in" style="width:150px;'+(tc.active?'':'opacity:.55')+'" value="'+(tc.notes||'').replace(/"/g,'&quot;')+'" onchange="editTaxCode('+i+',\'notes\',this.value)"></td>'
+      + '<td class="tc"><div class="flex ac g1" style="justify-content:center"><label class="switch"><input type="checkbox" '+(tc.active?'checked':'')+' onchange="editTaxCode('+i+',\'active\',this.checked)"><span class="track"></span></label></div></td>'
+      + '<td>'+(locked?'':'<button class="x-btn" onclick="deleteTaxCode('+i+')" title="Delete custom code">'+svg('trash')+'</button>')+'</td>'
+    + '</tr>';
   }).join('');
 
-  // PPN mode UI
-  var ppnModeUI = '<div class="flex g2 mb4"><button class="seg'+(t.ppnMode==='percent'?' on':'')+'" onclick="setPpnMode(\'percent\')">Percentage</button><button class="seg'+(t.ppnMode==='fixed'?' on':'')+'" onclick="setPpnMode(\'fixed\')">Fixed nominal (DPP nilai lain)</button></div>';
-  var ppnInput = t.ppnMode==='percent'
-    ? '<div><div class="section-label mb2">PPN rate</div><div class="flex ac g1"><input class="cfg-inline" style="width:56px;text-align:center" value="'+t.ppnRate+'" onchange="APP.taxCfg.ppnRate=this.value"><span class="fs15 fw7">%</span></div></div>'
-    : '<div><div class="section-label mb2">Effective PPN per unit (IDR)</div><div class="flex ac g1"><input class="cfg-inline mono" style="width:120px" value="'+t.ppnFixed+'" onchange="APP.taxCfg.ppnFixed=this.value"></div></div>';
-
-  return '<div class="canvas narrow">'
-    + '<div class="page-head-row"><div><div class="page-eyebrow">Stage 4 of 6 · <span class="days">Day '+STAGES[3].day+' of 30</span></div>'
-      + '<div class="page-title">Tax Configuration</div>'
-      + '<div class="page-sub">Set the entity\'s tax profile. These settings drive the PPN and PPh treatment the posting engine applies automatically. Every tax line maps to a system-reserved tax account.</div></div>'
-      + '<button class="btn btn-primary" onclick="jumpStage(5)">Continue to UAT '+svg('arrowRight')+'</button></div>'
-    // entity profile
-    + '<div class="card card-pad mb5"><div class="disp" style="font-size:19px;margin-bottom:14px">Entity Tax Profile</div>'
-      + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:18px 24px">'
-        + '<div><div class="section-label mb2">Taxable Entity (PKP)</div><div class="flex ac g3"><label class="switch"><input type="checkbox" '+(t.pkp?'checked':'')+' onchange="APP.taxCfg.pkp=this.checked;renderPage()"><span class="track"></span></label><span class="fs13 sec">'+(t.pkp?'Registered as PKP — collects &amp; remits PPN':'Non-PKP — no PPN')+'</span></div></div>'
-        + '<div><div class="section-label mb2">NPWP</div><input class="cfg-inline mono" style="width:100%" value="'+t.npwp.replace(/"/g,'&quot;')+'" placeholder="00.000.000.0-000.000" onchange="APP.taxCfg.npwp=this.value">'+(!t.npwp?'<div class="fs11 mt1" style="color:var(--warning-text)">'+svg('alert')+' Required for e-Faktur</div>':'')+'</div>'
-        + '<div><div class="section-label mb2">e-Faktur integration</div><div class="flex ac g3"><label class="switch"><input type="checkbox" '+(t.efaktur?'checked':'')+' onchange="APP.taxCfg.efaktur=this.checked;renderPage()"><span class="track"></span></label><span class="fs13 sec">Generate faktur pajak numbers automatically</span></div></div>'
-        + '<div><div class="section-label mb2">Rounding account</div>'+acctPick(t.rounding,'pickTaxAcct(\'rounding\')')+'</div>'
-      + '</div></div>'
-    // PPN
-    + '<div class="card card-pad mb5"><div class="flex jb ac mb3"><div class="disp" style="font-size:19px">PPN (Value Added Tax)</div>'+(t.pkp?'<span class="badge b-success">'+svg('check')+'Enabled</span>':'<span class="badge b-neutral">Disabled (Non-PKP)</span>')+'</div>'
-      + ppnModeUI
-      + '<div style="display:grid;grid-template-columns:200px 1fr 1fr;gap:16px 24px;align-items:end">'
-        + ppnInput
-        + '<div><div class="section-label mb2">Output VAT account (sales)</div>'+acctPick(t.ppnOut,'pickTaxAcct(\'ppnOut\')')+'</div>'
-        + '<div><div class="section-label mb2">Input VAT account (purchases)</div>'+acctPick(t.ppnIn,'pickTaxAcct(\'ppnIn\')')+'</div>'
-      + '</div>'
-      + '<div style="background:var(--color-action-wash);border:1px solid var(--color-action-subtle);border-radius:var(--radius-md);padding:11px 14px;margin-top:16px;font-size:12.5px;color:var(--color-action);line-height:1.5">'+svg('info')+' '
-        + (t.ppnMode==='percent'
-            ? 'Standard PPN is a percentage of the invoice value (currently 11%). Output VAT accrues on each AR invoice; Input VAT on each PKP-vendor bill. The engine nets these for your monthly SPT.'
-            : 'Fixed-nominal mode is for special schemes (DPP nilai lain / PPN final) where the tax is a set amount rather than a straight percentage — e.g. certain retail, used-goods, or freight-forwarding sectors. Most entities should stay on Percentage.')
-      + '</div>'
+  var workspace = ''
+    + '<div class="card mb5" style="overflow:hidden">'
+      + '<div class="card-pad" style="padding-bottom:0"><div class="flex jb ac mb2"><div class="disp" style="font-size:19px">Tax Codes</div><span class="badge b-neutral" style="font-size:10px">'+visibleCodes.length+' codes</span></div>'
+        + '<div class="fs13 muted mb4" style="line-height:1.5">The master list of tax codes your ERP applies to transactions. Standard codes have their <b>category, applies-to and tax base</b> locked to Indonesian rules; you can edit the <b>rate, account, recoverable flag, notes</b>. Codes that don\'t apply to your entity are switched <b>Off</b> by default — turn one <b>On</b> only if you\'re obligated to use it. Each active code needs an account (AI-recommended '+aiDot()+').</div></div>'
+      + '<div class="prev-scroll"><div class="prev-scroll-inner"><table class="tbl tax-tbl"><thead><tr>'
+        + '<th>Tax Code</th><th>Tax Name</th><th>Tax Category</th><th>Applies To</th><th class="tr">Rate</th><th>Tax Base</th><th class="tc">Recoverable</th><th>Account</th><th>Notes</th><th class="tc">Active</th><th></th>'
+        + '</tr></thead><tbody>'+rows+'</tbody></table></div></div>'
+      + '<div class="card-pad" style="padding-top:14px"><button class="btn btn-ghost btn-sm" onclick="addTaxCode()">'+svg('plus')+'Add tax code</button></div>'
     + '</div>'
-    // PPh matrix
-    + '<div class="card card-pad mb5"><div class="disp" style="font-size:19px;margin-bottom:6px">PPh Withholding</div>'
-      + '<div class="fs13 muted mb4">Enable the withholding types your entity is obligated to collect, and adjust rates if needed. Each maps to a hard-locked tax-payable account.</div>'
-      + '<div class="card" style="overflow:hidden"><table class="tbl"><thead><tr><th>Type</th><th style="width:120px">Rate</th><th>Tax account</th><th style="width:80px" class="tr">Enabled</th></tr></thead><tbody>'+pphRows+'</tbody></table></div>'
-    + '</div>'
-    // faktur settings (AI)
-    + '<div class="card card-pad mb5"><div class="flex jb ac mb2"><div class="flex ac g2"><span class="disp" style="font-size:19px">Faktur Pajak Settings</span><span class="ai-pill">'+svg('spark')+'AI drafted</span></div>'
-      + (t.faktur.ai?'<span class="fs12 muted">Suggested from your DJP profile — edit to confirm</span>':'<span class="badge b-neutral" style="font-size:10px">'+svg('edit')+'Edited</span>')+'</div>'
-      + '<div class="ai-banner mb4">'+svg('spark')+'<div><div class="fw7 fs13" style="color:#6B4FD8">Klay pre-filled these for you</div><div class="fs12" style="color:var(--color-text-secondary);line-height:1.5;margin-top:2px">Based on a typical PKP setup. Adjust any field and it becomes yours.</div></div></div>'
+    // faktur settings — only relevant when PKP; system pre-filled (NOT AI)
+    + (t.pkp? '<div class="card card-pad mb5"><div class="flex jb ac mb2"><div class="flex ac g2"><span class="disp" style="font-size:19px">Faktur Pajak Settings</span></div>'
+      + '<span class="badge b-neutral" style="font-size:10px">'+svg('info')+'System default</span></div>'
+      + '<div class="fs13 muted mb4" style="line-height:1.5">Pre-filled from the standard PKP faktur format. Adjust to match your DJP registration.</div>'
       + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px 24px">'
         + taxFieldEdit('Faktur prefix','prefix',t.faktur.prefix)
         + taxFieldEdit('Next serial','serial',t.faktur.serial)
         + taxFieldSelect('SPT period','period',t.faktur.period,['Monthly','Quarterly'])
         + taxFieldSelect('Reporting basis','basis',t.faktur.basis,['Accrual','Cash'])
-      + '</div></div>'
-    + '<style>.seg{padding:8px 14px;border:1px solid var(--color-border-default);border-radius:var(--radius-full);background:#fff;font-size:12.5px;font-weight:600;color:var(--color-text-secondary);cursor:pointer}.seg.on{background:var(--color-action-wash);border-color:var(--color-action-subtle);color:var(--color-action)}.cfg-inline{border:1px solid var(--color-border-default);border-radius:var(--radius-sm);padding:8px 10px;font-size:13px;font-family:var(--font-sans);background:#fff}.cfg-inline:focus{outline:none;border-color:var(--color-action)}.cfg-inline.mono{font-family:var(--font-mono)}</style>'
+      + '</div></div>' : '');
+
+  var rail = aiSummaryCard('tax') + activityLogCard('tax');
+
+  // validation: an active tax code that posts tax must have an account chosen
+  var incomplete = visibleCodes.filter(function(tc){ return tc.active && !tc.account; });
+  var taxReady = incomplete.length===0;
+  var blockBanner = taxReady ? '' :
+    '<div class="flex g2 ac mb5" style="align-items:flex-start;background:var(--warning-surface);border:1px solid var(--warning-border);border-radius:var(--radius-md);padding:12px 15px;font-size:12.5px;color:var(--warning-text);line-height:1.55">'+svg('alert')+'<span><b>'+incomplete.length+' active tax code'+(incomplete.length>1?'s':'')+' still need'+(incomplete.length>1?'':'s')+' an account.</b> Choose an account for '+incomplete.map(function(c){return c.code;}).join(', ')+' before continuing — or turn the code off if your entity doesn\'t use it.</span></div>';
+
+  return '<div class="canvas">'
+    + '<div class="page-head-row"><div><div class="page-eyebrow">Stage 3 of 6 · <span class="days">Day '+STAGES[2].day+' of 30</span></div>'
+      + '<div class="page-title">Tax Configuration</div>'
+      + '<div class="page-sub">Set up the tax codes your ERP applies to transactions — rate, tax base, and the account each one posts to. Klay recommends the accounts; adjust where your entity differs.</div></div>'
+      + '<button class="btn btn-primary" '+(taxReady?'onclick="jumpStage(4)"':'disabled title="Resolve the missing accounts first"')+'>Continue to posting rules '+svg('arrowRight')+'</button></div>'
+    + blockBanner
+    + '<div class="flex g2 ac mb5" style="align-items:flex-start;background:var(--color-surface-base);border:1px solid var(--color-border-default);border-radius:var(--radius-md);padding:12px 15px;font-size:12.5px;color:var(--color-text-secondary);line-height:1.55">'+svg('info')+'<span>Your entity tax profile — PKP status, NPWP and e-Faktur — is on your migration dashboard. This entity is set up as <b>'+(t.pkp?'PKP (collects &amp; remits PPN)':'Non-PKP')+'</b>'+(t.pkp?'':' — PPN codes are hidden')+'.</span></div>'
+    + '<div class="ws-2col">'
+      + '<div class="ws-main">'+workspace+'</div>'
+      + '<div class="ws-rail">'+rail+'</div>'
+    + '</div>'
+    + '<style>.cfg-inline{border:1px solid var(--color-border-default);border-radius:var(--radius-sm);padding:8px 10px;font-size:13px;font-family:var(--font-sans);background:#fff}.cfg-inline:focus{outline:none;border-color:var(--color-action)}.cfg-inline.mono{font-family:var(--font-mono)}'
+      + '.rate-field{display:inline-flex;align-items:center;border:1px solid var(--color-border-default);border-radius:var(--radius-sm);background:#fff;overflow:hidden;width:78px}.rate-field:focus-within{border-color:var(--color-action)}.rate-in{border:none!important;width:100%;text-align:right;padding:7px 4px 7px 8px;font-family:var(--font-mono);font-size:12px}.rate-in:focus{outline:none}.rate-suffix{padding:0 8px 0 3px;color:var(--color-text-tertiary);font-weight:700;font-size:12px;background:var(--color-surface-sunken);align-self:stretch;display:flex;align-items:center}'
+      + '.tax-tbl td{white-space:nowrap;vertical-align:middle}.tax-tbl .tc{text-align:center}.tc-in{border:1px solid transparent;border-radius:var(--radius-sm);padding:5px 7px;font-size:12px;font-family:var(--font-sans);background:transparent;color:var(--color-text-primary)}.tc-in:hover{border-color:var(--color-border-default)}.tc-in:focus{outline:none;border-color:var(--color-action);background:#fff}.tc-in.mono{font-family:var(--font-mono)}'
+      + '.gl-pick{display:inline-flex;align-items:center;gap:6px;justify-content:space-between;min-width:130px;border:1px solid var(--color-border-default);border-radius:var(--radius-sm);background:#fff;padding:6px 8px;font-size:12px;cursor:pointer;font-family:var(--font-sans);color:var(--color-text-secondary)}.gl-pick:hover{border-color:var(--color-action)}.gl-chev{display:inline-flex;color:var(--color-text-tertiary)}.gl-chev svg{width:13px;height:13px}.gl-pick-miss{border-color:var(--warning-border);background:var(--warning-surface)}.gl-miss{color:var(--warning-text);font-weight:600}</style>'
     + '</div>';
 }
+function aiDot(){ return '<span class="ai-dot" title="AI-recommended — editable">'+svg('spark')+'</span>'; }
 function taxFieldEdit(l,key,v){ return '<div><div class="section-label mb2">'+l+'</div><input class="cfg-inline mono" style="width:100%" value="'+String(v).replace(/"/g,'&quot;')+'" onchange="editFaktur(\''+key+'\',this.value)"></div>'; }
 function taxFieldSelect(l,key,v,opts){ return '<div><div class="section-label mb2">'+l+'</div><select class="cfg-inline" style="width:100%" onchange="editFaktur(\''+key+'\',this.value)">'+opts.map(function(o){return '<option'+(o===v?' selected':'')+'>'+o+'</option>';}).join('')+'</select></div>'; }
 function taxField(l,v){ return '<div><div class="section-label mb2">'+l+'</div><div class="mono fs14 fw6">'+v+'</div></div>'; }
 function setPpnMode(m){ APP.taxCfg.ppnMode=m; renderPage(); }
-function editPph(i,field,v){ APP.taxCfg.pph[i][field]=v; }
-function editFaktur(key,v){ APP.taxCfg.faktur[key]=v; APP.taxCfg.faktur.ai=false; renderPage(); }
+function editPph(i,field,v){ if(field==='rate'){ var num=parseFloat(String(v).replace(/[^0-9.]/g,'')); APP.taxCfg.pph[i].rate=isNaN(num)?0:num; } else { APP.taxCfg.pph[i][field]=v; } }
+function editFaktur(key,v){ APP.taxCfg.faktur[key]=v; renderPage(); }
 function pickTaxAcct(field){
   var taxAccts=KLAY_FLAT.filter(function(x){return x.atype==='Tax'||x.group.indexOf('Tax')>=0||x.group.indexOf('System Reserved')>=0;});
   var items=taxAccts.map(function(it){return '<div class="picker-item" onclick="setTaxAcct(\''+field+'\',\''+it.c+'\')"><span class="mono fs12 muted" style="width:54px;display:inline-block">'+it.c+'</span><span class="fs13">'+it.n+'</span> '+tierTag(it)+'</div>';}).join('');
@@ -3323,6 +3410,82 @@ function pickTaxAcct(field){
     + '<style>.picker-item{display:flex;align-items:center;gap:8px;padding:9px 10px;border-radius:var(--radius-sm);cursor:pointer}.picker-item:hover{background:var(--color-action-wash)}</style>');
 }
 function setTaxAcct(field,code){ APP.taxCfg[field]=code; closeDrawer(); renderPage(); toast('Account set',code,'success'); }
+function editTaxCode(i,field,v){
+  if(field==='rate'){ var num=parseFloat(String(v).replace(/[^0-9.]/g,'')); APP.taxCfg.taxCodes[i].rate=isNaN(num)?0:num; }
+  else { APP.taxCfg.taxCodes[i][field]=v; }
+}
+function pickTaxCodeAccount(i){
+  var accts=KLAY_FLAT.filter(function(x){return x.post!==false;});
+  var none='<div class="picker-item" onclick="setTaxCodeAccount('+i+',\'\')"><span class="muted fs13">— None</span></div>';
+  var items=accts.map(function(it){return '<div class="picker-item" onclick="setTaxCodeAccount('+i+',\''+it.c+'\')"><span class="mono fs12 muted" style="width:54px;display:inline-block">'+it.c+'</span><span class="fs13">'+it.n+'</span> '+tierTag(it)+'</div>';}).join('');
+  var tc=APP.taxCfg.taxCodes[i];
+  openDrawer('<div class="drawer-head"><div><div class="section-label mb2">Account · '+tc.code+'</div><div class="fw7 fs17" style="font-family:var(--font-display);font-weight:800">'+tc.name+'</div></div><button class="x-btn" onclick="closeDrawer()">'+svg('x')+'</button></div>'
+    + '<div class="drawer-body"><div class="ai-banner mb4" style="background:var(--warning-surface);border-color:var(--warning-border)">'+svg('spark')+'<div><div class="fw7 fs13" style="color:var(--warning-text)">AI-recommended account</div><div class="fs12" style="color:var(--color-text-secondary);line-height:1.5;margin-top:2px">Klay picked this from your chart of accounts. Choose another if your entity posts it elsewhere.</div></div></div>'
+      + none + items + '</div>'
+    + '<style>.picker-item{display:flex;align-items:center;gap:8px;padding:9px 10px;border-radius:var(--radius-sm);cursor:pointer}.picker-item:hover{background:var(--color-action-wash)}</style>');
+}
+function setTaxCodeAccount(i,code){ APP.taxCfg.taxCodes[i].account=code; closeDrawer(); renderPage(); toast('Account set',code||'cleared','success'); }
+function deleteTaxCode(i){ var n=APP.taxCfg.taxCodes[i].code; APP.taxCfg.taxCodes.splice(i,1); renderPage(); toast('Tax code removed',n,'info'); }
+function addTaxCode(){
+  APP.taxDraft={ code:'', name:'', cat:'Withholding Tax', applies:'Vendor Payment', rateType:'pct', rate:'', base:'DPP', recov:false, account:'', notes:'' };
+  openTaxCodeDrawer();
+}
+function openTaxCodeDrawer(){
+  var d=APP.taxDraft;
+  function sel(label,key,opts){
+    return '<div class="mb4"><div class="section-label mb2">'+label+'</div><select class="cfg-input2" onchange="APP.taxDraft.'+key+'=this.value;openTaxCodeDrawer()">'
+      + opts.map(function(o){return '<option'+(o===d[key]?' selected':'')+'>'+o+'</option>';}).join('')+'</select></div>';
+  }
+  var rateField = d.rateType==='pct'
+    ? '<div class="rate-field" style="width:96px"><input class="cfg-inline rate-in" id="tdRate" value="'+(d.rate===''?'':d.rate)+'" placeholder="0" oninput="APP.taxDraft.rate=this.value"><span class="rate-suffix">%</span></div>'
+    : '<div class="fs12 muted" style="padding:8px 0">'+(d.rateType==='variable'?'Rate entered per transaction':'Computed at year-end')+'</div>';
+  var acctK = d.account?klayByCode(d.account):null;
+  var acctLbl = acctK?('<span class="mono fs12 muted">'+acctK.c+'</span> '+shortName(acctK.n)):'<span class="muted">Choose account…</span>';
+  openDrawer('<div class="drawer-head"><div><div class="section-label mb2">Tax setup</div><div class="fw7 fs17" style="font-family:var(--font-display);font-weight:800">Add a tax code</div></div><button class="x-btn" onclick="cancelTaxCode()">'+svg('x')+'</button></div>'
+    + '<div class="drawer-body">'
+      + '<div class="fs13 muted mb5" style="line-height:1.55">Create a custom tax code for a treatment not already in the standard list. Fill in how it behaves and which account it posts to.</div>'
+      + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:0 16px">'
+        + '<div class="mb4"><div class="section-label mb2">Tax code</div><input class="cfg-input2 mono" placeholder="e.g. PPH15" value="'+d.code.replace(/"/g,'&quot;')+'" oninput="APP.taxDraft.code=this.value"></div>'
+        + '<div class="mb4"><div class="section-label mb2">Tax name</div><input class="cfg-input2" placeholder="e.g. PPh 15 Pelayaran" value="'+d.name.replace(/"/g,'&quot;')+'" oninput="APP.taxDraft.name=this.value"></div>'
+      + '</div>'
+      + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:0 16px">'
+        + sel('Tax category','cat',['Output VAT','Input VAT','Non VAT','Luxury VAT','Withholding Tax','Final Withholding Tax','Foreign Withholding','Payroll Tax','Prepaid Income Tax','Collected Income Tax','Corporate Installment','Corporate Underpayment'])
+        + sel('Applies to','applies',['Sales Invoice','Purchase Invoice','Sales/Purchase','Vendor Payment','Payroll','Import / Purchase','Manual Journal','Year-End Journal'])
+      + '</div>'
+      + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:0 16px">'
+        + sel('Rate type','rateType',['pct','variable','calc'])
+        + sel('Tax base','base',['DPP','Gross','Gross Salary','CIF/DPP','N/A'])
+      + '</div>'
+      + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:0 16px;align-items:start">'
+        + '<div class="mb4"><div class="section-label mb2">Rate</div>'+rateField+'</div>'
+        + '<div class="mb4"><div class="section-label mb2">Recoverable</div><div class="flex ac g2" style="padding:4px 0"><label class="switch"><input type="checkbox" '+(d.recov?'checked':'')+' onchange="APP.taxDraft.recov=this.checked"><span class="track"></span></label><span class="fs12 muted">Can be credited / offset</span></div></div>'
+      + '</div>'
+      + '<div class="mb4"><div class="section-label mb2 flex ac g1">Posting account '+aiDot()+'</div><button class="btn btn-ghost btn-sm" style="justify-content:space-between;width:100%" onclick="pickTaxDraftAccount()">'+acctLbl+svg('chevDown')+'</button></div>'
+      + '<div class="mb4"><div class="section-label mb2">Notes</div><input class="cfg-input2" placeholder="Optional" value="'+(d.notes||'').replace(/"/g,'&quot;')+'" oninput="APP.taxDraft.notes=this.value"></div>'
+    + '</div>'
+    + '<div class="drawer-foot"><button class="btn btn-ghost" onclick="cancelTaxCode()">Cancel</button><button class="btn btn-primary" onclick="saveNewTaxCode()">'+svg('check')+'Add tax code</button></div>'
+    + '<style>.cfg-input2{width:100%;border:1px solid var(--color-border-default);border-radius:var(--radius-sm);padding:9px 11px;font-size:13px;font-family:var(--font-sans);background:#fff}.cfg-input2:focus{outline:none;border-color:var(--color-action)}.cfg-input2.mono{font-family:var(--font-mono)}'
+      + '.rate-field{display:inline-flex;align-items:center;border:1px solid var(--color-border-default);border-radius:var(--radius-sm);background:#fff;overflow:hidden}.rate-field:focus-within{border-color:var(--color-action)}.rate-in{border:none!important;width:100%;text-align:right;padding:8px 6px 8px 10px;font-family:var(--font-mono)}.rate-in:focus{outline:none}.rate-suffix{padding:0 10px 0 4px;color:var(--color-text-tertiary);font-weight:700;font-size:13px;background:var(--color-surface-sunken);align-self:stretch;display:flex;align-items:center}</style>');
+}
+function pickTaxDraftAccount(){
+  var accts=KLAY_FLAT.filter(function(x){return x.post!==false;});
+  var none='<div class="picker-item" onclick="setTaxDraftAccount(\'\')"><span class="muted fs13">— None</span></div>';
+  var items=accts.map(function(it){return '<div class="picker-item" onclick="setTaxDraftAccount(\''+it.c+'\')"><span class="mono fs12 muted" style="width:54px;display:inline-block">'+it.c+'</span><span class="fs13">'+it.n+'</span> '+tierTag(it)+'</div>';}).join('');
+  openDrawer('<div class="drawer-head"><div><div class="section-label mb2">Posting account</div><div class="fw7 fs17" style="font-family:var(--font-display);font-weight:800">Add a tax code</div></div><button class="x-btn" onclick="openTaxCodeDrawer()">'+svg('x')+'</button></div>'
+    + '<div class="drawer-body">'+none+items+'</div>'
+    + '<style>.picker-item{display:flex;align-items:center;gap:8px;padding:9px 10px;border-radius:var(--radius-sm);cursor:pointer}.picker-item:hover{background:var(--color-action-wash)}</style>');
+}
+function setTaxDraftAccount(code){ APP.taxDraft.account=code; openTaxCodeDrawer(); }
+function cancelTaxCode(){ APP.taxDraft=null; closeDrawer(); }
+function saveNewTaxCode(){
+  var d=APP.taxDraft;
+  if(!d.code || !d.code.trim()){ toast('Tax code required','Enter a short code, e.g. PPH15.','warning'); return; }
+  if(!d.name || !d.name.trim()){ toast('Tax name required','Give the code a readable name.','warning'); return; }
+  var rate = d.rateType==='pct' ? (parseFloat(String(d.rate).replace(/[^0-9.]/g,''))||0) : undefined;
+  APP.taxCfg.taxCodes.push({ code:d.code.trim().toUpperCase(), name:d.name.trim(), cat:d.cat, applies:d.applies,
+    rateType:d.rateType, rate:rate, base:d.base, recov:!!d.recov, account:d.account||'', notes:d.notes||'', active:true, builtin:false });
+  APP.taxDraft=null; closeDrawer(); renderPage(); toast('Tax code added',d.code.trim().toUpperCase()+' added to your tax codes.','success');
+}
 function togglePph(i,v){ APP.taxCfg.pph[i].on=v; renderPage(); toast(APP.taxCfg.pph[i].code+(v?' enabled':' disabled'),'','info'); }
 </script>
 <script>
@@ -3375,11 +3538,7 @@ function uatSummary(){
       + '<div class="fs12 fw6" style="color:var(--color-action)">'+(t.done?'Open again':'Start')+' '+svg('arrowRight')+'</div>'
     + '</div>';
   }).join('');
-  return '<div class="canvas">'
-    + '<div class="page-head-row"><div><div class="page-eyebrow">Stage 5 of 6 · <span class="days">Day '+STAGES[4].day+' of 30</span></div>'
-      + '<div class="page-title">User Acceptance Testing</div>'
-      + '<div class="page-sub">A safe <b>sandbox</b> of your live Klay ERP, pre-loaded with your migrated data. Work through each scenario below to confirm the rules and tax behave the way you expect. Nothing here affects production.</div></div>'
-      + '<button class="btn '+(allDone?'btn-primary':'btn-ghost')+'" '+(allDone?'onclick="jumpStage(6)"':'disabled')+'>Continue to sign off '+svg('arrowRight')+'</button></div>'
+  var workspace = ''
     // progress strip
     + '<div class="card card-pad mb5" style="background:linear-gradient(160deg,var(--color-brand-wash),#fff)">'
       + '<div class="flex jb ac mb3"><div class="flex ac g2" style="color:var(--color-brand-hover);font-weight:700">'+svg('rocket')+'UAT scenarios</div><span class="fs13 muted"><b class="num" style="color:var(--color-text-primary);font-size:16px">'+done+'</b> of '+u.tasks.length+' completed</span></div>'
@@ -3387,7 +3546,17 @@ function uatSummary(){
     + '</div>'
     + '<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-bottom:24px">'+cards+'</div>'
     + '<div class="flex jb ac"><div class="flex ac g2"><span class="fs13 muted">Posted '+ (new Set(je.map(function(l){return l.ref;})).size) +' entries in this sandbox</span></div>'
-      + '<button class="btn btn-ghost btn-sm" onclick="uatGoto(\'ledger\')">'+svg('list')+'View general ledger</button></div>'
+      + '<button class="btn btn-ghost btn-sm" onclick="uatGoto(\'ledger\')">'+svg('list')+'View general ledger</button></div>';
+
+  return '<div class="canvas">'
+    + '<div class="page-head-row"><div><div class="page-eyebrow">Stage 5 of 6 · <span class="days">Day '+STAGES[4].day+' of 30</span></div>'
+      + '<div class="page-title">User Acceptance Testing</div>'
+      + '<div class="page-sub">A safe <b>sandbox</b> of your live Klay ERP, pre-loaded with your migrated data. Work through each scenario below to confirm the rules and tax behave the way you expect. Nothing here affects production.</div></div>'
+      + '<button class="btn '+(allDone?'btn-primary':'btn-ghost')+'" '+(allDone?'onclick="jumpStage(6)"':'disabled')+'>Continue to sign off '+svg('arrowRight')+'</button></div>'
+    + '<div class="ws-2col">'
+      + '<div class="ws-main">'+workspace+'</div>'
+      + '<div class="ws-rail">'+activityLogCard('uat')+'</div>'
+    + '</div>'
     + '</div>';
 }
 function uatGuidedPage(id,title,sub,body){
@@ -3648,7 +3817,7 @@ function ensureSignoff(){
   if(APP.checklist) return;
   APP.checklist=[
     {id:'data', label:'All 9 data files uploaded, validated and locked', auto:function(){return APP.uploads.every(function(u){return u.status==='locked';});}, done:false},
-    {id:'map', label:'Every legacy account mapped and confirmed (or deactivated)', auto:function(){if(!APP.mapRows)return false;var c=mapCounts();return c.confirmed+c.deactivated===c.all;}, done:false},
+    {id:'map', label:'Every legacy account mapped and confirmed (or deactivated)', auto:function(){if(!APP.mapRows)return false;var c=mapCounts();return c.mapped+c.deactivated===c.all;}, done:false},
     {id:'rules', label:'Posting rules reviewed and approved', done:false},
     {id:'tax', label:'Tax profile, PPN and PPh withholding configured', done:false},
     {id:'uat', label:'UAT completed and signed off by Finance', auto:function(){return APP.uat&&uatDone()===APP.uat.tasks.length;}, done:false},
