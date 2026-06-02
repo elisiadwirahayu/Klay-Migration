@@ -2412,8 +2412,10 @@ function mapRowHTML(r){
   // legacy cell: code on top (small mono), name below, status label under
   var legCell='<div class="mono fs11 muted">'+r.code+'</div>'
     + '<div class="fw6 fs13" style="color:var(--color-text-primary);margin:1px 0 3px">'+r.name+'</div>'
-    + '<div class="flex g2 ac">'+mapStatusLabel(r)
-    + (r.issue?'<span class="badge '+(r.issue.sev==='hard'?'b-danger':r.issue.sev==='note'||r.issue.sev==='warn'?'b-info':'b-warning')+'" style="font-size:9.5px">'+r.issue.label+'</span>':'')+'</div>';
+    + '<div class="flex g2 ac" style="flex-wrap:wrap">'+mapStatusLabel(r)
+    + (r.issue?'<span class="badge '+(r.issue.sev==='hard'?'b-danger':r.issue.sev==='note'||r.issue.sev==='warn'?'b-info':'b-warning')+'" style="font-size:9.5px">'+r.issue.label+'</span>':'')
+    + (r.issue && r.issue.sev==='note' ? '<button class="btn btn-ghost btn-xs" style="padding:2px 8px;font-size:11px" onclick="acknowledgeIssue('+idx+')">'+svg('check')+'Got it</button>':'')
+    + '</div>';
   // klay target cell — dropdown with AI sparkle when auto
   var target=r.target?klayByCode(r.target):null;
   var klayCell;
@@ -2577,6 +2579,15 @@ function removeDim(idx,di){ APP.mapRows[idx].dims.splice(di,1); renderPage(); }
 
 /* ---- row actions ---- */
 function confirmRow(idx){ var r=APP.mapRows[idx]; r.mapStatus='mapped'; renderPage(); }
+function acknowledgeIssue(idx){
+  var r=APP.mapRows[idx];
+  if(!r.issue) return;
+  var label=r.issue.label;
+  r.issue=null; // dismiss the (note) issue; row keeps its existing mapStatus
+  reorderEditedRow(idx); // drop it below the remaining note rows so it doesn't jump far
+  renderPage();
+  toast('Noted','“'+label+'” acknowledged and cleared from this account.','success');
+}
 function markLater(idx){ closeRowMenu(); APP.mapRows[idx].mapStatus='later'; renderPage(); toast('Marked for later','Moved to the bottom of the list.','info'); }
 function unmarkLater(idx){ closeRowMenu(); var r=APP.mapRows[idx]; r.mapStatus=r.target?'manual':'unmapped'; renderPage(); }
 function deactivateRow(idx){ closeRowMenu(); APP.mapRows[idx].mapStatus='deactivated'; renderPage(); toast('Account deactivated','It will not be migrated.','info'); }
