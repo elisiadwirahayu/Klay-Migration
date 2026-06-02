@@ -2107,6 +2107,100 @@ function rowSortKey(r){
   if(r.issue && r.issue.sev==='note') return 2;
   return 3; // mapped, auto, unmapped — original order preserved via ord tiebreaker
 }
+function aiMappingSummary(c){
+  if(!c.auto) return ''; // nothing AI-suggested left
+  return '<div class="card mb5" style="overflow:hidden;border-color:var(--warning-border);background:linear-gradient(160deg,var(--warning-surface),#fff)">'
+    + '<div class="flex jb ac" style="padding:16px 20px;gap:16px;flex-wrap:wrap">'
+      + '<div class="flex g3 ac" style="align-items:flex-start;flex:1;min-width:280px">'
+        + '<div style="width:38px;height:38px;border-radius:var(--radius-md);background:#fff;border:1px solid var(--warning-border);display:flex;align-items:center;justify-content:center;color:var(--warning-text);flex-shrink:0">'+svg('spark')+'</div>'
+        + '<div><div class="fw7 fs15" style="color:var(--warning-text)">Klay mapped '+c.auto+' account'+(c.auto>1?'s':'')+' for you</div>'
+          + '<div class="fs12.5 sec" style="line-height:1.5;margin-top:3px;max-width:560px">These are AI suggestions based on your legacy account types and names. Review them, then <b>confirm all at once</b> — or open any row to change the Klay account it maps to.</div></div>'
+      + '</div>'
+      + '<div class="flex g2 ac" style="flex-shrink:0">'
+        + '<button class="btn btn-ghost btn-sm" onclick="setMapFilter(\'auto\')">'+svg('filter')+'Review suggestions</button>'
+        + '<button class="btn btn-primary btn-sm" onclick="bulkConfirmAuto()">'+svg('check')+'Confirm all '+c.auto+'</button>'
+      + '</div>'
+    + '</div></div>';
+}
+function mappingFilterBar(c){
+  var sv=APP.mapSearch||'';
+  function dd(id,label,icon){
+    var raw=(id==='legacy'?APP.mapLegacyFilter:id==='klay'?APP.mapKlayFilter:APP.mapTypeFilter);
+    var disp=label;
+    if(raw){
+      if(id==='legacy'){ var lr=LEG_COA.filter(function(x){return x.code===raw;})[0]; disp=lr?(lr.code+' · '+shortName(lr.name)):raw; }
+      else if(id==='klay'){ var kk=klayByCode(raw); disp=kk?(kk.c+' · '+shortName(kk.n)):raw; }
+      else disp=raw;
+    }
+    if(disp.length>26) disp=disp.slice(0,25)+'…';
+    return '<button class="map-dd'+(raw?' on':'')+'" onclick="openMapFilterMenu(event,\''+id+'\')">'+svg(icon)+'<span>'+disp+'</span>'+svg('chevDown')+'</button>';
+  }
+  return '<div class="map-filterbar mb4">'
+    + dd('legacy','Legacy Account','layers')
+    + dd('klay','Klay Account','layers')
+    + dd('type','Filter','filter')
+    + '<div class="map-search"><span class="map-search-ic">'+svg('search')+'</span>'
+      + '<input class="map-search-in" placeholder="Search legacy account name or code" value="'+sv.replace(/"/g,'&quot;')+'" oninput="APP.mapSearch=this.value;APP.mapPage=1;renderPage()">'
+      + (sv?'<button class="map-search-x" onclick="APP.mapSearch=\'\';renderPage()">'+svg('x')+'</button>':'')
+    + '</div>'
+    + '<style>.map-filterbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;background:var(--color-surface-raised);border:1px solid var(--color-border-default);border-radius:var(--radius-lg);padding:10px 12px}'
+      + '.map-dd{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--color-border-default);background:var(--color-surface-raised);border-radius:var(--radius-md);padding:8px 12px;font-size:13px;font-weight:600;color:var(--color-text-secondary);cursor:pointer;white-space:nowrap;transition:border-color var(--tf)}'
+      + '.map-dd:hover{border-color:var(--color-text-tertiary)}.map-dd.on{border-color:var(--color-action);color:var(--color-action);background:var(--color-action-wash)}'
+      + '.map-dd svg{width:15px;height:15px;opacity:.8}'
+      + '.map-search{flex:1;min-width:220px;display:flex;align-items:center;gap:8px;background:var(--color-surface-sunken);border:1px solid transparent;border-radius:var(--radius-md);padding:8px 12px}'
+      + '.map-search:focus-within{background:#fff;border-color:var(--color-action)}'
+      + '.map-search-ic{display:inline-flex;color:var(--color-text-tertiary)}.map-search-ic svg{width:16px;height:16px}'
+      + '.map-search-in{flex:1;border:none;background:transparent;outline:none;font-size:13px;font-family:var(--font-sans);color:var(--color-text-primary)}'
+      + '.map-search-x{border:none;background:none;cursor:pointer;color:var(--color-text-tertiary);display:inline-flex}.map-search-x svg{width:15px;height:15px}</style>'
+  + '</div>';
+}
+function openMapFilterMenu(e,kind){
+  e.stopPropagation();
+  var cur=(kind==='legacy'?APP.mapLegacyFilter:kind==='klay'?APP.mapKlayFilter:APP.mapTypeFilter);
+  var menu;
+  if(kind==='type'){
+    var opts=['All','Has issue','No dimensions','Has dimensions'];
+    menu=opts.map(function(o){
+      var on=(o==='All'?!cur:cur===o);
+      return '<div class="menu-item'+(on?' menu-item-on':'')+'" onclick="setMapDdFilter(\'type\',\''+o+'\')">'+(on?svg('check'):'<span style="width:14px;display:inline-block"></span>')+o+'</div>';
+    }).join('');
+    openAnchoredMenu(e.currentTarget,menu,false);
+    return;
+  }
+  // legacy / klay = per-account searchable list
+  var allItem='<div class="menu-item'+(!cur?' menu-item-on':'')+'" onclick="setMapDdFilter(\''+kind+'\',\'__all__\')">'+(!cur?svg('check'):'<span style="width:14px;display:inline-block"></span>')+(kind==='legacy'?'All legacy accounts':'All Klay accounts')+'</div>';
+  var items;
+  if(kind==='legacy'){
+    items=LEG_COA.map(function(r){
+      var on=cur===r.code;
+      return '<div class="menu-item filter-acct'+(on?' menu-item-on':'')+'" data-s="'+(r.code+' '+r.name).toLowerCase()+'" onclick="setMapDdFilter(\'legacy\',\''+r.code+'\')"><span class="mono fs11 muted" style="width:62px;flex-shrink:0">'+r.code+'</span><span class="fs12" style="flex:1">'+r.name+'</span>'+(on?svg('check'):'')+'</div>';
+    }).join('');
+  } else {
+    items=KLAY_FLAT.map(function(it){
+      var on=cur===it.c;
+      return '<div class="menu-item filter-acct'+(on?' menu-item-on':'')+'" data-s="'+(it.c+' '+it.n).toLowerCase()+'" onclick="setMapDdFilter(\'klay\',\''+it.c+'\')"><span class="mono fs11 muted" style="width:46px;flex-shrink:0">'+it.c+'</span><span class="fs12" style="flex:1">'+it.n+'</span>'+(on?svg('check'):'')+'</div>';
+    }).join('');
+  }
+  menu='<div style="padding:6px 6px 4px"><div class="flex ac g2" style="background:var(--color-surface-sunken);border-radius:var(--radius-sm);padding:6px 9px"><span style="color:var(--color-text-tertiary);display:inline-flex">'+svg('search')+'</span><input class="acctf-search" placeholder="Search account…" oninput="filterAcctMenu(this.value)" style="border:none;background:transparent;outline:none;flex:1;font-size:12.5px"></div></div>'
+    + allItem
+    + '<div class="acctf-list" style="max-height:280px;overflow-y:auto">'+items+'</div>';
+  openAnchoredMenu(e.currentTarget,menu,true);
+}
+function filterAcctMenu(q){
+  q=(q||'').toLowerCase().trim();
+  var list=document.querySelectorAll('#anchmenu .filter-acct');
+  for(var i=0;i<list.length;i++){
+    var s=list[i].getAttribute('data-s')||'';
+    list[i].style.display = (!q||s.indexOf(q)>=0)?'':'none';
+  }
+}
+function setMapDdFilter(kind,val){
+  var isAll=(val==='__all__'||val==='All');
+  if(kind==='legacy') APP.mapLegacyFilter=isAll?null:val;
+  else if(kind==='klay') APP.mapKlayFilter=isAll?null:val;
+  else APP.mapTypeFilter=isAll?null:val;
+  APP.mapPage=1; closeAnchoredMenu(); renderPage();
+}
 function mapCounts(){
   var rows=APP.mapRows;
   return {
@@ -2139,6 +2233,22 @@ function renderWorkspace(){
   });
   // additional issue filter (from clicking an issue card)
   if(iss){ shown=shown.filter(function(r){return r.issue && r.issue.sev===iss.sev && r.issue.label===iss.label;}); }
+  // search by legacy name/code
+  var sv=(APP.mapSearch||'').trim().toLowerCase();
+  if(sv){ shown=shown.filter(function(r){return (r.name+' '+r.code).toLowerCase().indexOf(sv)>=0;}); }
+  // legacy account dropdown (specific account code)
+  if(APP.mapLegacyFilter){ shown=shown.filter(function(r){return r.code===APP.mapLegacyFilter;}); }
+  // klay account dropdown (specific target account code)
+  if(APP.mapKlayFilter){ shown=shown.filter(function(r){return r.target===APP.mapKlayFilter;}); }
+  // type filter dropdown
+  if(APP.mapTypeFilter){
+    shown=shown.filter(function(r){
+      if(APP.mapTypeFilter==='Has issue') return !!r.issue;
+      if(APP.mapTypeFilter==='No dimensions') return !r.dims||r.dims.length===0;
+      if(APP.mapTypeFilter==='Has dimensions') return r.dims&&r.dims.length>0;
+      return true;
+    });
+  }
   var pct=Math.round((c.mapped+c.deactivated)/c.all*100);
   var autoPending=c.auto;
   var allConfirmed = c.mapped+c.deactivated===c.all;
@@ -2209,7 +2319,11 @@ function renderWorkspace(){
       + '<button class="btn btn-primary" '+(allConfirmed?'onclick="finishMapping()"':'disabled')+'>Continue to posting rules '+svg('arrowRight')+'</button></div>'
     + '</div>'
     + (issueCards? '<div class="flex ac jb mb3"><div class="disp" style="font-size:18px">Issues to resolve <span class="muted fs13" style="font-family:var(--font-sans);font-weight:400">— click a card to filter the table</span></div></div><div class="issue-grid mb5">'+issueCards+'</div>':'')
-    // toolbar
+    // AI suggestions summary box
+    + aiMappingSummary(c)
+    // search + dropdown filter bar (above the table)
+    + mappingFilterBar(c)
+    // status filter pills
     + '<div class="flex jb ac mb4" style="flex-wrap:wrap;gap:12px">'
       + '<div class="flex g2 ac" style="flex-wrap:wrap">'
         + filterTab('all','All',c.all)+filterTab('unmapped','Needs attention',c.unmapped+c.issues)
@@ -2218,7 +2332,6 @@ function renderWorkspace(){
         + filterTab('deactivated','Deactivated',c.deactivated)
         + activePill
       + '</div>'
-      + (autoPending? '<button class="btn btn-soft btn-sm" onclick="bulkConfirmAuto()">'+svg('spark')+'Confirm all '+autoPending+' AI suggestions</button>':'')
     + '</div>'
     // bulk action bar (when rows selected)
     + bulkBar()
@@ -2376,6 +2489,15 @@ function toggleRowMenu(e,idx){
   document.addEventListener('click',closeRowMenu,{once:true});
 }
 function closeRowMenu(){ var m=document.getElementById('rowmenu'); if(m)m.remove(); }
+function closeAnchoredMenu(){ var m=document.getElementById('anchmenu'); if(m)m.remove(); }
+function openAnchoredMenu(anchorEl,menuHTML,wide){
+  closeAnchoredMenu();
+  var wrap=anchorEl;
+  if(getComputedStyle(wrap).position==='static') wrap.style.position='relative';
+  var w = wide? 'min-width:300px' : 'min-width:200px';
+  wrap.insertAdjacentHTML('beforeend','<div class="rowmenu" id="anchmenu" style="top:calc(100% + 6px);left:0;right:auto;'+w+'" onclick="event.stopPropagation()">'+menuHTML+'</div>');
+  setTimeout(function(){ document.addEventListener('click',closeAnchoredMenu,{once:true}); },0);
+}
 
 /* ---- klay account picker (grouped, searchable) ---- */
 function openKlayPicker(idx){
@@ -2535,6 +2657,7 @@ function finishMapping(){ toast('Mapping complete','Great — moving on to posti
 .dimchip-check{display:inline-flex}
 .dimchip-check svg{width:13px;height:13px;stroke:#fff}
 .menu-item{display:flex;align-items:center;gap:9px;padding:9px 11px;border-radius:var(--radius-sm);font-size:13px;font-weight:500;color:var(--color-text-secondary);cursor:pointer}
+.menu-item-on{color:var(--color-action);font-weight:600;background:var(--color-action-wash)}
 .menu-item svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2}
 .menu-item:hover{background:var(--color-surface-base)}
 .menu-item.danger{color:var(--danger-text)}
