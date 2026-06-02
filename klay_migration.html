@@ -2359,7 +2359,7 @@ function renderWorkspace(){
     + '</div>'
       + '<div class="flex g2" style="align-items:flex-start"><button class="btn btn-ghost" onclick="openConfigCoa()">'+svg('gear')+'Configure Klay CoA</button>'
       + '<button class="btn btn-ghost" onclick="openConfigDims()">'+svg('layers')+'Dimensions</button>'
-      + '<button class="btn btn-primary" '+(allConfirmed?'onclick="finishMapping()"':'disabled')+'>Continue to posting rules '+svg('arrowRight')+'</button></div>'
+      + '<button class="btn btn-primary" '+(allConfirmed?'onclick="finishMapping()"':'disabled')+'>Continue to tax config '+svg('arrowRight')+'</button></div>'
     + '</div>'
     + (issueCards? '<div class="flex ac jb mb3"><div class="disp" style="font-size:18px">Issues to resolve <span class="muted fs13" style="font-family:var(--font-sans);font-weight:400">— click a card to filter the table</span></div></div><div class="issue-grid mb5">'+issueCards+'</div>':'')
     // AI suggestions summary box
@@ -2730,7 +2730,7 @@ function bulkConfirmAuto(){
 }
 function legDot(color,label,n){ return '<span class="legend-item"><span class="dot" style="background:'+color+'"></span>'+label+' ('+n+')</span>'; }
 function exitWorkspace(){ APP.ws=false; render(); }
-function finishMapping(){ toast('Mapping complete','Great — moving on to posting rules.','success'); setTimeout(function(){ jumpStage(3); },500); }
+function finishMapping(){ toast('Mapping complete','Great — moving on to tax config.','success'); setTimeout(function(){ jumpStage(3); },500); }
 </script>
 <style>
 .rowmenu{position:absolute;right:0;top:34px;z-index:30;background:#fff;border:1px solid var(--color-border-default);border-radius:var(--radius-md);box-shadow:var(--shadow-lg);padding:6px;min-width:200px}
