@@ -1537,15 +1537,13 @@ function renderHome(){
       // configured by IA
       + (function(){ ensureTax(); var t=APP.taxCfg; var npwp=t.npwp||'01.234.567.8-091.000';
         return '<div class="card card-pad">'
-        + '<div class="flex jb ac mb4"><span class="fw7 fs17" style="font-family:var(--font-display);font-weight:800">Configured by Your IA</span>'
-          + '<button class="btn btn-ghost btn-xs" onclick="openEntityProfile()">'+svg('edit')+'Edit tax</button></div>'
+        + '<div class="fw7 fs17 mb4" style="font-family:var(--font-display);font-weight:800">Configured by Your IA</div>'
         + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px 12px">'
         + iaField('Entity','PT Makmur Jaya')+iaField('Cut-off Date','31 Dec 2025')
         + iaField('Source System','Accurate')+iaField('Fiscal Year Start','1 Jan 2025')
         + iaField('Accounting Basis','Accrual')+iaField('Migration Tier','Standard (30 days)')
         + '</div>'
         + '<div class="hr" style="margin:16px 0"></div>'
-        + '<div class="section-label mb3" style="color:rgba(140,133,124,.9)">Tax profile</div>'
         + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px 12px">'
         + iaField('NPWP','<span class="mono fs12">'+npwp+'</span>')
         + iaField('PKP status', t.pkp?'Registered (PKP)':'Non-PKP')
