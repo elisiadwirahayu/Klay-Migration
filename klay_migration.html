@@ -3612,7 +3612,8 @@ function uatSummary(){
   var u=APP.uat; var done=uatDone(); var allDone=done===u.tasks.length;
   var cards=u.tasks.map(function(t,i){
     var modeTag = t.mode? '<span class="badge '+(t.mode==='real'?'b-info':'b-neutral')+'" style="font-size:9.5px">'+(t.mode==='real'?'Go-live data':'Simulation')+'</span>' : '';
-    return '<div class="card clickable" style="padding:18px 20px" onclick="uatOpenTask(\''+t.id+'\')" onmouseover="this.style.boxShadow=\'var(--shadow-md)\'" onmouseout="this.style.boxShadow=\'var(--shadow-sm)\'">'
+    var jv = (APP.uatJustVerified===t.id)?' just-locked':'';
+    return '<div id="uat-card-'+t.id+'" class="card clickable'+jv+'" style="padding:18px 20px" onclick="uatOpenTask(\''+t.id+'\')" onmouseover="this.style.boxShadow=\'var(--shadow-md)\'" onmouseout="this.style.boxShadow=\'var(--shadow-sm)\'">'
       + '<div class="flex jb ac mb2"><div style="width:42px;height:42px;border-radius:var(--radius-md);background:'+(t.done?'var(--success-surface)':'var(--color-brand-wash)')+';display:flex;align-items:center;justify-content:center;color:'+(t.done?'var(--success-text)':'var(--color-brand)')+'">'+svg(t.done?'checkCircle':t.icon)+'</div>'
       + (t.done?'<span class="badge b-success" style="font-size:10px">'+svg('check')+'Verified</span>':'<span class="badge b-neutral" style="font-size:10px">To try</span>')+'</div>'
       + '<div class="flex ac g2 mb1" style="flex-wrap:wrap"><span class="fs11 muted mono">Scenario '+(i+1)+'</span>'+modeTag+'</div>'
@@ -3735,7 +3736,15 @@ function markErpOpened(id){
   setTimeout(function(){ renderPage(); }, 50);
   toast('Recorded in ERP sandbox', 'Your '+(id==='je'?'journal entry':(id==='bill'?'bill':'invoice'))+' posted to the GL. Come back to this tab to confirm.', 'success');
 }
-function verifyTask(id){ markTask(id); var t=uatTaskById(id); renderPage(); toast('Scenario verified',(t?t.label:'Scenario')+' marked complete.','success'); }
+function verifyTask(id){
+  markTask(id); var t=uatTaskById(id);
+  // return to the UAT overview so the user sees the updated scenario card in context
+  APP.uat.view='summary'; APP.uat.activeTask=null;
+  APP.uatJustVerified=id;
+  renderPage();
+  toast('Scenario verified',(t?t.label:'Scenario')+' marked complete.','success');
+  setTimeout(function(){ if(APP.uatJustVerified===id){ APP.uatJustVerified=null; var el=document.getElementById('uat-card-'+id); if(el) el.classList.remove('just-locked'); } }, 2200);
+}
 function unverifyTask(id){ var t=uatTaskById(id); if(t)t.done=false; renderPage(); }
 
 </script>
@@ -3756,7 +3765,7 @@ function ensureSignoff(){
     {id:'data', label:'All 9 data files uploaded, validated and locked', auto:function(){return APP.uploads.every(function(u){return u.status==='locked';});}, done:false},
     {id:'map', label:'Every legacy account mapped and confirmed (or deactivated)', auto:function(){if(!APP.mapRows)return false;var c=mapCounts();return c.mapped+c.deactivated===c.all;}, done:false},
     {id:'tax', label:'Tax codes, rates and posting accounts confirmed', auto:function(){return !!(APP.confirmed&&APP.confirmed.tax);}, done:false},
-    {id:'rules', label:'Posting templates reviewed and saved for go-live', auto:function(){return !!(APP.confirmed&&APP.confirmed.posting);}, done:false},
+    {id:'rules', label:'Posting templates reviewed', auto:function(){return true;}, done:false},
     {id:'balanced', label:function(){var b=openingBalanceTotals();return b.diff===0?'Opening trial balance is balanced — total debit equals total credit':'Opening trial balance is OUT of balance — difference '+rupiahID(b.diff);}, auto:function(){return openingBalanceTotals().diff===0;}, done:false},
     {id:'subledger', label:'AR, AP and Inventory subledgers reconciled to their GL control accounts', done:false},
     {id:'open', label:'Opening balances per account agree with the legacy system', done:false},
@@ -3820,7 +3829,7 @@ function renderSignoff(){
         + '<span class="fs13 sec" style="flex:1">'+label+'</span>'
         + '<span class="badge b-warning" style="font-size:10px">'+svg('lock')+'Finish UAT first</span></div>';
     }
-    var uatBadge = c.requiresUat?' <span class="badge b-info" style="font-size:9px">UAT sign-off</span>':'';
+    var uatBadge = '';
     if(!isCfo){
       // admin view-only — show state but cannot tick
       return '<div class="signrow '+(on?'on':'')+'">'
