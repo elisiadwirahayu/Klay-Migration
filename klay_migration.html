@@ -3761,7 +3761,7 @@ function ensureSignoff(){
     {id:'open', label:'Opening balances per account agree with the legacy system', done:false},
     {id:'cutoff', label:'Cut-off date confirmed — no transactions dated before go-live will be entered afterward', done:false},
     {id:'uat', label:function(){var n=APP.uat?uatDone():0,t=APP.uat?APP.uat.tasks.length:3;return 'UAT passed — all '+t+' scenarios run in the ERP and verified ('+n+'/'+t+')';}, auto:function(){return APP.uat&&uatDone()===APP.uat.tasks.length;}, done:false},
-    {id:'uat_signoff', label:'Company has completed UAT and agrees the system is ready to go live', done:false, requiresUat:true},
+    {id:'uat_signoff', label:'We have completed UAT and agree the system is ready to go live', done:false, requiresUat:true},
     {id:'team', label:'Go-live date agreed with the migration team', done:false}
   ];
   APP.approvals=[
@@ -3785,10 +3785,9 @@ function renderSignoff(){
   var allSigned=signedN===APP.approvals.length;
   var ready = allChecks && allSigned;
 
-  // split auto (system-verified) vs manual (you confirm); pull the go-live attestation out separately
-  var autoItems=[], manualItems=[], goLiveItem=null;
+  // split auto (system-verified) vs manual (you confirm)
+  var autoItems=[], manualItems=[];
   APP.checklist.forEach(function(c,i){
-    if(c.id==='uat_signoff'){ goLiveItem={c:c,i:i,on:states[i]}; return; }
     (c.auto?autoItems:manualItems).push({c:c,i:i,on:states[i]});
   });
 
@@ -3861,24 +3860,6 @@ function renderSignoff(){
     + '<div class="card card-pad mb5"><div class="disp" style="font-size:18px;margin-bottom:2px">Your confirmations</div>'
       + '<div class="fs13 muted mb4">Tick each item once you\'ve verified it with your team.</div>'
       + manualItems.map(checkRow).join('')+'</div>'
-    + (function(){
-        var c=goLiveItem.c, i=goLiveItem.i, on=goLiveItem.on;
-        var uatReady = APP.uat && uatDone()===APP.uat.tasks.length;
-        var n=APP.uat?uatDone():0, tot=APP.uat?APP.uat.tasks.length:3;
-        var inner;
-        if(!uatReady){
-          inner='<div class="flex g3 ac" style="align-items:flex-start"><span class="signrow-ic" style="color:var(--warning-text)">'+svg('lock')+'</span>'
-            + '<div><div class="fw7 fs14" style="margin-bottom:2px">UAT not finished yet</div><div class="fs12.5 muted" style="line-height:1.5">Run and verify all '+tot+' UAT scenarios in the ERP first ('+n+'/'+tot+' done). This attestation unlocks once UAT passes.</div></div></div>';
-        } else {
-          inner='<label class="flex g3 clickable" style="align-items:flex-start"><input type="checkbox" '+(c.done?'checked':'')+' onchange="toggleCheck('+i+',this.checked)" style="margin-top:2px;width:18px;height:18px;accent-color:var(--success-text)">'
-            + '<div><div class="fw7 fs14" style="margin-bottom:2px">We have completed UAT and agree the system is ready to go live</div>'
-            + '<div class="fs12.5 muted" style="line-height:1.5">PT Makmur Jaya confirms all '+tot+' scenarios were tested in the live ERP and the results \u2014 journals, tax, and trial balance \u2014 are correct. This is the company\u2019s agreement to proceed to go-live.</div></div></label>';
-        }
-        return '<div class="card card-pad mb5" style="border-color:'+(on?'var(--success-border)':'var(--color-brand-subtle)')+';background:'+(on?'var(--success-surface)':'linear-gradient(160deg,var(--color-brand-wash),#fff)')+'">'
-          + '<div class="flex ac g2 mb3"><span class="disp" style="font-size:18px">UAT sign-off</span>'+(on?'<span class="badge b-success" style="font-size:10px">'+svg('checkCircle')+'Agreed</span>':'<span class="badge b-brand" style="font-size:10px">Required</span>')+'</div>'
-          + inner
-        + '</div>';
-      })()
     // approvals
     + '<div class="card card-pad mb5"><div class="disp" style="font-size:18px;margin-bottom:2px">Approvals</div>'
       + '<div class="fs13 muted mb4">Each approver signs off in turn. All three are required before go-live.</div>'
