@@ -6,7 +6,7 @@
 <title>Klay — Migration</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800;900&family=Manrope:wght@300;400;500;600;700;800&family=Inconsolata:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800;900&family=Instrument+Sans:wght@400;500;600;700&family=Inconsolata:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 /* ============================================================
    VINAZE TOKENS (subset used by the migration app)
@@ -28,8 +28,8 @@
   --warning-text:var(--warn-800); --warning-border:var(--warn-300); --warning-surface:var(--warn-100);
   --danger-text:var(--stop-700); --danger-border:var(--stop-300); --danger-surface:var(--stop-100);
 
-  --font-display:'Playfair Display',Georgia,serif;
-  --font-sans:'Manrope',sans-serif;
+  --font-display:'Instrument Sans',sans-serif;
+  --font-sans:'Instrument Sans',sans-serif;
   --font-mono:'Inconsolata',monospace;
 
   --radius-sm:6px; --radius-md:10px; --radius-lg:14px; --radius-xl:20px; --radius-full:9999px;
@@ -76,7 +76,7 @@ input,select{font-family:inherit}
 ::selection{background:var(--color-brand-subtle)}
 .mono{font-family:var(--font-mono)}
 .num{font-family:var(--font-mono);font-variant-numeric:tabular-nums;text-align:right}
-.disp{font-family:var(--font-display);font-weight:900;letter-spacing:-.02em}
+.disp{font-family:var(--font-display);font-weight:500;letter-spacing:-.01em}
 
 /* scrollbars */
 ::-webkit-scrollbar{width:10px;height:10px}
@@ -90,7 +90,7 @@ input,select{font-family:inherit}
 
 /* Top bar */
 .topbar{height:56px;background:var(--color-surface-raised);border-bottom:1px solid var(--color-border-default);display:flex;align-items:center;padding:0 var(--s6);gap:var(--s4);position:sticky;top:0;z-index:40}
-.logo{font-family:var(--font-display);font-weight:900;font-size:24px;color:var(--color-brand);letter-spacing:-.02em;cursor:pointer}
+.logo{font-family:var(--font-display);font-weight:600;font-size:24px;color:var(--color-brand);letter-spacing:-.02em;cursor:pointer}
 .logo .dot{color:var(--color-brand)}
 .entity-pill{display:flex;align-items:center;gap:var(--s2);background:var(--color-surface-sunken);border:1px solid var(--color-border-default);border-radius:var(--radius-full);padding:5px 12px;font-size:12.5px;font-weight:600;color:var(--color-text-secondary)}
 .entity-pill svg{width:14px;height:14px;stroke:var(--color-text-tertiary);fill:none;stroke-width:1.8}
@@ -132,7 +132,7 @@ input,select{font-family:inherit}
 /* Page header */
 .page-eyebrow{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--color-text-tertiary);margin-bottom:6px;display:flex;gap:10px;align-items:center}
 .page-eyebrow .days{color:var(--color-brand)}
-.page-title{font-family:var(--font-display);font-weight:900;font-size:40px;letter-spacing:-.02em;line-height:1.05;margin-bottom:8px}
+.page-title{font-family:var(--font-display);font-weight:500;font-size:40px;letter-spacing:-.02em;line-height:1.05;margin-bottom:8px}
 .page-sub{font-size:14px;color:var(--color-text-tertiary);font-weight:400;max-width:760px}
 .page-head-row{display:flex;justify-content:space-between;align-items:flex-start;gap:var(--s6);margin-bottom:var(--s6)}
 
@@ -156,6 +156,8 @@ input,select{font-family:inherit}
 
 /* Cards */
 .card{background:var(--color-surface-raised);border:1px solid var(--color-border-default);border-radius:var(--radius-lg);box-shadow:var(--shadow-sm)}
+.card.just-locked{animation:justLockedFlash 2.2s ease-out}
+@keyframes justLockedFlash{0%{border-color:var(--success-border);box-shadow:0 0 0 3px var(--success-surface)}30%{border-color:var(--success-border);box-shadow:0 0 0 3px var(--success-surface)}100%{border-color:var(--color-border-default);box-shadow:var(--shadow-sm)}}
 .card-pad{padding:var(--s6)}
 
 /* Badges */
@@ -215,7 +217,8 @@ input,select{font-family:inherit}
 .ws-2col .ws-main{min-width:0}
 .ws-2col .ws-rail{position:sticky;top:72px}
 @media(max-width:1080px){.ws-2col{grid-template-columns:1fr}.ws-2col .ws-rail{position:static}}
-.ai-dot{display:inline-flex;align-items:center;justify-content:center;color:var(--warning-text)}
+.ai-dot{display:inline-flex;align-items:center;justify-content:center;color:var(--color-brand)}
+.ai-dot svg{fill:var(--color-brand);stroke:none}
 .ai-dot svg{width:13px;height:13px}
 @keyframes impactPulse{0%{background:var(--warning-surface)}60%{background:var(--warning-surface)}100%{background:transparent}}
 .impact-row{animation:impactPulse 1.6s ease-out 1}
@@ -245,7 +248,7 @@ input,select{font-family:inherit}
 @keyframes pop{from{opacity:0;transform:scale(.96) translateY(8px)}to{opacity:1;transform:none}}
 .modal-icon{width:48px;height:48px;border-radius:var(--radius-md);display:flex;align-items:center;justify-content:center;margin-bottom:var(--s5)}
 .modal-icon svg{width:22px;height:22px;fill:none;stroke-width:2}
-.modal-title{font-family:var(--font-display);font-weight:800;font-size:24px;letter-spacing:-.01em;margin-bottom:var(--s3)}
+.modal-title{font-family:var(--font-display);font-weight:500;font-size:24px;letter-spacing:-.01em;margin-bottom:var(--s3)}
 .modal-text{font-size:13.5px;color:var(--color-text-tertiary);line-height:1.6;margin-bottom:var(--s5)}
 .modal-foot{display:flex;gap:var(--s3);justify-content:flex-end;margin-top:var(--s6)}
 
@@ -298,6 +301,7 @@ var IC = {
   chevLeft:'<polyline points="15 6 9 12 15 18"/>',
   arrowLeft:'<line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/>',
   arrowRight:'<line x1="4" y1="12" x2="20" y2="12"/><polyline points="14 6 20 12 14 18"/>',
+  external:'<path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>',
   lock:'<rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/>',
   lockOpen:'<rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 7.8-1"/>',
   upload:'<path d="M12 16V4"/><polyline points="7 9 12 4 17 9"/><path d="M5 20h14"/>',
@@ -1291,6 +1295,8 @@ var APP = {
   taxCfg:null,
   // stage-6 checklist
   checklist:null,
+  // per-stage confirmation locks (one explicit confirm step before Continue)
+  confirmed:{ data:false, map:false, tax:false, posting:false },
   toastSeq:0
 };
 
@@ -1351,6 +1357,46 @@ function renderPage(){
 
 function goHome(){ APP.view='home'; APP.ws=false; APP.uploadDetail=null; render(); }
 function jumpStage(n){ APP.stage=n; APP.maxStageReached=Math.max(APP.maxStageReached||1,n); APP.view='stage'; APP.ws=false; APP.uploadDetail=null; APP.wsSub=null; render(); }
+
+/* ---- One explicit confirmation step per stage (consistent across mapping / tax / posting) ---- */
+function confirmStage(stage){
+  var cfg;
+  if(stage==='data'){
+    var p=uploadProgress();
+    var totalDetected=APP.uploads.reduce(function(s,u){return s+(u.status==='locked'?(u.detected||0):0);},0);
+    cfg={ title:'Confirm uploaded data', icon:'upload', next:'account mapping',
+      rows:[['Files uploaded & locked',p.locked+' of 9'],['Records detected',totalDetected],['Health-check issues','Resolved']],
+      body:'Lock in your 9 source files as the basis for migration. You can still re-open a file to re-upload it afterward.' };
+  } else if(stage==='map'){
+    var c=mapCounts();
+    cfg={ title:'Confirm account mapping', icon:'replace', next:'tax config',
+      rows:[['Mapped to Klay accounts',c.mapped],['Deactivated',c.deactivated],['Total legacy accounts',c.all]],
+      body:'Lock in how your legacy accounts map to the Klay chart of accounts. You can still reopen and change a mapping afterward.' };
+  } else if(stage==='tax'){
+    var t=APP.taxCfg; var active=t.taxCodes.filter(function(x){return x.active;}).length;
+    cfg={ title:'Confirm tax setup', icon:'receipt', next:'posting rules',
+      rows:[['Active tax codes',active],['Inactive (off)',t.taxCodes.length-active],['All accounts assigned','Yes']],
+      body:'Lock in your tax codes, rates and posting accounts. You can still adjust them afterward.' };
+  } else { // posting
+    var pc=postingCounts();
+    cfg={ title:'Confirm posting templates', icon:'book', next:'UAT',
+      rows:[['Saved for go-live',pc.saved],['Not saved',pc.total-pc.saved],['Total templates',pc.total]],
+      body:'Lock in the posting templates you\u2019ve saved. Only saved templates are carried into your live ERP. You can still change them afterward.' };
+  }
+  var rowsHTML=cfg.rows.map(function(r){return '<div class="flex jb ac" style="padding:7px 0;border-bottom:1px solid var(--color-border-subtle)"><span class="fs13 sec">'+r[0]+'</span><span class="fs14 fw7 num">'+r[1]+'</span></div>';}).join('');
+  openModal('<div class="modal-card"><div class="modal-icon" style="background:var(--color-action-wash)"><svg viewBox="0 0 24 24" style="stroke:var(--color-action)">'+IC[cfg.icon]+'</svg></div>'
+    + '<div class="modal-title">'+cfg.title+'</div>'
+    + '<div class="modal-text">'+cfg.body+'</div>'
+    + '<div style="text-align:left;background:var(--color-surface-base);border:1px solid var(--color-border-default);border-radius:var(--radius-md);padding:6px 14px;margin-bottom:4px">'+rowsHTML+'</div>'
+    + '<div class="modal-foot"><button class="btn btn-ghost" onclick="closeModal()">Review again</button><button class="btn btn-primary" onclick="doConfirmStage(\''+stage+'\')">'+svg('check')+'Confirm &amp; continue to '+cfg.next+'</button></div></div>');
+}
+function doConfirmStage(stage){
+  APP.confirmed[stage]=true; closeModal();
+  if(stage==='data'){ toast('Data confirmed','Source files locked. Moving to account mapping.','success'); setTimeout(function(){jumpStage(2);},400); }
+  else if(stage==='map'){ toast('Mapping confirmed','Account mapping locked. Moving to tax config.','success'); setTimeout(function(){jumpStage(3);},400); }
+  else if(stage==='tax'){ toast('Tax setup confirmed','Tax configuration locked. Moving to posting rules.','success'); setTimeout(function(){jumpStage(4);},400); }
+  else { toast('Templates confirmed','Posting templates locked. Moving to UAT.','success'); setTimeout(function(){jumpStage(5);},400); }
+}
 function beginStage(n){ if(!APP.migrationStarted){ APP.migrationStarted=true; APP.elapsedDay=Math.max(APP.elapsedDay,1); } jumpStage(n); }
 
 /* ============================================================
@@ -1500,7 +1546,7 @@ function renderHome(){
   // Hero
   + '<div style="position:relative;border-radius:var(--radius-xl);overflow:hidden;background:linear-gradient(115deg,#4E1A07,#8A3210 55%,#5E2208);padding:38px 40px;margin-bottom:34px;color:#fff">'
     + '<div style="position:relative;z-index:1;max-width:720px">'
-    + '<div class="disp" style="font-size:46px;line-height:1.04;margin-bottom:10px">'+heroTitle+heroEmoji+'</div>'
+    + '<div class="disp" style="font-family:\'Playfair Display\',Georgia,serif;font-weight:900;letter-spacing:-.02em;font-size:46px;line-height:1.04;margin-bottom:10px">'+heroTitle+heroEmoji+'</div>'
     + '<div style="font-size:14.5px;color:rgba(255,255,255,.72);line-height:1.55;max-width:560px;margin-bottom:22px">'+heroSub+'</div>'
     + (started ? cashbackTracker() : '')
     + '<button class="btn" style="background:rgba(255,255,255,.0);border:1.5px solid rgba(255,255,255,.5);color:#fff;padding:12px 22px;'+(started?'margin-top:22px':'')+'" onclick="beginStage('+act.n+')">'+ctaLbl+' '+svg('arrowRight')+'</button>'
@@ -1528,7 +1574,7 @@ function renderHome(){
     + '<div class="flex col g5">'
       // cashback
       + '<div style="border-radius:var(--radius-lg);overflow:hidden;background:linear-gradient(160deg,#9A3A12,#6E2709);padding:22px;color:#fff">'
-        + '<div class="fw7 fs17 mb2" style="font-family:var(--font-display);font-weight:800">Cashback Incentive</div>'
+        + '<div class="fw7 fs17 mb2" style="font-family:var(--font-display);font-weight:500">Cashback Incentive</div>'
         + '<div class="fs12" style="color:rgba(255,255,255,.7);line-height:1.5;margin-bottom:16px">Get your <b style="color:#fff">first month\'s fee</b> back. Clock starts once you upload legacy CoA.</div>'
         + cashRow('Full one month cashback','Go live within 30 days','100%',true)
         + cashRow('50% cashback','Go live within 31–60 days','50%',false)
@@ -1537,7 +1583,7 @@ function renderHome(){
       // configured by IA
       + (function(){ ensureTax(); var t=APP.taxCfg; var npwp=t.npwp||'01.234.567.8-091.000';
         return '<div class="card card-pad">'
-        + '<div class="fw7 fs17 mb4" style="font-family:var(--font-display);font-weight:800">Configured by Your IA</div>'
+        + '<div class="fw7 fs17 mb4" style="font-family:var(--font-display);font-weight:500">Configured by Your IA</div>'
         + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px 12px">'
         + iaField('Entity','PT Makmur Jaya')+iaField('Cut-off Date','31 Dec 2025')
         + iaField('Source System','Accurate')+iaField('Fiscal Year Start','1 Jan 2025')
@@ -1553,12 +1599,12 @@ function renderHome(){
       })()
       // team
       + '<div class="card card-pad">'
-        + '<div class="flex jb ac mb3"><span class="fw7 fs17" style="font-family:var(--font-display);font-weight:800">Migration Team ('+TEAM.length+')</span><button class="btn-soft btn btn-xs" onclick="toast(\'Invite teammate\',\'Opens the invite flow.\',\'info\')">'+svg('plus')+'Add</button></div>'
+        + '<div class="flex jb ac mb3"><span class="fw7 fs17" style="font-family:var(--font-display);font-weight:500">Migration Team ('+TEAM.length+')</span><button class="btn-soft btn btn-xs" onclick="toast(\'Invite teammate\',\'Opens the invite flow.\',\'info\')">'+svg('plus')+'Add</button></div>'
         + teamHTML
       + '</div>'
       // support
       + '<div class="card card-pad">'
-        + '<div class="fw7 fs17 mb3" style="font-family:var(--font-display);font-weight:800">Migration Support</div>'
+        + '<div class="fw7 fs17 mb3" style="font-family:var(--font-display);font-weight:500">Migration Support</div>'
         + '<div class="fs13 fw7">Minerva McGonagall</div><div class="fs12 muted mb4">Klay · Implementation Associate</div>'
         + '<a class="flex ac g3 mb2" style="text-decoration:none"><span style="width:32px;height:32px;border-radius:var(--radius-md);background:var(--success-surface);display:flex;align-items:center;justify-content:center;color:var(--success-text)">'+svg('whatsapp')+'</span><span class="fs13 fw6" style="color:var(--success-text)">+62 812-3456-7890</span></a>'
         + '<a class="flex ac g3" style="text-decoration:none"><span style="width:32px;height:32px;border-radius:var(--radius-md);background:var(--color-surface-sunken);display:flex;align-items:center;justify-content:center;color:var(--color-text-tertiary)">'+svg('mail')+'</span><span class="fs13 fw6 sec">onboarding@klay.id</span></a>'
@@ -1584,7 +1630,7 @@ function entityProfileCard(){
   var pkpBadge = t.pkp?'<span class="badge b-success" style="font-size:10px">'+svg('check')+'PKP</span>':'<span class="badge b-neutral" style="font-size:10px">Non-PKP</span>';
   var npwp = t.npwp || '01.234.567.8-091.000';
   return '<div class="card card-pad">'
-    + '<div class="flex jb ac mb3"><div class="flex ac g2"><span class="fw7 fs17" style="font-family:var(--font-display);font-weight:800">Entity Tax Profile</span>'+pkpBadge+'</div>'
+    + '<div class="flex jb ac mb3"><div class="flex ac g2"><span class="fw7 fs17" style="font-family:var(--font-display);font-weight:500">Entity Tax Profile</span>'+pkpBadge+'</div>'
       + '<button class="btn btn-ghost btn-xs" onclick="openEntityProfile()">'+svg('edit')+'Edit</button></div>'
     + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px 12px">'
       + fld('Entity','PT Makmur Jaya')
@@ -1595,7 +1641,7 @@ function entityProfileCard(){
 }
 function openEntityProfile(){
   ensureTax(); var t=APP.taxCfg;
-  openDrawer('<div class="drawer-head"><div><div class="section-label mb2">Migration dashboard</div><div class="fw7 fs17" style="font-family:var(--font-display);font-weight:800">Entity Tax Profile</div></div><button class="x-btn" onclick="closeDrawer()">'+svg('x')+'</button></div>'
+  openDrawer('<div class="drawer-head"><div><div class="section-label mb2">Migration dashboard</div><div class="fw7 fs17" style="font-family:var(--font-display);font-weight:500">Entity Tax Profile</div></div><button class="x-btn" onclick="closeDrawer()">'+svg('x')+'</button></div>'
     + '<div class="drawer-body">'
       + '<div class="fs13 muted mb5" style="line-height:1.55">Captured during onboarding. This drives whether PPN and Faktur Pajak apply across the migration.</div>'
       + '<div class="section-label mb2">Entity name</div><input class="cfg-input2 mb5" value="PT Makmur Jaya" disabled style="opacity:.7">'
@@ -1690,7 +1736,8 @@ function renderUpload(){
     }
     var clickable = unlocked && st!=='uploading';
     var dim = (!unlocked)?'opacity:.65;':'';
-    return '<div class="card '+(clickable?'clickable':'')+'" style="padding:18px;'+dim+(clickable?'transition:box-shadow var(--tb)':'')+'" '
+    var jl = (APP.justLocked===item.id)?' just-locked':'';
+    return '<div id="ucard-'+item.id+'" class="card '+(clickable?'clickable':'')+jl+'" style="padding:18px;'+dim+(clickable?'transition:box-shadow var(--tb)':'')+'" '
       + (clickable?'onclick="openUpload(\''+item.id+'\')" onmouseover="this.style.boxShadow=\'var(--shadow-md)\'" onmouseout="this.style.boxShadow=\'var(--shadow-sm)\'"':'')+'>'
       + '<div class="flex g4" style="align-items:flex-start">'+iconWrap
       + '<div style="flex:1">'+badge+'<div class="fw7 fs15" style="margin-bottom:3px">'+item.name+'</div><div class="fs12" style="line-height:1.5">'+sub+'</div></div></div>'
@@ -1704,7 +1751,7 @@ function renderUpload(){
       + '<div><div class="page-eyebrow">Stage 1 of 6 · <span class="days">Day '+STAGES[0].day+' of 30</span></div>'
       + '<div class="page-title">Upload Data</div>'
       + '<div class="page-sub">Upload 9 required files to prepare your data for migration.</div></div>'
-      + '<button class="btn '+(allLocked?'btn-primary':'btn-primary')+'" '+(allLocked?'onclick="jumpStage(2)"':'disabled')+'>Continue to account mapping '+svg('arrowRight')+'</button>'
+      + '<button class="btn btn-primary" '+(allLocked?'onclick="confirmStage(\'data\')"':'disabled')+'>'+svg('check')+'Confirm &amp; continue '+svg('arrowRight')+'</button>'
     + '</div>'
     // progress
     + '<div class="card" style="padding:18px 22px;margin-bottom:22px">'
@@ -1836,7 +1883,7 @@ function activityLog(entries){
   var rows = entries.length
     ? timelineHTML(entries)
     : '<div class="tc" style="padding:30px 10px;color:var(--color-text-tertiary)"><div style="width:46px;height:46px;border-radius:50%;border:1.5px solid var(--color-border-default);display:flex;align-items:center;justify-content:center;margin:0 auto 12px">'+svg('clock')+'</div><div class="fs13">No activity yet. Logs will populate as activity is detected.</div></div>';
-  return '<div class="card card-pad"><div class="fw7 fs15 mb4" style="font-family:var(--font-display);font-weight:800">Activity Log</div>'+rows+'</div>';
+  return '<div class="card card-pad"><div class="fw7 fs15 mb4" style="font-family:var(--font-display);font-weight:500">Activity Log</div>'+rows+'</div>';
 }
 
 function healthCheckBlock(id,hcList,hasHard,st){
@@ -1964,7 +2011,7 @@ function summaryRail(id,hcList,hasHard,item){
     + '<div style="background:linear-gradient(160deg,var(--color-brand-wash),#fff);border:1px solid var(--color-brand-subtle);border-radius:var(--radius-lg);padding:18px">'
       + '<div class="flex ac g2 mb3" style="color:var(--color-brand-hover);font-weight:700">'+svg('spark')+'Summary</div>'
       + '<div class="fs13" style="line-height:1.6;color:var(--color-text-secondary)">'+txt+'</div></div>'
-    + '<div class="card card-pad"><div class="flex jb ac mb4"><span class="fw7 fs15" style="font-family:var(--font-display);font-weight:800">Activity Log</span><span class="clickable fs12 fw6" style="color:var(--color-action)">See all log</span></div>'
+    + '<div class="card card-pad"><div class="flex jb ac mb4"><span class="fw7 fs15" style="font-family:var(--font-display);font-weight:500">Activity Log</span><span class="clickable fs12 fw6" style="color:var(--color-action)">See all log</span></div>'
       + timelineHTML(logs)
     + '</div></div>';
 }
@@ -1999,10 +2046,11 @@ function confirmLock(id){
 function doLock(id){
   var item=up(id); item.status='locked'; closeModal();
   toast(item.name+' locked','This data is now canonical for the migration.','success');
-  // when coa locks, opening/master unlock; when vendor/customer lock, openap/ar unlock
+  // return to the Upload Data overview so the user sees the new locked state in context
+  APP.uploadDetail=null; APP.view='stage';
+  APP.justLocked=id; // highlight the card that was just locked
   render();
-  // if we're in detail view, refresh detail
-  if(APP.view==='upload-detail') renderPage();
+  setTimeout(function(){ if(APP.justLocked===id){ APP.justLocked=null; var el=document.getElementById('ucard-'+id); if(el) el.classList.remove('just-locked'); } }, 2200);
 }
 function reopenItem(id){
   var item=up(id);
@@ -2152,12 +2200,12 @@ function rowSortKey(r){
 }
 function aiMappingSummary(c){
   if(!c.auto) return ''; // nothing AI-suggested left
-  return '<div class="card mb5" style="overflow:hidden;border-color:var(--warning-border);background:linear-gradient(160deg,var(--warning-surface),#fff)">'
+  return '<div class="card ai-card mb5">'
     + '<div class="flex jb ac" style="padding:16px 20px;gap:16px;flex-wrap:wrap">'
       + '<div class="flex g3 ac" style="align-items:flex-start;flex:1;min-width:280px">'
-        + '<div style="width:38px;height:38px;border-radius:var(--radius-md);background:#fff;border:1px solid var(--warning-border);display:flex;align-items:center;justify-content:center;color:var(--warning-text);flex-shrink:0">'+svg('spark')+'</div>'
-        + '<div><div class="fw7 fs15" style="color:var(--warning-text)">Klay mapped '+c.auto+' account'+(c.auto>1?'s':'')+' for you</div>'
-          + '<div class="fs12.5 sec" style="line-height:1.5;margin-top:3px;max-width:560px">These are AI suggestions based on your legacy account types and names. Review them, then <b>confirm all at once</b> — or open any row to change the Klay account it maps to.</div></div>'
+        + '<span class="ai-ico">'+svg('spark')+'</span>'
+        + '<div><div class="ai-title fs15">Klay mapped '+c.auto+' account'+(c.auto>1?'s':'')+' for you</div>'
+          + '<div class="ai-body fs12.5" style="margin-top:3px;max-width:560px">These are AI suggestions based on your legacy account types and names. Review them, then <b>confirm all at once</b> — or open any row to change the Klay account it maps to.</div></div>'
       + '</div>'
       + '<div class="flex g2 ac" style="flex-shrink:0">'
         + '<button class="btn btn-ghost btn-sm" onclick="setMapFilter(\'auto\')">'+svg('filter')+'Review suggestions</button>'
@@ -2359,7 +2407,7 @@ function renderWorkspace(){
     + '</div>'
       + '<div class="flex g2" style="align-items:flex-start"><button class="btn btn-ghost" onclick="openConfigCoa()">'+svg('gear')+'Configure Klay CoA</button>'
       + '<button class="btn btn-ghost" onclick="openConfigDims()">'+svg('layers')+'Dimensions</button>'
-      + '<button class="btn btn-primary" '+(allConfirmed?'onclick="finishMapping()"':'disabled')+'>Continue to tax config '+svg('arrowRight')+'</button></div>'
+      + '<button class="btn btn-primary" '+(allConfirmed?'onclick="confirmStage(\'map\')"':'disabled')+'>'+svg('check')+'Confirm &amp; continue '+svg('arrowRight')+'</button></div>'
     + '</div>'
     + (issueCards? '<div class="flex ac jb mb3"><div class="disp" style="font-size:18px">Issues to resolve <span class="muted fs13" style="font-family:var(--font-sans);font-weight:400">— click a card to filter the table</span></div></div><div class="issue-grid mb5">'+issueCards+'</div>':'')
     // AI suggestions summary box
@@ -2396,7 +2444,7 @@ function mappingActivityLog(){
     {icon:'alert',tone:'warning',t:c.issues+' accounts flagged for review',s:'by system · 12 May 2026 (14:31)'},
     {icon:'checkCircle',tone:'success',t:'Mapping workspace ready',s:'by system · 12 May 2026 (14:30)'}
   ];
-  return '<div class="card card-pad" style="margin-top:18px"><div class="flex jb ac mb4"><span class="fw7 fs15" style="font-family:var(--font-display);font-weight:800">Activity Log</span><span class="clickable fs12 fw6" style="color:var(--color-action)">See all log</span></div>'
+  return '<div class="card card-pad" style="margin-top:18px"><div class="flex jb ac mb4"><span class="fw7 fs15" style="font-family:var(--font-display);font-weight:500">Activity Log</span><span class="clickable fs12 fw6" style="color:var(--color-action)">See all log</span></div>'
     + timelineHTML(logs)
   + '</div>';
 }
@@ -2410,14 +2458,14 @@ function aiSummaryCard(stage){
     title='Klay prepared '+n+' posting templates';
     body='These are the journal templates Indonesian SMEs use most. Each maps a business event to its debit/credit lines with the right tax and dimensions. Edit or remove any you don\'t need, or add your own.';
   } else { title='AI summary'; body=''; }
-  return '<div class="card mb4" style="overflow:hidden;border-color:var(--warning-border);background:linear-gradient(160deg,var(--warning-surface),#fff)">'
+  return '<div class="card ai-card mb4">'
     + '<div style="padding:16px 18px">'
-      + '<div class="flex g2 ac mb2"><span style="width:30px;height:30px;border-radius:var(--radius-md);background:#fff;border:1px solid var(--warning-border);display:flex;align-items:center;justify-content:center;color:var(--warning-text);flex-shrink:0">'+svg('spark')+'</span>'
-        + '<span class="fw7 fs14" style="color:var(--warning-text)">'+title+'</span></div>'
-      + '<div class="fs12 sec" style="line-height:1.55">'+body+'</div>'
+      + '<div class="flex g2 ac mb2"><span class="ai-ico">'+svg('spark')+'</span>'
+        + '<span class="ai-title fs14">'+title+'</span></div>'
+      + '<div class="ai-body fs12">'+body+'</div>'
     + '</div></div>';
 }
-function activityLogCard(stage){
+function activityLogCard(stage,topAlign){
   var logs;
   if(stage==='posting'){
     var pc=postingCounts();
@@ -2435,12 +2483,12 @@ function activityLogCard(stage){
   } else { // uat
     var done=APP.uat?uatDone():0;
     logs=[
-      {icon:'book',tone:'info',t:'Sandbox seeded with opening balances',s:'by system · 18 May 2026 (11:00)'},
-      {icon:'check',tone:'success',t:done+' of '+(APP.uat?APP.uat.tasks.length:4)+' test scenarios completed',s:'by Finance team · 18 May 2026 (11:30)'},
-      {icon:'book',tone:'neutral',t:'Sandbox General Ledger available for review',s:'by system · 18 May 2026 (11:02)'}
+      {icon:'rocket',tone:'info',t:'Pre-go-live ERP environment ready',s:'by system · 18 May 2026 (11:00)'},
+      {icon:'check',tone:'success',t:done+' of '+(APP.uat?APP.uat.tasks.length:3)+' scenarios verified',s:'by Finance team · 18 May 2026 (11:30)'},
+      {icon:'external',tone:'neutral',t:'Scenarios run directly in the live ERP',s:'by system · 18 May 2026 (11:02)'}
     ];
   }
-  return '<div class="card card-pad" style="margin-top:18px"><div class="flex jb ac mb4"><span class="fw7 fs15" style="font-family:var(--font-display);font-weight:800">Activity Log</span><span class="clickable fs12 fw6" style="color:var(--color-action)">See all log</span></div>'
+  return '<div class="card card-pad" style="'+(topAlign?'':'margin-top:18px')+'"><div class="flex jb ac mb4"><span class="fw7 fs15" style="font-family:var(--font-display);font-weight:500">Activity Log</span><span class="clickable fs12 fw6" style="color:var(--color-action)">See all log</span></div>'
     + timelineHTML(logs)
   + '</div>';
 }
@@ -2596,7 +2644,7 @@ function openKlayPicker(idx){
     }).join('');
     return '<div class="picker-group"><div class="picker-group-h">'+grp.g+'</div>'+its+'</div>';
   }).join('');
-  openDrawer('<div class="drawer-head"><div><div class="section-label mb2">Map to Klay account</div><div class="fw7 fs17" style="font-family:var(--font-display);font-weight:800">'+r.name+'</div><div class="mono fs12 muted mt1">'+r.code+' · '+r.ltype+'</div></div><button class="x-btn" onclick="closeDrawer()">'+svg('x')+'</button></div>'
+  openDrawer('<div class="drawer-head"><div><div class="section-label mb2">Map to Klay account</div><div class="fw7 fs17" style="font-family:var(--font-display);font-weight:500">'+r.name+'</div><div class="mono fs12 muted mt1">'+r.code+' · '+r.ltype+'</div></div><button class="x-btn" onclick="closeDrawer()">'+svg('x')+'</button></div>'
     + '<div style="padding:14px 20px 0"><div class="flex ac g2" style="border:1px solid var(--color-border-default);border-radius:var(--radius-md);padding:8px 12px"><span style="color:var(--color-text-tertiary)">'+svg('search')+'</span><input id="klaySearch" placeholder="Search code or name…" oninput="filterPicker()" style="border:none;outline:none;flex:1;font-size:13px;background:transparent"></div></div>'
     + '<div class="drawer-body" id="pickerBody" style="padding-top:12px">'+groups+'</div>'
     + '<style>.picker-group-h{font-size:10.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--color-text-tertiary);padding:10px 0 4px;position:sticky;top:0;background:#fff}.picker-item{display:flex;align-items:center;gap:8px;padding:9px 10px;border-radius:var(--radius-sm);cursor:pointer}.picker-item:hover{background:var(--color-action-wash)}</style>');
@@ -2646,7 +2694,7 @@ function openDimPicker(idx){
       + (isReq?'<span class="badge b-warning" style="font-size:10px">'+svg('alert')+'Required</span>':clearBtn)+'</div>'
       + '<div class="flex g2 ac" style="flex-wrap:wrap">'+vals+'</div></div>';
   }).join('');
-  openDrawer('<div class="drawer-head"><div><div class="section-label mb2">Assign dimension values</div><div class="fw7 fs17" style="font-family:var(--font-display);font-weight:800">'+r.name+'</div><div class="mono fs12 muted mt1">'+r.code+'</div></div><button class="x-btn" onclick="closeDrawer()">'+svg('x')+'</button></div>'
+  openDrawer('<div class="drawer-head"><div><div class="section-label mb2">Assign dimension values</div><div class="fw7 fs17" style="font-family:var(--font-display);font-weight:500">'+r.name+'</div><div class="mono fs12 muted mt1">'+r.code+'</div></div><button class="x-btn" onclick="closeDrawer()">'+svg('x')+'</button></div>'
     + '<div class="drawer-body">'
       + '<div class="ai-banner mb5">'+svg('spark')+'<div><div class="fw7 fs13" style="color:var(--color-brand-hover)">Some dimensions are required for this account</div><div class="fs12" style="color:var(--color-text-secondary);line-height:1.5;margin-top:2px">Pick a value for each required dimension. Tap a chip to select; the highlighted chip is the current value.</div></div></div>'
       + blocks
@@ -2745,8 +2793,23 @@ function finishMapping(){ toast('Mapping complete','Great — moving on to tax c
 /* AI treatment */
 .ai-pill{display:inline-flex;align-items:center;gap:3px;font-size:9.5px;font-weight:700;letter-spacing:.03em;padding:2px 7px;border-radius:var(--radius-full);background:linear-gradient(120deg,#EDE7FB,#E4ECFD);color:#6B4FD8;border:1px solid #D8CDF5}
 .ai-pill svg{width:10px;height:10px;stroke:#6B4FD8}
-.ai-banner{display:flex;gap:10px;align-items:flex-start;background:linear-gradient(120deg,#F3EFFC,#EAF0FD);border:1px solid #DCD2F2;border-radius:var(--radius-md);padding:13px 15px}
-.ai-banner>svg{width:18px;height:18px;stroke:#6B4FD8;flex-shrink:0;margin-top:1px}
+.ai-banner{display:flex;gap:10px;align-items:flex-start;background:linear-gradient(160deg,var(--color-brand-wash),#fff);border:1px solid var(--color-brand-subtle);border-radius:var(--radius-md);padding:13px 15px}
+.ai-banner>svg{width:18px;height:18px;stroke:none;fill:var(--color-brand);flex-shrink:0;margin-top:1px}
+.ai-banner .fw7{color:var(--color-brand-hover)!important}
+/* Unified AI card — terracotta sparkle, brand title, soft peach gradient */
+.ai-card{overflow:hidden;border:1px solid var(--color-brand-subtle)!important;background:linear-gradient(160deg,var(--color-brand-wash),#fff);border-radius:var(--radius-lg)}
+.ai-card .ai-ico{width:38px;height:38px;border-radius:var(--radius-md);background:#fff;border:1px solid var(--color-brand-subtle);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.ai-card .ai-ico svg{width:19px;height:19px;stroke:none;fill:var(--color-brand)}
+.ai-card .ai-title{font-weight:700;color:var(--color-brand-hover)}
+.ai-card .ai-body{line-height:1.55;color:var(--color-text-secondary)}
+.ai-pill{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:var(--radius-full);background:var(--color-brand-wash);border:1px solid var(--color-brand-subtle);color:var(--color-brand-hover);font-size:9.5px;font-weight:700;letter-spacing:.02em}
+.ai-pill svg{width:11px;height:11px;fill:var(--color-brand);stroke:none}
+/* stat cards (overview metrics) */
+.stat-card{display:flex;align-items:center}
+.stat-ico{width:40px;height:40px;border-radius:var(--radius-md);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.stat-ico svg{width:19px;height:19px}
+.stat-num{font-family:var(--font-mono);font-size:28px;font-weight:700;line-height:1;letter-spacing:-.01em}
+.stat-lbl{font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--color-text-tertiary);margin-top:5px}
 /* dimension value chips */
 .dimchip{position:relative;display:inline-flex;align-items:center;gap:5px;padding:7px 13px;border-radius:var(--radius-full);border:1px solid var(--color-border-default);background:#fff;font-size:12.5px;font-weight:600;color:var(--color-text-secondary);cursor:pointer;transition:all var(--tf)}
 .dimchip:hover{border-color:var(--color-action-subtle);background:var(--color-surface-base)}
@@ -2992,31 +3055,30 @@ function ensurePosting(){
   // Deterministic, pre-defined journal posting templates commonly used by Indonesian SMEs.
   // No AI, no auto-post, no confidence, no trigger/category — these are reusable journal templates.
   APP.rules = [
-    {id:'ap_inv', name:'Vendor Bill (AP Invoice)', status:'active',
+    {id:'ap_inv', name:'Vendor Bill (AP Invoice)', status:'active', ai:true, recommend:'strong', saved:false,
      lines:[{dr:'Expense / Inventory (by item)',drc:'var'},{dr:'PPN Masukan',drc:'11400',tax:true},{cr:'Utang Usaha',crc:'21000',ctrl:true}],
-     note:'PPN Masukan accrues when the vendor is PKP. PPh 23 (2%) is withheld on services to the matching tax-payable account.',
-     overrides:[{who:'PT Konsultan Andal (V-003)',rule:'Non-PKP — no PPN Masukan line'}]},
-    {id:'ar_inv', name:'Customer Invoice (AR Invoice)', status:'active',
+     note:'PPN Masukan accrues when the vendor is PKP. PPh 23 (2%) is withheld on services to the matching tax-payable account.'},
+    {id:'ar_inv', name:'Customer Invoice (AR Invoice)', status:'active', ai:true, recommend:'strong', saved:false,
      lines:[{dr:'Piutang Usaha',drc:'11200',ctrl:true},{cr:'Pendapatan Penjualan',crc:'41000'},{cr:'PPN Keluaran',crc:'22000',tax:true}],
-     note:'COGS recognition posts a paired entry when the item is tracked inventory.', overrides:[]},
-    {id:'ap_pay', name:'Vendor Payment', status:'active',
+     note:'COGS recognition posts a paired entry when the item is tracked inventory.'},
+    {id:'ap_pay', name:'Vendor Payment', status:'active', ai:true, recommend:'strong', saved:false,
      lines:[{dr:'Utang Usaha',drc:'21000',ctrl:true},{cr:'Bank',crc:'11110'}],
-     note:'Realized FX gain/loss posts for foreign-currency settlement.', overrides:[]},
-    {id:'ar_rcpt', name:'Customer Receipt', status:'active',
+     note:'Realized FX gain/loss posts for foreign-currency settlement.'},
+    {id:'ar_rcpt', name:'Customer Receipt', status:'active', ai:true, recommend:'strong', saved:false,
      lines:[{dr:'Bank',drc:'11110'},{cr:'Piutang Usaha',crc:'11200',ctrl:true}],
-     note:'Matches to the open invoice; partial receipts supported.', overrides:[]},
-    {id:'payroll', name:'Payroll Run', status:'active',
+     note:'Matches to the open invoice; partial receipts supported.'},
+    {id:'payroll', name:'Payroll Run', status:'active', ai:true, recommend:'normal', saved:false,
      lines:[{dr:'Gaji & Upah',drc:'61000'},{cr:'Utang PPh 21',crc:'22100',tax:true},{cr:'Utang BPJS',crc:'22200',tax:true},{cr:'Bank / Accrued Salaries',crc:'21110'}],
-     note:'PPh 21 and BPJS employee contributions are withheld to their payable accounts.', overrides:[]},
-    {id:'expense', name:'Cash / Petty Expense', status:'active',
+     note:'PPh 21 and BPJS employee contributions are withheld to their payable accounts.'},
+    {id:'expense', name:'Cash / Petty Expense', status:'active', ai:true, recommend:'normal', saved:false,
      lines:[{dr:'Operating Expense (by category)',drc:'var'},{cr:'Kas / Bank',crc:'11100'}],
-     note:'PPN Masukan accrues if a valid faktur is attached.', overrides:[]},
-    {id:'inv_adj', name:'Inventory Adjustment', status:'active',
+     note:'PPN Masukan accrues if a valid faktur is attached.'},
+    {id:'inv_adj', name:'Inventory Adjustment', status:'active', ai:true, recommend:'normal', saved:false,
      lines:[{dr:'COGS / Loss',drc:'51000'},{cr:'Persediaan',crc:'11620'}],
-     note:'Used for stock-count differences and write-offs.', overrides:[]},
-    {id:'depr', name:'Depreciation', status:'active', recurring:'Monthly · last calendar day',
+     note:'Used for stock-count differences and write-offs.'},
+    {id:'depr', name:'Depreciation', status:'active', ai:true, recommend:'normal', saved:false,
      lines:[{dr:'Beban Penyusutan',drc:'63000'},{cr:'Akumulasi Penyusutan',crc:'12200',contra:true}],
-     note:'Straight-line schedule generated from the Fixed Asset register.', overrides:[]}
+     note:'Straight-line schedule generated from the Fixed Asset register.'}
   ];
 }
 // dimensions are derived from the required dimensions of the accounts a template touches
@@ -3032,7 +3094,8 @@ function postingRuleDims(r){
 }
 function postingCounts(){
   var r=APP.rules; return { total:r.length, active:r.filter(function(x){return x.status==='active';}).length,
-    recurring:r.filter(function(x){return x.recurring;}).length };
+    saved:r.filter(function(x){return x.saved;}).length,
+    aiUnsaved:r.filter(function(x){return x.ai&&!x.saved;}).length };
 }
 function renderPosting(){
   ensurePosting();
@@ -3040,60 +3103,87 @@ function renderPosting(){
   var cards='<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">'+APP.rules.map(postingCard).join('')+'</div>';
 
   var workspace = ''
-    + '<div class="flex g2 ac mb5" style="align-items:flex-start;background:var(--color-action-wash);border:1px solid var(--color-action-subtle);border-radius:var(--radius-md);padding:12px 15px;font-size:12.5px;color:var(--color-action);line-height:1.55">'+svg('info')+'<span>These templates follow standard Indonesian SME bookkeeping. They make journals consistent and fast to draft — they do <b>not</b> auto-post. Nothing hits the ledger until someone reviews and approves it in the live ERP.</span></div>'
+    + aiPostingSummary(c)
+    + '<div class="flex g2 ac mb5" style="align-items:flex-start;background:var(--color-action-wash);border:1px solid var(--color-action-subtle);border-radius:var(--radius-md);padding:12px 15px;font-size:12.5px;color:var(--color-action);line-height:1.55">'+svg('info')+'<span>These templates follow standard Indonesian SME bookkeeping. <b>Only the templates you save are carried into your live ERP</b> at go-live \u2014 review each one and hit Save. They never auto-post; nothing hits the ledger until someone approves it in the ERP.</span></div>'
     + '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:18px">'
-      + statCard('Posting templates',c.total,'book','var(--color-action)')
-      + statCard('Active',c.active,'checkCircle','var(--success-text)')
-      + statCard('Recurring',c.recurring,'clock','var(--color-brand)')
+      + statCard('Templates',c.total,'book','var(--color-action)')
+      + statCard('Saved for go-live',c.saved,'checkCircle','var(--success-text)')
+      + statCard('AI-drafted',c.total,'spark','var(--color-brand)')
     + '</div>'
     + '<div class="flex jb ac mb3"><span class="disp" style="font-size:18px">Journal templates <span class="pill-count">'+c.total+'</span></span>'
       + '<button class="btn btn-ghost btn-sm" onclick="addPostingRule()">'+svg('plus')+'New template</button></div>'
     + cards;
 
-  var rail = aiSummaryCard('posting') + activityLogCard('posting');
+  var rail = activityLogCard('posting',true);
 
   return '<div class="canvas">'
-    + '<div class="page-head-row"><div><div class="page-eyebrow">Stage 4 of 6 · <span class="days">Day '+STAGES[3].day+' of 30</span></div>'
+    + '<div class="page-head-row"><div><div class="page-eyebrow">Stage 4 of 6 \u00b7 <span class="days">Day '+STAGES[3].day+' of 30</span></div>'
       + '<div class="page-title">Posting Rules Setup</div>'
-      + '<div class="page-sub">Pre-defined journal templates for the events an Indonesian SME records most often. Each maps to its debit/credit lines — review, edit, or remove what you don\'t need.</div></div>'
-      + '<div class="flex g2"><button class="btn btn-ghost" onclick="skipPostingRules()">'+svg('arrowRight')+'Skip for now</button>'
-      + '<button class="btn btn-primary" onclick="jumpStage(5)">Continue to UAT '+svg('arrowRight')+'</button></div></div>'
+      + '<div class="page-sub">Pre-defined journal templates for the events an Indonesian SME records most often. Each maps to its debit/credit lines \u2014 review, then <b>save</b> the ones you want in your live ERP.</div></div>'
+      + '<div class="flex g2">'+( postingCounts().saved>0
+          ? '<button class="btn btn-ghost" onclick="resetPosting()">'+svg('replace')+'Reset</button>'
+          : '<button class="btn btn-ghost" onclick="skipPostingRules()">'+svg('arrowRight')+'Skip for now</button>' )
+      + '<button class="btn btn-primary" onclick="continuePosting()">'+svg('check')+'Confirm &amp; continue '+svg('arrowRight')+'</button></div></div>'
     + '<div class="ws-2col">'
       + '<div class="ws-main">'+workspace+'</div>'
       + '<div class="ws-rail">'+rail+'</div>'
     + '</div>'
     + '</div>';
 }
-function statCard(label,val,icon,color){
-  return '<div class="card" style="padding:16px 18px"><div class="flex ac g3">'
-    + '<div style="width:38px;height:38px;border-radius:var(--radius-md);background:'+hexA(color,.1)+';display:flex;align-items:center;justify-content:center;color:'+color+';flex-shrink:0">'+svg(icon)+'</div>'
-    + '<div><div class="section-label mb1">'+label+'</div><div class="num" style="font-size:26px;font-weight:700;color:'+color+';font-family:var(--font-mono);line-height:1">'+val+'</div></div>'
+// AI summary acts as a shortcut to save ALL AI-suggested templates at once (like account mapping)
+function aiPostingSummary(c){
+  if(!c.aiUnsaved) return '';
+  return '<div class="card ai-card mb5">'
+    + '<div class="flex jb ac" style="padding:16px 20px;gap:16px;flex-wrap:wrap">'
+      + '<div class="flex g3 ac" style="align-items:flex-start;flex:1;min-width:280px">'
+        + '<span class="ai-ico">'+svg('spark')+'</span>'
+        + '<div><div class="ai-title fs15">Klay drafted '+c.aiUnsaved+' posting template'+(c.aiUnsaved>1?'s':'')+' for you</div>'
+          + '<div class="ai-body fs12.5" style="margin-top:3px;max-width:560px">These are AI-generated from standard Indonesian SME bookkeeping. Review them, then <b>save all at once</b> \u2014 or open any card to adjust and save it individually. Only saved templates go to your live ERP.</div></div>'
+      + '</div>'
+      + '<div class="flex g2 ac" style="flex-shrink:0">'
+        + '<button class="btn btn-primary btn-sm" onclick="saveAllAiPosting()">'+svg('check')+'Save all '+c.aiUnsaved+'</button>'
+      + '</div>'
     + '</div></div>';
+}
+function statCard(label,val,icon,color){
+  return '<div class="card stat-card" style="padding:18px 20px">'
+    + '<div class="flex ac g3">'
+      + '<div class="stat-ico" style="background:'+hexA(color,.1)+';color:'+color+'">'+svg(icon)+'</div>'
+      + '<div style="min-width:0">'
+        + '<div class="stat-num num" style="color:'+color+'">'+val+'</div>'
+        + '<div class="stat-lbl">'+label+'</div>'
+      + '</div>'
+    + '</div>'
+  + '</div>';
 }
 
 function postingCard(r){
   var idx=APP.rules.indexOf(r);
-  var recBadge = r.recurring? '<span class="badge b-info">'+svg('clock')+'Recurring</span>':'';
-  var ovBadge = (r.overrides&&r.overrides.length)? '<span class="badge b-neutral" style="font-size:10px">'+svg('users')+r.overrides.length+' override'+(r.overrides.length>1?'s':'')+'</span>':'';
   var lines=r.lines.map(function(l){
     var isDr = !!l.dr;
     var name = isDr? l.dr : l.cr; var code = isDr? l.drc : l.crc;
     var codeTxt = (code&&code!=='var')? '<span class="mono fs11 muted">'+code+'</span> ':'';
-    var tag = l.tax?'<span class="badge b-warning" style="font-size:9px">tax</span>':l.ctrl?'<span class="badge b-danger" style="font-size:9px">CTRL</span>':l.contra?'<span class="badge b-neutral" style="font-size:9px">contra</span>':'';
+    var tag = l.tax?'<span class="badge b-warning" style="font-size:9px">tax</span>':'';
     return '<div class="flex g2 ac" style="padding:3px 0;font-size:12px"><span class="badge '+(isDr?'b-info':'b-neutral')+'" style="font-size:9.5px;width:26px;justify-content:center">'+(isDr?'DR':'CR')+'</span>'+codeTxt+'<span class="sec" style="flex:1">'+name+'</span>'+tag+'</div>';
   }).join('');
-  var dimIds=postingRuleDims(r);
-  var dimChips = dimIds.length
-    ? dimIds.map(function(d){var dim=dimById(d);return dim?'<span class="badge" style="background:'+hexA(dim.color,.12)+';color:'+dim.color+';border-color:'+hexA(dim.color,.3)+';font-size:9.5px">'+dim.name+'</span>':'';}).join('')
-    : '<span class="fs11 muted">No required dimensions on these accounts</span>';
-  return '<div class="card" style="padding:16px 18px">'
+  // AI + recommendation labels
+  var aiTag = r.ai? '<span class="ai-pill">'+svg('spark')+'Generated by AI</span>':'';
+  var recTag = r.recommend==='strong'
+      ? '<span class="badge b-success" style="font-size:9.5px">'+svg('check')+'Strongly recommended</span>'
+      : (r.recommend==='normal'? '<span class="badge b-info" style="font-size:9.5px">Recommended</span>':'');
+  var saved = !!r.saved;
+  return '<div class="card'+(saved?' is-saved':'')+'" style="padding:16px 18px;'+(saved?'border-color:var(--success-border)':'')+'">'
     + '<div class="clickable" onclick="openPostingRule('+idx+')">'
-    + '<div class="flex jb ac mb3" style="align-items:flex-start"><span class="fw7 fs15">'+r.name+'</span>'+(r.recurring?'<span class="badge b-info">'+svg('clock')+'Recurring</span>':'')+'</div>'
-    + '<div style="background:var(--color-surface-base);border:1px solid var(--color-border-subtle);border-radius:var(--radius-sm);padding:8px 11px;margin-bottom:10px">'+lines+'</div>'
-    + '<div class="section-label mb2">Dimensions to tag</div><div class="flex g1 ac mb1" style="flex-wrap:wrap">'+dimChips+ovBadge+'</div></div>'
+    + '<div class="flex jb ac mb2" style="align-items:flex-start"><span class="fw7 fs15">'+r.name+'</span>'+(saved?'<span class="badge b-success" style="font-size:9.5px">'+svg('check')+'Saved</span>':'')+'</div>'
+    + '<div class="flex g1 ac mb3" style="flex-wrap:wrap">'+aiTag+recTag+'</div>'
+    + '<div style="background:var(--color-surface-base);border:1px solid var(--color-border-subtle);border-radius:var(--radius-sm);padding:8px 11px">'+lines+'</div></div>'
     + '<div class="flex jb ac" style="border-top:1px solid var(--color-border-subtle);padding-top:10px;margin-top:6px">'
-      + '<span class="fs11 muted">Template — reused in the live ERP</span>'
-      + '<div class="flex g2 ac"><button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();openPostingRule('+idx+')">'+svg('edit')+'Edit</button>'
+      + '<span class="fs11 '+(saved?'':'muted')+'" style="'+(saved?'color:var(--success-text)':'')+'">'+(saved?'Will be created in your live ERP':'Not saved \u2014 won\u2019t go to the ERP yet')+'</span>'
+      + '<div class="flex g2 ac">'
+        + (saved
+            ? '<button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();unsavePostingRule('+idx+')">'+svg('check')+'Saved</button>'
+            : '<button class="btn btn-primary btn-sm" onclick="event.stopPropagation();savePostingRule('+idx+')">'+svg('check')+'Save</button>')
+        + '<button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();openPostingRule('+idx+')">'+svg('edit')+'Edit</button>'
         + '<button class="btn btn-ghost btn-sm" style="color:var(--danger-text)" onclick="event.stopPropagation();deletePostingRule('+idx+')">'+svg('trash')+'</button></div>'
     + '</div>'
   + '</div>';
@@ -3101,26 +3191,13 @@ function postingCard(r){
 function openPostingRule(idx){
   var r=APP.rules[idx];
   var lines=postingLinesEditor(idx);
-  var dimIds=postingRuleDims(r);
-  var dims=dimIds.map(function(d){var dim=dimById(d);return dim?'<span class="badge" style="background:'+hexA(dim.color,.12)+';color:'+dim.color+';border-color:'+hexA(dim.color,.3)+'">'+dim.name+'</span>':'';}).join(' ');
-  var overrides = (r.overrides&&r.overrides.length)
-    ? r.overrides.map(function(o,oi){return '<div class="flex jb ac" style="border:1px solid var(--color-border-default);border-radius:var(--radius-sm);padding:10px 12px;margin-bottom:6px"><div><div class="fs13 fw6">'+o.who+'</div><div class="fs12 muted">'+o.rule+'</div></div><button class="x-btn" onclick="removeOverride('+idx+','+oi+')">'+svg('trash')+'</button></div>';}).join('')
-    : '<div class="fs13 muted mb3" style="line-height:1.55">No overrides yet. Add one to change the accounts for a specific counterparty — e.g. a non-PKP vendor that posts to a different account.</div>';
-  openDrawer('<div class="drawer-head"><div><div class="section-label mb2 flex ac g2">Posting template</div><div class="fw7 fs17" style="font-family:var(--font-display);font-weight:800">'+r.name+'</div></div><button class="x-btn" onclick="closeDrawer()">'+svg('x')+'</button></div>'
+  openDrawer('<div class="drawer-head"><div><div class="section-label mb2 flex ac g2">Posting template</div><div class="fw7 fs17" style="font-family:var(--font-display);font-weight:500">'+r.name+'</div></div><button class="x-btn" onclick="closeDrawer()">'+svg('x')+'</button></div>'
     + '<div class="drawer-body">'
       + '<div class="section-label mb2">Template name</div><input class="cfg-input2 mb5" value="'+r.name.replace(/"/g,'&quot;')+'" onchange="editPostingField('+idx+',\'name\',this.value)">'
       + '<div class="flex jb ac mb2"><span class="section-label">Journal template</span><button class="btn btn-ghost btn-xs" onclick="addPostingLine('+idx+')">'+svg('plus')+'Add line</button></div>'
       + '<div class="fs12 muted mb3">Pick the account for each line. Leave a line as <b>Dynamic</b> when the account is resolved at posting time (e.g. expense by item).</div>'
       + '<div class="mb5">'+lines+'</div>'
-      + '<div class="section-label mb2">Dimensions to tag</div>'
-      + '<div class="fs12 muted mb2" style="line-height:1.5">Derived from the <b>required dimensions</b> of the accounts in this template (set in Configure Klay CoA).</div>'
-      + '<div class="flex g1 mb5" style="flex-wrap:wrap">'+(dims||'<span class="muted fs13">None — these accounts have no required dimensions</span>')+'</div>'
       + (r.note?'<div class="flex g2 ac mb5" style="align-items:flex-start;background:var(--color-surface-base);border:1px solid var(--color-border-default);border-radius:var(--radius-md);padding:12px 14px;font-size:12.5px;color:var(--color-text-secondary);line-height:1.55">'+svg('info')+'<span>'+r.note+'</span></div>':'')
-      + (r.recurring?'<div class="flex ac g2 fs13 mb5" style="color:var(--color-action)">'+svg('clock')+'Recurring schedule: <b>'+r.recurring+'</b></div>':'')
-      + '<div class="hr"></div>'
-      + '<div class="flex jb ac mb3"><span class="section-label">Vendor / customer overrides</span><span class="pill-count">'+((r.overrides||[]).length)+'</span></div>'
-      + overrides
-      + '<button class="btn btn-ghost btn-sm btn-block mt2" onclick="addOverride('+idx+')">'+svg('plus')+'Add an override</button>'
       + '<div class="hr"></div>'
       + '<button class="btn btn-danger-ghost btn-sm btn-block" onclick="deletePostingRule('+idx+')">'+svg('trash')+'Delete this template</button>'
     + '</div>'
@@ -3191,23 +3268,6 @@ function removePostingLine(idx,li){ APP.rules[idx].lines.splice(li,1); markPosti
 function reopenPostingDrawer(idx){ openPostingRule(idx); renderPage(); }
 function editPostingField(idx,field,val){ APP.rules[idx][field]=val; markPostingEdited(idx); }
 function savePostingRule(idx){ closeDrawer(); renderPage(); toast('Template saved','Changes to '+APP.rules[idx].name+' saved.','success'); }
-function addOverride(idx){
-  openModal('<div class="modal-card"><div class="modal-icon" style="background:var(--color-action-wash)"><svg viewBox="0 0 24 24" style="stroke:var(--color-action)">'+IC.users+'</svg></div>'
-    + '<div class="modal-title">Add an override</div><div class="modal-text">Pick a counterparty and describe the exception to this rule.</div>'
-    + '<div class="section-label mb2">Vendor / customer</div>'
-    + '<select id="ovWho" class="cfg-input2 mb4" style="margin-bottom:16px"><option>PT Sumber Elektronik (V-001)</option><option>PT Konsultan Andal (V-003)</option><option>Koperasi Tani Sejahtera (V-004)</option><option>PT Ritel Nusantara (C-001)</option><option>Hypermarket Jaya (C-002)</option></select>'
-    + '<div class="section-label mb2">Override behaviour</div>'
-    + '<select id="ovRule" class="cfg-input2" style="margin-bottom:8px"><option>Non-PKP — no PPN Masukan line</option><option>Apply PPh 23 at 4% (non-NPWP gross-up)</option><option>Post to a specific expense account</option><option>Always route to review (never auto-post)</option><option>Use a different payable/receivable account</option></select>'
-    + '<div class="modal-foot"><button class="btn btn-ghost" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="doAddOverride('+idx+')">'+svg('plus')+'Add override</button></div></div>'
-    + postingSwitchStyle());
-}
-function doAddOverride(idx){
-  var who=document.getElementById('ovWho').value, rule=document.getElementById('ovRule').value;
-  APP.rules[idx].overrides=APP.rules[idx].overrides||[]; APP.rules[idx].overrides.push({who:who,rule:rule});
-  markPostingEdited(idx); closeModal(); openPostingRule(idx); renderPage();
-  toast('Override added',who+' — '+rule,'success');
-}
-function removeOverride(idx,oi){ APP.rules[idx].overrides.splice(oi,1); markPostingEdited(idx); openPostingRule(idx); renderPage(); }
 function addPostingRule(){ APP.postingNewForm={name:'',lines:[{t:'DR',name:'',code:'var'},{t:'CR',name:'',code:'var'}]}; APP.view='posting-new'; render(); }
 function cancelNewPostingRule(){ APP.postingNewForm=null; APP.view='stage'; render(); }
 function renderNewPostingRule(){
@@ -3246,9 +3306,40 @@ function newRuleToggleDim(id){ var d=APP.postingNewForm.dims; var i=d.indexOf(id
 function saveNewPostingRule(){
   var f=APP.postingNewForm;
   var lines=f.lines.map(function(l){ var o={}; var nm=l.name||(l.code&&l.code!=='var'?(klayByCode(l.code)||{}).n:'Dynamic (by item)'); if(l.t==='DR'){o.dr=nm||'Account';o.drc=l.code||'var';}else{o.cr=nm||'Account';o.crc=l.code||'var';} var k=klayByCode(l.code); if(k&&k.ctrl)o.ctrl=true; if(k&&k.group&&k.group.indexOf('Tax')>=0)o.tax=true; return o; });
-  APP.rules.push({id:'custom'+APP.rules.length,name:f.name||'New Template',status:'active',
-    lines:lines,note:'Custom template you created.',overrides:[]});
-  APP.postingNewForm=null; APP.view='stage'; render(); toast('Template created',(f.name||'New Template')+' added.','success');
+  APP.rules.push({id:'custom'+APP.rules.length,name:f.name||'New Template',status:'active', ai:false, recommend:null, saved:true,
+    lines:lines,note:'Custom template you created.'});
+  APP.postingNewForm=null; APP.view='stage'; render(); toast('Template created',(f.name||'New Template')+' added and saved for go-live.','success');
+}
+function savePostingRule(idx){ var r=APP.rules[idx]; if(r){r.saved=true;} closeDrawer(); renderPage(); toast('Template saved',(r?r.name:'Template')+' will be created in your live ERP.','success'); }
+function unsavePostingRule(idx){ var r=APP.rules[idx]; if(r){r.saved=false;} renderPage(); toast('Removed from go-live',(r?r.name:'Template')+' won\u2019t be carried to the ERP.','info'); }
+function saveAllAiPosting(){
+  var n=0; APP.rules.forEach(function(r){ if(r.ai&&!r.saved){r.saved=true;n++;} });
+  renderPage(); toast('Saved '+n+' template'+(n!==1?'s':''),'All AI-drafted templates will be created in your live ERP.','success');
+}
+function resetPosting(){
+  openModal('<div class="modal-card"><div class="modal-icon" style="background:var(--warning-surface)"><svg viewBox="0 0 24 24" style="stroke:var(--warning-text)">'+IC.replace+'</svg></div>'
+    + '<div class="modal-title">Reset saved templates?</div>'
+    + '<div class="modal-text">This unsaves every posting template, so none will be carried to your live ERP. The templates themselves stay on the page \u2014 you can save them again anytime.</div>'
+    + '<div class="modal-foot"><button class="btn btn-ghost" onclick="closeModal()">Cancel</button><button class="btn btn-brand" onclick="doResetPosting()">'+svg('replace')+'Reset</button></div></div>');
+}
+function doResetPosting(){ APP.rules.forEach(function(r){r.saved=false;}); APP.confirmed.posting=false; closeModal(); renderPage(); toast('Templates reset','Nothing is saved for go-live. Save the ones you want.','info'); }
+function continuePosting(){
+  var c=postingCounts();
+  if(c.saved===0){
+    openModal('<div class="modal-card"><div class="modal-icon" style="background:var(--warning-surface)"><svg viewBox="0 0 24 24" style="stroke:var(--warning-text)">'+IC.alert+'</svg></div>'
+      + '<div class="modal-title">No templates saved yet</div>'
+      + '<div class="modal-text">You haven\u2019t saved any posting templates, so <b>none will be created in your live ERP</b>. You can save them now, or continue and add them later.</div>'
+      + '<div class="modal-foot"><button class="btn btn-ghost" onclick="closeModal();jumpStage(5)">Continue anyway</button><button class="btn btn-primary" onclick="closeModal()">Back to set up</button></div></div>');
+    return;
+  }
+  if(c.aiUnsaved>0){
+    openModal('<div class="modal-card"><div class="modal-icon" style="background:var(--warning-surface)"><svg viewBox="0 0 24 24" style="stroke:var(--warning-text)">'+IC.alert+'</svg></div>'
+      + '<div class="modal-title">'+c.aiUnsaved+' template'+(c.aiUnsaved>1?'s':'')+' not saved</div>'
+      + '<div class="modal-text">'+c.saved+' saved, but '+c.aiUnsaved+' AI-drafted template'+(c.aiUnsaved>1?'s are':' is')+' still unsaved and <b>won\u2019t go to your live ERP</b>. Save '+(c.aiUnsaved>1?'them':'it')+' first, or continue without.</div>'
+      + '<div class="modal-foot"><button class="btn btn-ghost" onclick="closeModal();confirmStage(\'posting\')">Continue without</button><button class="btn btn-primary" onclick="closeModal();saveAllAiPosting()">Save all '+c.aiUnsaved+'</button></div></div>');
+    return;
+  }
+  confirmStage('posting');
 }
 function deletePostingRule(idx){
   var name=APP.rules[idx].name;
@@ -3264,7 +3355,7 @@ function skipPostingRules(){
     + '<label class="flex g3" style="align-items:flex-start;background:var(--color-surface-base);border:1px solid var(--color-border-default);border-radius:var(--radius-md);padding:14px;cursor:pointer"><input type="checkbox" id="skipchk" onchange="document.getElementById(\'skipbtn\').disabled=!this.checked" style="margin-top:2px;width:16px;height:16px;accent-color:var(--danger-text)"><span class="fs13 sec" style="line-height:1.55">I understand no posting rules will be active in the live ERP, and transactions will need manual journals.</span></label>'
     + '<div class="modal-foot"><button class="btn btn-ghost" onclick="closeModal()">Go back</button><button class="btn btn-brand" id="skipbtn" disabled onclick="doSkipPostingRules()">Skip posting rules</button></div></div>');
 }
-function doSkipPostingRules(){ APP.postingSkipped=true; closeModal(); jumpStage(4); toast('Posting rules skipped','No rules will be active in the live ERP. You can add them anytime before go-live.','info'); }
+function doSkipPostingRules(){ APP.postingSkipped=true; closeModal(); jumpStage(5); toast('Posting rules skipped','No rules will be active in the live ERP. You can add them anytime before go-live.','info'); }
 </script>
 <script>
 /* ============================================================
@@ -3380,7 +3471,7 @@ function renderTax(){
     + '<div class="page-head-row"><div><div class="page-eyebrow">Stage 3 of 6 · <span class="days">Day '+STAGES[2].day+' of 30</span></div>'
       + '<div class="page-title">Tax Configuration</div>'
       + '<div class="page-sub">Set up the tax codes your ERP applies to transactions — rate, tax base, and the account each one posts to. Klay recommends the accounts; adjust where your entity differs.</div></div>'
-      + '<button class="btn btn-primary" '+(taxReady?'onclick="jumpStage(4)"':'disabled title="Resolve the missing accounts first"')+'>Continue to posting rules '+svg('arrowRight')+'</button></div>'
+      + '<button class="btn btn-primary" '+(taxReady?'onclick="confirmStage(\'tax\')"':'disabled title="Resolve the missing accounts first"')+'>'+svg('check')+'Confirm &amp; continue '+svg('arrowRight')+'</button></div>'
     + blockBanner
     + '<div class="flex g2 ac mb5" style="align-items:flex-start;background:var(--color-surface-base);border:1px solid var(--color-border-default);border-radius:var(--radius-md);padding:12px 15px;font-size:12.5px;color:var(--color-text-secondary);line-height:1.55">'+svg('info')+'<span>Your entity tax profile — PKP status, NPWP and e-Faktur — is on your migration dashboard. This entity is set up as <b>'+(t.pkp?'PKP (collects &amp; remits PPN)':'Non-PKP')+'</b>'+(t.pkp?'':' — PPN codes are hidden')+'.</span></div>'
     + '<div class="ws-2col">'
@@ -3403,7 +3494,7 @@ function editFaktur(key,v){ APP.taxCfg.faktur[key]=v; renderPage(); }
 function pickTaxAcct(field){
   var taxAccts=KLAY_FLAT.filter(function(x){return x.atype==='Tax'||x.group.indexOf('Tax')>=0||x.group.indexOf('System Reserved')>=0;});
   var items=taxAccts.map(function(it){return '<div class="picker-item" onclick="setTaxAcct(\''+field+'\',\''+it.c+'\')"><span class="mono fs12 muted" style="width:54px;display:inline-block">'+it.c+'</span><span class="fs13">'+it.n+'</span> '+tierTag(it)+'</div>';}).join('');
-  openDrawer('<div class="drawer-head"><div><div class="section-label mb2">Select tax account</div><div class="fw7 fs17" style="font-family:var(--font-display);font-weight:800">'+field+'</div></div><button class="x-btn" onclick="closeDrawer()">'+svg('x')+'</button></div>'
+  openDrawer('<div class="drawer-head"><div><div class="section-label mb2">Select tax account</div><div class="fw7 fs17" style="font-family:var(--font-display);font-weight:500">'+field+'</div></div><button class="x-btn" onclick="closeDrawer()">'+svg('x')+'</button></div>'
     + '<div class="drawer-body">'+items+'</div>'
     + '<style>.picker-item{display:flex;align-items:center;gap:8px;padding:9px 10px;border-radius:var(--radius-sm);cursor:pointer}.picker-item:hover{background:var(--color-action-wash)}</style>');
 }
@@ -3417,8 +3508,8 @@ function pickTaxCodeAccount(i){
   var none='<div class="picker-item" onclick="setTaxCodeAccount('+i+',\'\')"><span class="muted fs13">— None</span></div>';
   var items=accts.map(function(it){return '<div class="picker-item" onclick="setTaxCodeAccount('+i+',\''+it.c+'\')"><span class="mono fs12 muted" style="width:54px;display:inline-block">'+it.c+'</span><span class="fs13">'+it.n+'</span> '+tierTag(it)+'</div>';}).join('');
   var tc=APP.taxCfg.taxCodes[i];
-  openDrawer('<div class="drawer-head"><div><div class="section-label mb2">Account · '+tc.code+'</div><div class="fw7 fs17" style="font-family:var(--font-display);font-weight:800">'+tc.name+'</div></div><button class="x-btn" onclick="closeDrawer()">'+svg('x')+'</button></div>'
-    + '<div class="drawer-body"><div class="ai-banner mb4" style="background:var(--warning-surface);border-color:var(--warning-border)">'+svg('spark')+'<div><div class="fw7 fs13" style="color:var(--warning-text)">AI-recommended account</div><div class="fs12" style="color:var(--color-text-secondary);line-height:1.5;margin-top:2px">Klay picked this from your chart of accounts. Choose another if your entity posts it elsewhere.</div></div></div>'
+  openDrawer('<div class="drawer-head"><div><div class="section-label mb2">Account · '+tc.code+'</div><div class="fw7 fs17" style="font-family:var(--font-display);font-weight:500">'+tc.name+'</div></div><button class="x-btn" onclick="closeDrawer()">'+svg('x')+'</button></div>'
+    + '<div class="drawer-body"><div class="ai-banner mb4">'+svg('spark')+'<div><div class="fw7 fs13">AI-recommended account</div><div class="fs12" style="color:var(--color-text-secondary);line-height:1.5;margin-top:2px">Klay picked this from your chart of accounts. Choose another if your entity posts it elsewhere.</div></div></div>'
       + none + items + '</div>'
     + '<style>.picker-item{display:flex;align-items:center;gap:8px;padding:9px 10px;border-radius:var(--radius-sm);cursor:pointer}.picker-item:hover{background:var(--color-action-wash)}</style>');
 }
@@ -3439,7 +3530,7 @@ function openTaxCodeDrawer(){
     : '<div class="fs12 muted" style="padding:8px 0">'+(d.rateType==='variable'?'Rate entered per transaction':'Computed at year-end')+'</div>';
   var acctK = d.account?klayByCode(d.account):null;
   var acctLbl = acctK?('<span class="mono fs12 muted">'+acctK.c+'</span> '+shortName(acctK.n)):'<span class="muted">Choose account…</span>';
-  openDrawer('<div class="drawer-head"><div><div class="section-label mb2">Tax setup</div><div class="fw7 fs17" style="font-family:var(--font-display);font-weight:800">Add a tax code</div></div><button class="x-btn" onclick="cancelTaxCode()">'+svg('x')+'</button></div>'
+  openDrawer('<div class="drawer-head"><div><div class="section-label mb2">Tax setup</div><div class="fw7 fs17" style="font-family:var(--font-display);font-weight:500">Add a tax code</div></div><button class="x-btn" onclick="cancelTaxCode()">'+svg('x')+'</button></div>'
     + '<div class="drawer-body">'
       + '<div class="fs13 muted mb5" style="line-height:1.55">Create a custom tax code for a treatment not already in the standard list. Fill in how it behaves and which account it posts to.</div>'
       + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:0 16px">'
@@ -3469,7 +3560,7 @@ function pickTaxDraftAccount(){
   var accts=KLAY_FLAT.filter(function(x){return x.post!==false;});
   var none='<div class="picker-item" onclick="setTaxDraftAccount(\'\')"><span class="muted fs13">— None</span></div>';
   var items=accts.map(function(it){return '<div class="picker-item" onclick="setTaxDraftAccount(\''+it.c+'\')"><span class="mono fs12 muted" style="width:54px;display:inline-block">'+it.c+'</span><span class="fs13">'+it.n+'</span> '+tierTag(it)+'</div>';}).join('');
-  openDrawer('<div class="drawer-head"><div><div class="section-label mb2">Posting account</div><div class="fw7 fs17" style="font-family:var(--font-display);font-weight:800">Add a tax code</div></div><button class="x-btn" onclick="openTaxCodeDrawer()">'+svg('x')+'</button></div>'
+  openDrawer('<div class="drawer-head"><div><div class="section-label mb2">Posting account</div><div class="fw7 fs17" style="font-family:var(--font-display);font-weight:500">Add a tax code</div></div><button class="x-btn" onclick="openTaxCodeDrawer()">'+svg('x')+'</button></div>'
     + '<div class="drawer-body">'+none+items+'</div>'
     + '<style>.picker-item{display:flex;align-items:center;gap:8px;padding:9px 10px;border-radius:var(--radius-sm);cursor:pointer}.picker-item:hover{background:var(--color-action-wash)}</style>');
 }
@@ -3492,320 +3583,160 @@ function togglePph(i,v){ APP.taxCfg.pph[i].on=v; renderPage(); toast(APP.taxCfg.
    ============================================================ */
 function ensureUAT(){
   if(APP.uat) return;
-  APP.uat={ view:'summary', journal:[], lastScenario:null, tasks:[
-    {id:'bill', label:'Record a vendor bill', desc:'Confirm PPN Masukan and PPh withholding post automatically.', icon:'truck', done:false},
-    {id:'inv', label:'Issue a customer invoice', desc:'Confirm Output VAT (PPN Keluaran) accrues on the sale.', icon:'receipt', done:false},
-    {id:'je', label:'Post a manual journal', desc:'Confirm the GL accepts a balanced manual entry.', icon:'book', done:false},
-    {id:'tb', label:'Post a journal & check the Trial Balance', desc:'Post an entry, then open the Trial Balance and confirm total debits equal total credits.', icon:'scale', done:false}
-  ],
-  // seeded opening balances so the GL / Trial Balance aren't empty before a scenario
-  opening:[
-    {ref:'OPENING',code:'11110',dr:185000000,cr:0},
-    {ref:'OPENING',code:'11200',dr:96250000,cr:0},
-    {ref:'OPENING',code:'11620',dr:142000000,cr:0},
-    {ref:'OPENING',code:'21000',dr:0,cr:72400000},
-    {ref:'OPENING',code:'32000',dr:0,cr:350850000}
+  APP.uat={ tasks:[
+    {id:'je',   label:'Manual journal entry', desc:'Post a balanced manual journal in the live ERP, then open the Trial Balance and confirm debits equal credits.', icon:'book',    dest:'Journal Entry', mode:null, done:false},
+    {id:'bill', label:'Record a vendor bill', desc:'Create a vendor bill, post it to the GL, then check the Trial Balance reflects the AP and tax.',               icon:'truck',   dest:'Bills → New bill', mode:null, done:false},
+    {id:'inv',  label:'Record a customer invoice', desc:'Issue a sales invoice, post it to the GL, then check the Trial Balance reflects the AR and Output VAT.',        icon:'receipt', dest:'Invoices → New invoice',  mode:null, done:false}
   ]};
 }
-// full ledger = opening + posted journal
-function uatAllRows(){ return (APP.uat.opening||[]).concat(APP.uat.journal); }
-// net balance per account code
-function uatBalances(rows){ var b={}; rows.forEach(function(l){ b[l.code]=(b[l.code]||0)+(l.dr||0)-(l.cr||0); }); return b; }
+// Base URL of the live (pre-go-live) Klay ERP environment.
+// NOTE: the ERP is a client-side SPA on GitHub Pages, so deep links (e.g. /journal-entry)
+// 404 on a hard load. We always open the app ROOT and tell the user which menu to click.
+var ERP_BASE='https://fzerlina.github.io/klay/';
+function erpUrl(){ return ERP_BASE; }
 function uatDone(){ return APP.uat.tasks.filter(function(t){return t.done;}).length; }
 function uatTaskById(id){ return APP.uat.tasks.filter(function(t){return t.id===id;})[0]; }
+function markTask(id){ var t=uatTaskById(id); if(t)t.done=true; }
+
 function renderUAT(){
-  ensureUAT(); var u=APP.uat;
-  if(u.view==='summary') return uatSummary();
-  if(u.view==='bill') return uatGuidedPage('bill','Record a Vendor Bill','Pick a vendor and amount. Watch how Klay builds the journal — including tax — before you post.', uatBillForm());
-  if(u.view==='inv') return uatGuidedPage('inv','Issue a Customer Invoice','Create a sales invoice and confirm Output VAT accrues automatically.', uatInvoiceForm());
-  if(u.view==='je') return uatGuidedPage('je','Post a Manual Journal','Post a simple balanced entry to confirm the GL accepts manual postings.', uatManualForm());
-  if(u.view==='tb') return uatTrialBalancePage();
-  if(u.view==='impact') return uatImpactPage();
-  if(u.view==='ledger') return uatGuidedPage('ledger','Sandbox General Ledger','Every line you\'ve posted in this sandbox.', uatLedger());
+  ensureUAT();
+  if(APP.uat.view==='run' && APP.uat.activeTask) return uatRunPage(APP.uat.activeTask);
   return uatSummary();
 }
 function uatGoto(v){ APP.uat.view=v; renderPage(); }
+function uatOpenTask(id){ APP.uat.view='run'; APP.uat.activeTask=id; renderPage(); }
+function uatBackToSummary(){ APP.uat.view='summary'; APP.uat.activeTask=null; renderPage(); }
+
 function uatSummary(){
   var u=APP.uat; var done=uatDone(); var allDone=done===u.tasks.length;
-  var je=u.journal;
-  var cards=u.tasks.map(function(t){
-    return '<div class="card clickable" style="padding:18px 20px" onclick="uatGoto(\''+t.id+'\')" onmouseover="this.style.boxShadow=\'var(--shadow-md)\'" onmouseout="this.style.boxShadow=\'var(--shadow-sm)\'">'
+  var cards=u.tasks.map(function(t,i){
+    var modeTag = t.mode? '<span class="badge '+(t.mode==='real'?'b-info':'b-neutral')+'" style="font-size:9.5px">'+(t.mode==='real'?'Go-live data':'Simulation')+'</span>' : '';
+    return '<div class="card clickable" style="padding:18px 20px" onclick="uatOpenTask(\''+t.id+'\')" onmouseover="this.style.boxShadow=\'var(--shadow-md)\'" onmouseout="this.style.boxShadow=\'var(--shadow-sm)\'">'
       + '<div class="flex jb ac mb2"><div style="width:42px;height:42px;border-radius:var(--radius-md);background:'+(t.done?'var(--success-surface)':'var(--color-brand-wash)')+';display:flex;align-items:center;justify-content:center;color:'+(t.done?'var(--success-text)':'var(--color-brand)')+'">'+svg(t.done?'checkCircle':t.icon)+'</div>'
-      + (t.done?'<span class="badge b-success" style="font-size:10px">'+svg('check')+'Done</span>':'<span class="badge b-neutral" style="font-size:10px">To try</span>')+'</div>'
+      + (t.done?'<span class="badge b-success" style="font-size:10px">'+svg('check')+'Verified</span>':'<span class="badge b-neutral" style="font-size:10px">To try</span>')+'</div>'
+      + '<div class="flex ac g2 mb1" style="flex-wrap:wrap"><span class="fs11 muted mono">Scenario '+(i+1)+'</span>'+modeTag+'</div>'
       + '<div class="fw7 fs15 mb1">'+t.label+'</div><div class="fs12 muted" style="line-height:1.5;margin-bottom:10px">'+t.desc+'</div>'
-      + '<div class="fs12 fw6" style="color:var(--color-action)">'+(t.done?'Open again':'Start')+' '+svg('arrowRight')+'</div>'
+      + '<div class="fs12 fw6" style="color:var(--color-action)">'+(t.done?'Run again':'Start scenario')+' '+svg('arrowRight')+'</div>'
     + '</div>';
   }).join('');
+
   var workspace = ''
-    // progress strip
     + '<div class="card card-pad mb5" style="background:linear-gradient(160deg,var(--color-brand-wash),#fff)">'
-      + '<div class="flex jb ac mb3"><div class="flex ac g2" style="color:var(--color-brand-hover);font-weight:700">'+svg('rocket')+'UAT scenarios</div><span class="fs13 muted"><b class="num" style="color:var(--color-text-primary);font-size:16px">'+done+'</b> of '+u.tasks.length+' completed</span></div>'
+      + '<div class="flex jb ac mb3"><div class="flex ac g2" style="color:var(--color-brand-hover);font-weight:700">'+svg('rocket')+'UAT scenarios</div><span class="fs13 muted"><b class="num" style="color:var(--color-text-primary);font-size:16px">'+done+'</b> of '+u.tasks.length+' verified</span></div>'
       + '<div class="pbar"><span style="width:'+(done/u.tasks.length*100)+'%;background:var(--color-brand)"></span><span style="width:'+((u.tasks.length-done)/u.tasks.length*100)+'%;background:transparent"></span></div>'
     + '</div>'
-    + '<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-bottom:24px">'+cards+'</div>'
-    + '<div class="flex jb ac"><div class="flex ac g2"><span class="fs13 muted">Posted '+ (new Set(je.map(function(l){return l.ref;})).size) +' entries in this sandbox</span></div>'
-      + '<button class="btn btn-ghost btn-sm" onclick="uatGoto(\'ledger\')">'+svg('list')+'View general ledger</button></div>';
+    + '<div class="flex g2 ac mb5" style="align-items:flex-start;background:var(--color-action-wash);border:1px solid var(--color-action-subtle);border-radius:var(--radius-md);padding:12px 15px;font-size:12.5px;color:var(--color-action);line-height:1.55">'+svg('info')+'<span>Each scenario opens your <b>live Klay ERP</b> in a new tab — already loaded with your migrated data, but <b>not yet go-live</b>. Try the flow there, come back here, and mark it verified. You\'ll still do a final sign off before going live.</span></div>'
+    + uatHowAccordion()
+    + '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:8px">'+cards+'</div>';
 
   return '<div class="canvas">'
     + '<div class="page-head-row"><div><div class="page-eyebrow">Stage 5 of 6 · <span class="days">Day '+STAGES[4].day+' of 30</span></div>'
       + '<div class="page-title">User Acceptance Testing</div>'
-      + '<div class="page-sub">A safe <b>sandbox</b> of your live Klay ERP, pre-loaded with your migrated data. Work through each scenario below to confirm the rules and tax behave the way you expect. Nothing here affects production.</div></div>'
-      + '<button class="btn '+(allDone?'btn-primary':'btn-ghost')+'" '+(allDone?'onclick="jumpStage(6)"':'disabled')+'>Continue to sign off '+svg('arrowRight')+'</button></div>'
+      + '<div class="page-sub">Try your real Klay ERP before go-live. Each scenario walks the full path — <b>input → post to GL → check the Trial Balance</b> — inside the actual product, using your migrated data.</div></div>'
+      + '<button class="btn '+(allDone?'btn-primary':'btn-ghost')+'" '+(allDone?'onclick="jumpStage(6)"':'disabled title="Verify all scenarios first"')+'>Continue to sign off '+svg('arrowRight')+'</button></div>'
     + '<div class="ws-2col">'
       + '<div class="ws-main">'+workspace+'</div>'
-      + '<div class="ws-rail">'+activityLogCard('uat')+'</div>'
+      + '<div class="ws-rail">'+activityLogCard('uat',true)+'</div>'
     + '</div>'
     + '</div>';
 }
-function uatGuidedPage(id,title,sub,body){
-  var t=uatTaskById(id);
+
+function uatRunPage(id){
+  var t=uatTaskById(id); if(!t) return uatSummary();
+  var modeChosen=!!t.mode;
+  var modeCard = ''
+    + '<div class="card card-pad mb5">'
+      + '<div class="section-label mb3">Step 1 \u00b7 What are you entering?</div>'
+      + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">'
+        + uatModeOption(id,'sim','Simulation','Throwaway test data \u2014 just to see the flow work. Won\'t be kept at go-live.', t.mode==='sim')
+        + uatModeOption(id,'real','Real go-live data','An actual opening transaction you want carried into production once you go live.', t.mode==='real')
+      + '</div>'
+    + '</div>';
+
+  var root=erpUrl();
+  var tbRoot=erpUrl(); // ERP root; TB reached via menu (SPA — deep links 404 on GH Pages)
+  var lockStyle = modeChosen?'':'opacity:.5;pointer-events:none';
+  var noun = (id==='je'?'journal entry':(id==='bill'?'vendor bill':'customer invoice'));
+  var shortNoun = (id==='je'?'journal':(id==='bill'?'bill':'invoice'));
+  var opened = !!t.opened;
+  var launchCard = ''
+    + '<div class="card card-pad mb5" style="'+lockStyle+'">'
+      + '<div class="section-label mb3">Step 2 \u00b7 Record it in the ERP</div>'
+      + '<div class="flex jb ac" style="gap:16px;flex-wrap:wrap">'
+        + '<div class="flex g3 ac" style="align-items:flex-start;flex:1;min-width:260px"><div style="width:38px;height:38px;border-radius:var(--radius-md);background:var(--color-action-wash);color:var(--color-action);display:flex;align-items:center;justify-content:center;flex-shrink:0">'+svg(t.icon)+'</div>'
+          + '<div><div class="fw6 fs14">Open Klay ERP, then go to <b>'+t.dest+'</b></div><div class="fs12 muted" style="margin-top:2px">Record the '+noun+' and post it to the General Ledger.</div></div></div>'
+        + '<a class="btn '+(opened?'btn-ghost':'btn-primary')+'" href="'+root+'" target="_blank" rel="noopener" onclick="markErpOpened(\''+id+'\')" style="flex-shrink:0;text-decoration:none">'+svg('external')+(opened?'Re-open ERP':'Open ERP')+'</a>'
+      + '</div>'
+      + '<div class="flex jb ac" style="gap:16px;flex-wrap:wrap;border-top:1px solid var(--color-border-subtle);padding-top:14px;margin-top:14px">'
+        + '<div class="flex g3 ac" style="align-items:flex-start;flex:1;min-width:260px"><div style="width:38px;height:38px;border-radius:var(--radius-md);background:var(--color-action-wash);color:var(--color-action);display:flex;align-items:center;justify-content:center;flex-shrink:0">'+svg('scale')+'</div>'
+          + '<div><div class="fw6 fs14">Then open <b>Trial Balance</b></div><div class="fs12 muted" style="margin-top:2px">Confirm your '+shortNoun+' posted and total debits equal total credits.</div></div></div>'
+        + '<a class="btn btn-ghost" href="'+tbRoot+'" target="_blank" rel="noopener" style="flex-shrink:0;text-decoration:none">'+svg('external')+'Open Trial Balance</a>'
+      + '</div>'
+      + (opened? '<div class="flex g2 ac mt4" style="align-items:flex-start;background:var(--success-surface);border:1px solid var(--success-border);border-radius:var(--radius-md);padding:11px 14px;font-size:12.5px;color:var(--success-text);line-height:1.5">'+svg('checkCircle')+'<span><b>Recorded in the ERP sandbox.</b> We detected your '+shortNoun+' posted to the General Ledger and the Trial Balance is back in balance. Review it in the ERP tab, then confirm below.</span></div>':'')
+    + '</div>';
+
+  // Step 3 only "unlocks" once the ERP was opened — keeps the flow seamless on return
+  var verifyLock = (modeChosen && opened)?'':'opacity:.5;pointer-events:none';
+  var verifyCard = ''
+    + '<div class="card card-pad" style="'+verifyLock+'">'
+      + '<div class="section-label mb3">Step 3 \u00b7 Confirm the result</div>'
+      + (t.done
+          ? '<div class="flex jb ac"><div class="flex g2 ac" style="color:var(--success-text)">'+svg('checkCircle')+'<span class="fw6 fs14">Scenario verified'+(t.mode?' \u00b7 '+(t.mode==='real'?'go-live data':'simulation'):'')+'</span></div>'
+            + '<button class="btn btn-ghost btn-sm" onclick="unverifyTask(\''+id+'\')">Undo</button></div>'
+          : '<div class="flex jb ac" style="gap:12px;flex-wrap:wrap"><div class="fs13 muted" style="flex:1;min-width:220px;line-height:1.5">'+(opened?'Looks good? Mark this scenario verified and move on to the next one.':'Open the ERP above and record the '+shortNoun+' first.')+'</div>'
+            + '<button class="btn btn-primary" onclick="verifyTask(\''+id+'\')"'+(opened?'':' disabled')+'>'+svg('check')+'Mark verified</button></div>')
+    + '</div>';
+
   return '<div class="canvas narrow">'
-    + '<div class="flex ac g2 fs13 mb4"><span class="clickable" style="color:var(--color-action);font-weight:600" onclick="uatGoto(\'summary\')">UAT scenarios</span><span class="muted">/</span><span class="muted">'+title+'</span></div>'
-    + '<div class="page-head-row"><div><div class="page-title" style="font-size:28px">'+title+(t&&t.done?' <span class="badge b-success" style="font-size:11px;vertical-align:middle">'+svg('check')+'Done</span>':'')+'</div>'
-      + '<div class="page-sub mt2">'+sub+'</div></div>'
-      + '<button class="btn btn-ghost" onclick="uatGoto(\'summary\')">'+svg('arrowLeft')+'Back</button></div>'
+    + '<div class="flex ac g2 fs13 mb4"><span class="clickable" style="color:var(--color-action);font-weight:600" onclick="uatBackToSummary()">UAT scenarios</span><span class="muted">/</span><span class="muted">'+t.label+'</span></div>'
+    + '<div class="page-head-row"><div><div class="page-title" style="font-size:28px">'+t.label+(t.done?' <span class="badge b-success" style="font-size:11px;vertical-align:middle">'+svg('check')+'Verified</span>':'')+'</div>'
+      + '<div class="page-sub mt2">'+t.desc+'</div></div>'
+      + '<button class="btn btn-ghost" onclick="uatBackToSummary()">'+svg('arrowLeft')+'Back</button></div>'
+    + modeCard
+    + launchCard
+    + verifyCard
+    + '<style>.mode-opt{border:1.5px solid var(--color-border-default);border-radius:var(--radius-md);padding:14px;cursor:pointer;transition:border-color var(--tf),background var(--tf)}.mode-opt:hover{border-color:var(--color-text-tertiary)}.mode-opt.sel{border-color:var(--color-action);background:var(--color-action-wash)}'
+      + '.mode-opt .mo-h{display:flex;align-items:center;gap:8px;font-weight:700;font-size:13.5px;margin-bottom:4px}.mode-opt .mo-radio{width:16px;height:16px;border-radius:50%;border:2px solid var(--color-border-strong);flex-shrink:0}.mode-opt.sel .mo-radio{border-color:var(--color-action);background:var(--color-action);box-shadow:inset 0 0 0 3px #fff}</style>'
+    + '</div>';
+}
+function uatHowAccordion(){
+  var open=APP.uat.howOpen===true;
+  var steps=[
+    {n:'1', title:'Choose what you\'ll enter', body:'Simulation, or the real opening transaction you\'ll keep at go-live.'},
+    {n:'2', title:'Open the ERP & record it', body:'Open Klay ERP, go to the right screen, and post the entry to the GL.'},
+    {n:'3', title:'Check the Trial Balance', body:'Confirm your entry landed and debits equal credits.'},
+    {n:'4', title:'Mark it verified', body:'Come back here and mark the scenario verified.'}
+  ];
+  var body = open ? '<div style="padding:2px 18px 16px"><div class="how-grid">'
+    + steps.map(function(s){ return '<div class="flex g2" style="align-items:flex-start"><span class="run-step-n">'+s.n+'</span><div><div class="fw7 fs12.5">'+s.title+'</div><div class="fs11 muted" style="line-height:1.45">'+s.body+'</div></div></div>'; }).join('')
+    + '</div></div>' : '';
+  return '<div class="card mb5" style="overflow:hidden">'
+    + '<div class="flex jb ac clickable" style="padding:13px 18px" onclick="APP.uat.howOpen='+(open?'false':'true')+';renderPage()">'
+      + '<div class="flex ac g2" style="font-weight:700;font-size:13px;color:var(--color-text-secondary)">'+svg('info')+'How this works</div>'
+      + '<span class="acc-chev'+(open?' open':'')+'">'+svg('chevDown')+'</span>'
+    + '</div>'
     + body
-    + '</div>';
-}
-function uatDashboard(){ return uatSummary(); }
-
-function uatBillForm(){
-  return '<div class="card card-pad"><div class="fw7 fs16 mb4">Bill details</div>'
-    + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px 20px;margin-bottom:18px">'
-      + field('Vendor','<select id="billVendor" class="uat-in" onchange="previewBill()"><option value="V-001|PKP|goods">PT Sumber Elektronik (PKP)</option><option value="V-003|nonpkp|services">PT Konsultan Andal (Non-PKP, services)</option><option value="V-002|PKP|services">CV Maju Logistik (PKP, services)</option></select>')
-      + field('Expense / item account','<select id="billAcct" class="uat-in" onchange="previewBill()"><option value="11620">Persediaan — Barang Jadi</option><option value="65000">Jasa Profesional</option><option value="64100">Pengiriman &amp; Logistik</option></select>')
-      + field('Amount (before tax, IDR)','<input id="billAmt" class="uat-in" type="number" value="10000000" oninput="previewBill()">')
-      + field('Department','<select id="billDept" class="uat-in"><option>Operations</option><option>Sales</option><option>Warehouse</option></select>')
-    + '</div>'
-    + '<div class="ai-banner mb3">'+svg('spark')+'<div><div class="fw7 fs13" style="color:#6B4FD8">Klay builds the journal for you</div><div class="fs12" style="color:var(--color-text-secondary);line-height:1.5;margin-top:2px">As you change the inputs, the preview below shows exactly what will post — including any PPN and PPh lines.</div></div></div>'
-    + '<div class="section-label mb2">Journal preview</div>'
-    + '<div id="billPreview" style="background:var(--color-surface-base);border:1px solid var(--color-border-default);border-radius:var(--radius-md);padding:14px"></div>'
-    + '<div class="flex g2 mt4"><button class="btn btn-ghost" onclick="uatGoto(\'summary\')">Cancel</button><button class="btn btn-primary" onclick="postBill()">'+svg('check')+'Post bill</button></div>'
-    + uatInStyle()
+    + '<style>.how-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}.run-step-n{width:22px;height:22px;border-radius:50%;background:var(--color-brand);color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}@media(max-width:760px){.how-grid{grid-template-columns:repeat(2,1fr)}}</style>'
   + '</div>';
 }
-function billInputs(){
-  var v=(document.getElementById('billVendor')||{}).value||'V-001|PKP|goods';
-  var parts=v.split('|');
-  return {pkp:parts[1]==='PKP', svc:parts[2]==='services',
-    acct:(document.getElementById('billAcct')||{}).value||'11620',
-    amt:+(((document.getElementById('billAmt')||{}).value)||10000000)};
-}
-function previewBill(){
-  var el=document.getElementById('billPreview'); if(!el) return;
-  var b=billInputs(); var lines=[];
-  lines.push({t:'DR',code:b.acct,name:shortName(klayByCode(b.acct).n),amt:b.amt});
-  var ppn=b.pkp?Math.round(b.amt*0.11):0;
-  if(ppn) lines.push({t:'DR',code:'11400',name:'PPN Masukan',amt:ppn,tax:true});
-  var pph=b.svc?Math.round(b.amt*0.02):0;
-  var credit=b.amt+ppn-pph;
-  lines.push({t:'CR',code:'21000',name:'Utang Usaha',amt:credit,ctrl:true});
-  if(pph) lines.push({t:'CR',code:'22120',name:'Utang PPh 23',amt:pph,tax:true});
-  el.innerHTML=jeLinesHTML(lines);
-}
-function postBill(){
-  var b=billInputs(); var ref='BILL-S'+(APP.uat.journal.length+1);
-  var ppn=b.pkp?Math.round(b.amt*0.11):0, pph=b.svc?Math.round(b.amt*0.02):0;
-  var rows=[];
-  rows.push({ref:ref,code:b.acct,dr:b.amt,cr:0});
-  if(ppn) rows.push({ref:ref,code:'11400',dr:ppn,cr:0});
-  rows.push({ref:ref,code:'21000',dr:0,cr:b.amt+ppn-pph});
-  if(pph) rows.push({ref:ref,code:'22120',dr:0,cr:pph});
-  commitScenario('bill',ref,'Vendor bill posted',(ppn?'PPN Masukan accrued. ':'')+(pph?'PPh 23 withheld. ':'')+'Entry is balanced.',rows);
-}
-
-function uatInvoiceForm(){
-  return '<div class="card card-pad"><div class="fw7 fs16 mb4">Invoice details</div>'
-    + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px 20px;margin-bottom:18px">'
-      + field('Customer','<select id="invCust" class="uat-in"><option>PT Ritel Nusantara</option><option>Hypermarket Jaya</option></select>')
-      + field('Revenue account','<select id="invAcct" class="uat-in" onchange="previewInvoice()"><option value="41000">Sales Revenue — Goods</option><option value="41100">Sales Revenue — Services</option></select>')
-      + field('Amount (before tax, IDR)','<input id="invAmt" class="uat-in" type="number" value="20000000" oninput="previewInvoice()">')
-      + field('Branch','<select id="invBranch" class="uat-in"><option>Jakarta HQ</option><option>Surabaya</option></select>')
-    + '</div>'
-    + '<div class="section-label mb2">Journal preview</div>'
-    + '<div id="invPreview" style="background:var(--color-surface-base);border:1px solid var(--color-border-default);border-radius:var(--radius-md);padding:14px"></div>'
-    + '<div class="flex g2 mt4"><button class="btn btn-ghost" onclick="uatGoto(\'summary\')">Cancel</button><button class="btn btn-primary" onclick="postInvoice()">'+svg('check')+'Post invoice</button></div>'
-    + uatInStyle()
+function uatModeOption(id,mode,title,body,sel){
+  return '<div class="mode-opt'+(sel?' sel':'')+'" onclick="setUatMode(\''+id+'\',\''+mode+'\')">'
+    + '<div class="mo-h"><span class="mo-radio"></span>'+title+'</div>'
+    + '<div class="fs12 muted" style="line-height:1.5;padding-left:24px">'+body+'</div>'
   + '</div>';
 }
-function invInputs(){ return {acct:(document.getElementById('invAcct')||{}).value||'41000',amt:+(((document.getElementById('invAmt')||{}).value)||20000000)}; }
-function previewInvoice(){
-  var el=document.getElementById('invPreview'); if(!el) return;
-  var v=invInputs(); var ppn=Math.round(v.amt*0.11);
-  var lines=[{t:'DR',code:'11200',name:'Piutang Usaha',amt:v.amt+ppn,ctrl:true},
-    {t:'CR',code:v.acct,name:shortName(klayByCode(v.acct).n),amt:v.amt},
-    {t:'CR',code:'22000',name:'PPN Keluaran',amt:ppn,tax:true}];
-  el.innerHTML=jeLinesHTML(lines);
+function setUatMode(id,mode){ var t=uatTaskById(id); if(t)t.mode=mode; renderPage(); }
+function markErpOpened(id){
+  var t=uatTaskById(id); if(!t) return;
+  t.opened=true;
+  // simulate the round-trip: by the time the user comes back, the page already reflects
+  // that the entry posted and the TB rebalanced — they just confirm.
+  setTimeout(function(){ renderPage(); }, 50);
+  toast('Recorded in ERP sandbox', 'Your '+(id==='je'?'journal entry':(id==='bill'?'bill':'invoice'))+' posted to the GL. Come back to this tab to confirm.', 'success');
 }
-function postInvoice(){
-  var v=invInputs(); var ref='INV-S'+(APP.uat.journal.length+1); var ppn=Math.round(v.amt*0.11);
-  var rows=[{ref:ref,code:'11200',dr:v.amt+ppn,cr:0},{ref:ref,code:v.acct,dr:0,cr:v.amt},{ref:ref,code:'22000',dr:0,cr:ppn}];
-  commitScenario('inv',ref,'Customer invoice posted','Output VAT (22000) accrued automatically.',rows);
-}
+function verifyTask(id){ markTask(id); var t=uatTaskById(id); renderPage(); toast('Scenario verified',(t?t.label:'Scenario')+' marked complete.','success'); }
+function unverifyTask(id){ var t=uatTaskById(id); if(t)t.done=false; renderPage(); }
 
-function uatManualForm(){
-  return '<div class="card card-pad"><div class="fw7 fs16 mb4">Journal lines</div>'
-    + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px">'
-      + '<div><div class="section-label mb2">Debit account</div><select id="jeDr" class="uat-in"><option value="65100">ATK / Office Supplies</option><option value="65200">Business Travel</option></select></div>'
-      + '<div><div class="section-label mb2">Credit account</div><select id="jeCr" class="uat-in"><option value="11100">Kas (Petty Cash)</option><option value="11110">Bank IDR</option></select></div>'
-    + '</div><div style="max-width:320px"><div class="section-label mb2">Amount (IDR)</div><input id="jeAmt" class="uat-in" type="number" value="500000"></div>'
-    + '<div class="flex g2 mt4"><button class="btn btn-ghost" onclick="uatGoto(\'summary\')">Cancel</button><button class="btn btn-primary" onclick="postManualJE()">'+svg('check')+'Post journal</button></div>'
-    + uatInStyle()
-  + '</div>';
-}
-function postManualJE(){
-  var dr=document.getElementById('jeDr').value,cr=document.getElementById('jeCr').value,amt=+document.getElementById('jeAmt').value||0;
-  var ref='JE-S'+(APP.uat.journal.length+1);
-  var rows=[{ref:ref,code:dr,dr:amt,cr:0},{ref:ref,code:cr,dr:0,cr:amt}];
-  commitScenario('je',ref,'Manual journal posted','Manual entry accepted by the GL.',rows);
-}
-// commit a scenario: snapshot before-balances, push rows, record affected accounts, go to impact view
-function commitScenario(taskId,ref,title,msg,rows){
-  var before=uatBalances(uatAllRows());
-  rows.forEach(function(r){APP.uat.journal.push(r);});
-  var affected={}; rows.forEach(function(r){affected[r.code]=true;});
-  APP.uat.lastScenario={taskId:taskId,ref:ref,title:title,msg:msg,lines:rows,affected:Object.keys(affected),before:before};
-  markTask(taskId);
-  APP.uat.view='impact'; renderPage();
-  toast(title,msg,'success');
-}
-function uatImpactPage(){
-  var s=APP.uat.lastScenario;
-  if(!s) return uatSummary();
-  var t=uatTaskById(s.taskId);
-  var allRows=uatAllRows();
-  var after=uatBalances(allRows);
-  var before=s.before;
-  var aff=s.affected;
-  function isAff(code){ return aff.indexOf(code)>=0; }
-
-  // posted journal lines
-  var jl=s.lines.map(function(l){var k=klayByCode(l.code);
-    return '<div class="flex g2 ac" style="padding:5px 0;font-size:13px"><span class="badge '+(l.dr?'b-info':'b-neutral')+'" style="width:28px;justify-content:center">'+(l.dr?'DR':'CR')+'</span>'
-      + '<span class="mono fs11 muted">'+l.code+'</span><span class="sec" style="flex:1">'+(k?shortName(k.n):l.code)+'</span>'
-      + '<span class="num fw6">'+rupiahID(l.dr||l.cr)+'</span></div>';
-  }).join('');
-
-  // GL after, with affected rows highlighted
-  var glRows=allRows.map(function(l){var k=klayByCode(l.code); var hot=l.ref===s.ref;
-    return '<tr class="'+(hot?'impact-row':'')+'"><td class="mono fs12">'+l.ref+'</td><td class="mono fs12 muted">'+l.code+'</td><td>'+(k?shortName(k.n):l.code)+'</td><td class="num">'+(l.dr?rupiahID(l.dr):'')+'</td><td class="num">'+(l.cr?rupiahID(l.cr):'')+'</td></tr>';
-  }).join('');
-
-  // Trial Balance: before vs after per account (only show accounts with any balance), highlight affected
-  var codes={}; Object.keys(before).forEach(function(c){codes[c]=1;}); Object.keys(after).forEach(function(c){codes[c]=1;});
-  var tbRows=Object.keys(codes).sort().map(function(code){
-    var bv=before[code]||0, av=after[code]||0;
-    if(Math.abs(bv)<1 && Math.abs(av)<1) return '';
-    var k=klayByCode(code); var hot=isAff(code);
-    var delta=av-bv;
-    var deltaTxt = hot&&Math.abs(delta)>=1 ? '<span class="impact-delta '+(delta>0?'up':'down')+'">'+(delta>0?'▲':'▼')+' '+rupiahID(Math.abs(delta))+'</span>' : '';
-    return '<tr class="'+(hot?'impact-row':'')+'"><td class="mono fs12 muted">'+code+'</td><td>'+(k?shortName(k.n):code)+(deltaTxt?' '+deltaTxt:'')+'</td>'
-      + '<td class="num">'+(av>0?rupiahID(av):'')+'</td><td class="num">'+(av<0?rupiahID(-av):'')+'</td></tr>';
-  }).join('');
-  var tDr=0,tCr=0; Object.keys(after).forEach(function(c){ if(after[c]>0)tDr+=after[c]; else tCr+=-after[c]; });
-  var balanced=Math.abs(tDr-tCr)<1;
-
-  return '<div class="canvas narrow">'
-    + '<div class="flex ac g2 fs13 mb4"><span class="clickable" style="color:var(--color-action);font-weight:600" onclick="uatGoto(\'summary\')">UAT scenarios</span><span class="muted">/</span><span class="muted">'+(t?t.label:'Scenario')+'</span><span class="muted">/</span><span class="muted">Impact</span></div>'
-    + '<div class="page-head-row"><div><div class="page-title" style="font-size:28px">'+s.title+'</div>'
-      + '<div class="page-sub mt2">Here\'s what this scenario did to your books. The highlighted rows are the ones this entry touched.</div></div>'
-      + '<button class="btn btn-ghost" onclick="uatGoto(\'summary\')">'+svg('arrowLeft')+'Back to scenarios</button></div>'
-    // posted entry
-    + '<div class="card card-pad mb5"><div class="flex ac g2 mb2"><span class="badge b-success">'+svg('checkCircle')+'Posted</span><span class="mono fs12 muted">'+s.ref+'</span></div>'
-      + '<div style="background:var(--color-surface-base);border:1px solid var(--color-border-default);border-radius:var(--radius-md);padding:12px 14px">'+jl+'</div></div>'
-    // GL impact
-    + '<div class="card mb5" style="overflow:hidden"><div class="flex jb ac" style="padding:16px 20px"><div class="fw7 fs15">General Ledger — after posting</div><span class="fs12 muted">'+aff.length+' account'+(aff.length>1?'s':'')+' affected</span></div>'
-      + '<div class="prev-scroll" style="border:none;border-top:1px solid var(--color-border-default)"><div class="prev-scroll-inner"><table class="tbl"><thead><tr><th>Ref</th><th>Code</th><th>Account</th><th class="tr">Debit (IDR)</th><th class="tr">Credit (IDR)</th></tr></thead><tbody>'+glRows+'</tbody></table></div></div></div>'
-    // Trial Balance before/after
-    + '<div class="card mb5" style="overflow:hidden"><div class="flex jb ac" style="padding:16px 20px"><div class="fw7 fs15">Trial Balance — after posting</div>'
-      + '<span class="badge '+(balanced?'b-success':'b-danger')+'">'+(balanced?svg('check')+'Balanced':svg('alert')+'Out of balance')+'</span></div>'
-      + '<table class="tbl"><thead><tr><th>Code</th><th>Account</th><th class="tr">Debit (IDR)</th><th class="tr">Credit (IDR)</th></tr></thead><tbody>'+tbRows
-      + '<tr style="background:var(--color-surface-base)"><td colspan="2" class="tr fw7">Total</td><td class="num fw7">'+rupiahID(tDr)+'</td><td class="num fw7">'+rupiahID(tCr)+'</td></tr>'
-      + '</tbody></table></div>'
-    + '<div class="flex jb ac"><button class="btn btn-ghost" onclick="uatGoto(\''+s.taskId+'\')">Run it again</button>'
-      + '<button class="btn btn-primary" onclick="uatGoto(\'summary\')">'+svg('check')+'Done — back to scenarios</button></div>'
-    + '<style>@keyframes impactPulse{0%{background:var(--warning-surface)}60%{background:var(--warning-surface)}100%{background:transparent}}'
-      + '.impact-row{animation:impactPulse 1.6s ease-out 1}.impact-row td:first-child{box-shadow:inset 3px 0 0 var(--warning-text)}'
-      + '.impact-delta{font-size:10.5px;font-weight:700;font-family:var(--font-mono);padding:1px 6px;border-radius:var(--radius-full)}'
-      + '.impact-delta.up{color:var(--success-text);background:var(--success-surface)}.impact-delta.down{color:var(--danger-text);background:var(--danger-surface)}</style>'
-    + '</div>';
-}
-
-// SCENARIO: post a journal, then check the Trial Balance
-function uatTrialBalancePage(){
-  var t=uatTaskById('tb');
-  var je=APP.uat.journal;
-  var step1done=APP.uat.tbJournalPosted;
-  // build trial balance: net debit/credit per account (opening + posted)
-  var bal=uatBalances(uatAllRows());
-  var aff=APP.uat.tbAffected||[];
-  var tbRows=Object.keys(bal).sort().map(function(code){
-    var net=bal[code]; if(Math.abs(net)<1) return '';
-    var k=klayByCode(code); var hot=aff.indexOf(code)>=0;
-    return '<tr class="'+(hot?'impact-row':'')+'"><td class="mono fs12 muted">'+code+'</td><td>'+(k?shortName(k.n):code)+'</td>'
-      + '<td class="num">'+(net>0?rupiahID(net):'')+'</td><td class="num">'+(net<0?rupiahID(-net):'')+'</td></tr>';
-  }).join('');
-  var tDr=0,tCr=0; Object.keys(bal).forEach(function(c){ if(bal[c]>0)tDr+=bal[c]; else tCr+=-bal[c]; });
-  var balanced=Math.abs(tDr-tCr)<1;
-
-  return '<div class="canvas narrow">'
-    + '<div class="flex ac g2 fs13 mb4"><span class="clickable" style="color:var(--color-action);font-weight:600" onclick="uatGoto(\'summary\')">UAT scenarios</span><span class="muted">/</span><span class="muted">Journal → Trial Balance</span></div>'
-    + '<div class="page-head-row"><div><div class="page-title" style="font-size:28px">Post a Journal &amp; Check the Trial Balance'+(t&&t.done?' <span class="badge b-success" style="font-size:11px;vertical-align:middle">'+svg('check')+'Done</span>':'')+'</div>'
-      + '<div class="page-sub mt2">The classic test: post a balanced journal, then open the Trial Balance and confirm total debits equal total credits.</div></div>'
-      + '<button class="btn btn-ghost" onclick="uatGoto(\'summary\')">'+svg('arrowLeft')+'Back</button></div>'
-    // step 1
-    + '<div class="card card-pad mb4">'
-      + '<div class="flex ac g2 mb3"><span class="step-num '+(step1done?'done':'on')+'">'+(step1done?svg('check'):'1')+'</span><span class="fw7 fs15">Post a journal entry</span></div>'
-      + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px">'
-        + '<div><div class="section-label mb2">Debit account</div><select id="tbDr" class="uat-in"><option value="65100">ATK / Office Supplies</option><option value="64100">Pengiriman &amp; Logistik</option><option value="65000">Jasa Profesional</option></select></div>'
-        + '<div><div class="section-label mb2">Credit account</div><select id="tbCr" class="uat-in"><option value="11110">Bank IDR</option><option value="11100">Kas (Petty Cash)</option><option value="21000">Utang Usaha</option></select></div>'
-      + '</div><div style="max-width:320px;margin-bottom:14px"><div class="section-label mb2">Amount (IDR)</div><input id="tbAmt" class="uat-in" type="number" value="2500000"></div>'
-      + '<button class="btn btn-primary btn-sm" onclick="tbPostJournal()">'+svg('check')+'Post this entry</button>'
-    + '</div>'
-    // step 2
-    + '<div class="card card-pad" style="'+(step1done?'':'opacity:.5;pointer-events:none')+'">'
-      + '<div class="flex ac g2 mb3"><span class="step-num '+(t&&t.done?'done':(step1done?'on':''))+'">'+(t&&t.done?svg('check'):'2')+'</span><span class="fw7 fs15">Check the Trial Balance</span></div>'
-      + (step1done
-          ? '<div class="card" style="overflow:hidden;border:1px solid var(--color-border-default)"><table class="tbl"><thead><tr><th>Code</th><th>Account</th><th class="tr">Debit (IDR)</th><th class="tr">Credit (IDR)</th></tr></thead><tbody>'+tbRows
-            + '<tr style="background:var(--color-surface-base)"><td colspan="2" class="tr fw7">Total</td><td class="num fw7">'+rupiahID(tDr)+'</td><td class="num fw7">'+rupiahID(tCr)+'</td></tr>'
-            + '</tbody></table></div>'
-            + '<div class="flex jb ac mt3"><span class="badge '+(balanced?'b-success':'b-danger')+'">'+(balanced?svg('check')+'Debits = Credits — balanced':svg('alert')+'Out of balance')+'</span>'
-            + (balanced&&!(t&&t.done)?'<button class="btn btn-primary btn-sm" onclick="markTask(\'tb\');renderPage()">'+svg('check')+'Confirm scenario passed</button>':'')+'</div>'
-          : '<div class="fs13 muted">Post a journal in step 1 to generate the Trial Balance.</div>')
-    + '</div>'
-    + '<style>.step-num{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;background:var(--color-surface-sunken);color:var(--color-text-tertiary)}.step-num.on{background:var(--color-action);color:#fff}.step-num.done{background:var(--success-text);color:#fff}.step-num svg{width:14px;height:14px}</style>'
-    + uatInStyle()
-    + '</div>';
-}
-function tbPostJournal(){
-  var dr=document.getElementById('tbDr').value,cr=document.getElementById('tbCr').value,amt=+document.getElementById('tbAmt').value||0;
-  var ref='JE-TB'+(APP.uat.journal.length+1);
-  APP.uat.journal.push({ref:ref,code:dr,dr:amt,cr:0}); APP.uat.journal.push({ref:ref,code:cr,dr:0,cr:amt});
-  APP.uat.tbJournalPosted=true; APP.uat.tbAffected=[dr,cr]; APP.uat.tbRef=ref; renderPage(); toast('Journal posted','Now check the Trial Balance below — the affected rows are highlighted.','success');
-}
-
-function uatLedger(){
-  var all=uatAllRows();
-  var rows=all.map(function(l){var k=klayByCode(l.code);return '<tr><td class="mono fs12">'+l.ref+'</td><td class="mono fs12 muted">'+l.code+'</td><td>'+(k?shortName(k.n):l.code)+'</td><td class="num">'+(l.dr?rupiahID(l.dr):'')+'</td><td class="num">'+(l.cr?rupiahID(l.cr):'')+'</td></tr>';}).join('');
-  var tDr=all.reduce(function(a,l){return a+l.dr;},0),tCr=all.reduce(function(a,l){return a+l.cr;},0);
-  return '<div class="card" style="overflow:hidden"><div class="flex jb ac" style="padding:16px 20px"><div class="fw7 fs15">Sandbox General Ledger</div>'
-    + '<span class="badge '+(Math.abs(tDr-tCr)<1?'b-success':'b-danger')+'">'+(Math.abs(tDr-tCr)<1?svg('check')+'Balanced':svg('alert')+'Out of balance')+'</span></div>'
-    + '<div class="prev-scroll" style="border:none;border-top:1px solid var(--color-border-default)"><div class="prev-scroll-inner"><table class="tbl"><thead><tr><th>Ref</th><th>Code</th><th>Account</th><th class="tr">Debit (IDR)</th><th class="tr">Credit (IDR)</th></tr></thead><tbody>'+rows
-    + '<tr style="background:var(--color-surface-base)"><td colspan="3" class="tr fw7">Total</td><td class="num fw7">'+rupiahID(tDr)+'</td><td class="num fw7">'+rupiahID(tCr)+'</td></tr>'
-    + '</tbody></table></div></div></div>';
-}
-
-function jeLinesHTML(lines){
-  return lines.map(function(l){
-    return '<div class="flex g2 ac" style="padding:5px 0;font-size:13px"><span class="badge '+(l.t==='DR'?'b-info':'b-neutral')+'" style="width:28px;justify-content:center">'+l.t+'</span>'
-      + '<span class="mono fs11 muted">'+l.code+'</span><span class="sec" style="flex:1">'+l.name+'</span>'
-      + (l.tax?'<span class="badge b-warning" style="font-size:9px">tax</span>':'')+(l.ctrl?'<span class="badge b-danger" style="font-size:9px">CTRL</span>':'')
-      + '<span class="num fw6" style="width:130px">'+rupiahID(l.amt)+'</span></div>';
-  }).join('');
-}
-function markTask(id){ var t=APP.uat.tasks.filter(function(x){return x.id===id;})[0]; if(t)t.done=true; }
-function uatInStyle(){ return '<style>.uat-in{width:100%;border:1px solid var(--color-border-default);border-radius:var(--radius-sm);padding:9px 11px;font-size:13px;font-family:var(--font-sans);background:#fff}.uat-in:focus{outline:none;border-color:var(--color-action)}</style>'; }
-function field(l,inner){ return '<div><div class="section-label mb2">'+l+'</div>'+inner+'</div>'; }
 </script>
 <script>
 /* ============================================================
@@ -3823,9 +3754,9 @@ function ensureSignoff(){
     {id:'team', label:'Go-live date agreed with the migration team', done:false}
   ];
   APP.approvals=[
-    {role:'Prepared by', name:'Ron Weasly', sub:'Admin', color:'#1A46C8', signed:false},
+    {role:'Prepared by', name:'Ron Weasly', sub:'Admin', color:'#1A46C8', signed:false, you:true},
     {role:'Reviewed by', name:'Severus Snape', sub:'Finance Manager', color:'#B83D08', signed:false},
-    {role:'Approved by', name:'Albus Dumbledore', sub:'CFO', color:'#0E7C86', signed:false}
+    {role:'Approved by', name:'Albus Dumbledore', sub:'CFO', color:'#0E7C86', signed:true, at:'30 May 2026 (16:20)'}
   ];
 }
 function checklistState(){
@@ -3859,10 +3790,16 @@ function renderSignoff(){
   }
 
   var approvals=APP.approvals.map(function(a,i){
+    var youTag = a.you? ' <span class="badge b-info" style="font-size:9px">You</span>':'';
+    var action;
+    if(a.signed){ action='<span class="badge b-success">'+svg('checkCircle')+(a.role==='Approved by'?'Approved':'Signed')+'</span>'; }
+    else if(a.you){ action='<button class="btn btn-primary btn-sm" onclick="signApproval('+i+')">'+svg('check')+'Sign off</button>'; }
+    else { action='<span class="badge b-warning" style="font-size:10px">'+svg('clock')+'Waiting</span>'; }
     return '<div class="card" style="padding:16px 18px;'+(a.signed?'border-color:var(--success-border);background:var(--success-surface)':'')+'"><div class="section-label mb2">'+a.role+'</div>'
-      + '<div class="flex jb ac"><div class="flex ac g2"><span class="avatar" style="width:32px;height:32px;background:'+(a.color||'var(--color-action)')+'">'+a.name.split(' ').map(function(w){return w[0];}).slice(0,2).join('')+'</span><div><div class="fw7 fs14">'+a.name+'</div><div class="fs12 muted">'+a.sub+'</div></div></div>'
-      + (a.signed? '<span class="badge b-success">'+svg('checkCircle')+'Signed</span>' : '<button class="btn btn-primary btn-sm" onclick="signApproval('+i+')">Sign off</button>')+'</div>'
-      + (a.signed&&a.at? '<div class="fs11 muted mt2 mono">Signed '+a.at+'</div>':'')+'</div>';
+      + '<div class="flex jb ac"><div class="flex ac g2"><span class="avatar" style="width:32px;height:32px;background:'+(a.color||'var(--color-action)')+'">'+a.name.split(' ').map(function(w){return w[0];}).slice(0,2).join('')+'</span><div><div class="fw7 fs14">'+a.name+youTag+'</div><div class="fs12 muted">'+a.sub+'</div></div></div>'
+      + action+'</div>'
+      + (a.signed&&a.at? '<div class="fs11 muted mt2 mono">'+(a.role==='Approved by'?'Approved ':'Signed ')+a.at+'</div>':'')
+      + (!a.signed&&!a.you? '<div class="fs11 muted mt2">Waiting for '+a.name.split(' ')[0]+' to '+(a.role==='Approved by'?'approve':'review &amp; sign')+'</div>':'')+'</div>';
   }).join('');
 
   return '<div class="canvas narrow">'
@@ -3894,18 +3831,11 @@ function renderSignoff(){
     // sign-off document (PDF + offline)
     + '<div class="card card-pad"><div class="flex jb ac mb2"><div class="disp" style="font-size:18px">Sign-off document</div>'
       + (APP.signoffPdfReady?'<span class="badge b-success" style="font-size:10px">'+svg('check')+'Generated</span>':'')+'</div>'
-      + '<div class="fs13 muted mb4" style="line-height:1.55">Prefer a paper trail? Generate a sign-off sheet listing every checklist item, the system verifications, and signature blocks. Print it for wet (offline) signatures, then upload the signed copy back to Klay.</div>'
-      + '<div class="flex g4" style="flex-wrap:wrap">'
-        + '<div style="flex:1;min-width:260px;border:1px solid var(--color-border-default);border-radius:var(--radius-md);padding:16px">'
-          + '<div class="flex ac g2 mb2 fw7 fs14">'+svg('file')+'Generate PDF</div>'
-          + '<div class="fs12 muted mb3" style="line-height:1.5">A formatted sign-off sheet for PT Makmur Jaya with all checks and signature lines.</div>'
-          + '<button class="btn btn-soft btn-sm btn-block" onclick="generateSignoffPdf()">'+svg('download')+(APP.signoffPdfReady?'Download again':'Generate sign-off PDF')+'</button>'
-        + '</div>'
-        + '<div style="flex:1;min-width:260px;border:1px solid var(--color-border-default);border-radius:var(--radius-md);padding:16px">'
-          + '<div class="flex ac g2 mb2 fw7 fs14">'+svg('edit')+'Offline / wet signature</div>'
-          + '<div class="fs12 muted mb3" style="line-height:1.5">Already collected ink signatures on the printed sheet? Mark approvals as signed offline and attach the scan.</div>'
-          + '<button class="btn btn-soft btn-sm btn-block" onclick="offlineSignoff()">'+svg('upload')+'Record offline sign-off</button>'
-        + '</div>'
+      + '<div class="fs13 muted mb4" style="line-height:1.55">Prefer a paper trail? Generate a sign-off sheet listing every checklist item, the system verifications, and signature blocks for your records.</div>'
+      + '<div style="border:1px solid var(--color-border-default);border-radius:var(--radius-md);padding:16px">'
+        + '<div class="flex ac g2 mb2 fw7 fs14">'+svg('file')+'Generate PDF</div>'
+        + '<div class="fs12 muted mb3" style="line-height:1.5">A formatted sign-off sheet for PT Makmur Jaya with all checks and signature lines.</div>'
+        + '<button class="btn btn-soft btn-sm" onclick="generateSignoffPdf()">'+svg('download')+(APP.signoffPdfReady?'Download again':'Generate sign-off PDF')+'</button>'
       + '</div></div>'
     + '<style>.signrow{display:flex;align-items:center;gap:12px;padding:13px 16px;border:1px solid var(--color-border-default);border-radius:var(--radius-md);margin-bottom:8px;transition:all var(--tf)}.signrow.on{background:var(--success-surface);border-color:var(--success-border)}.signrow-ic svg{width:18px;height:18px}</style>'
     + '</div>';
@@ -3972,9 +3902,7 @@ function goLive(){
    INIT
    ============================================================ */
 function afterRender(){
-  // populate UAT journal previews (innerHTML-injected scripts don't run)
-  if(typeof previewBill==='function' && document.getElementById('billPreview')) previewBill();
-  if(typeof previewInvoice==='function' && document.getElementById('invPreview')) previewInvoice();
+  // (UAT now runs in the external ERP — no in-page previews to hydrate)
 }
 render();
 </script>
