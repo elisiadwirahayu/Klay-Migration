@@ -3742,15 +3742,26 @@ function unverifyTask(id){ var t=uatTaskById(id); if(t)t.done=false; renderPage(
 /* ============================================================
    STAGE 6 — SIGN OFF
    ============================================================ */
+function openingBalanceTotals(){
+  // Opening trial balance for PT Makmur Jaya at the migration cut-off (31 Dec 2025).
+  // A migrated book must be balanced: total debit = total credit.
+  var debit  = 1846500000; // cash, AR, inventory, fixed assets, prepaid tax
+  var credit = 1846500000; // AP, tax payables, loans, equity, retained earnings
+  return { debit:debit, credit:credit, diff:debit-credit };
+}
 function ensureSignoff(){
   if(APP.checklist) return;
   APP.checklist=[
     {id:'data', label:'All 9 data files uploaded, validated and locked', auto:function(){return APP.uploads.every(function(u){return u.status==='locked';});}, done:false},
     {id:'map', label:'Every legacy account mapped and confirmed (or deactivated)', auto:function(){if(!APP.mapRows)return false;var c=mapCounts();return c.mapped+c.deactivated===c.all;}, done:false},
-    {id:'rules', label:'Posting rules reviewed and approved', done:false},
-    {id:'tax', label:'Tax profile, PPN and PPh withholding configured', done:false},
-    {id:'uat', label:'UAT completed and signed off by Finance', auto:function(){return APP.uat&&uatDone()===APP.uat.tasks.length;}, done:false},
-    {id:'open', label:'Opening trial balance ties to the legacy system', done:false},
+    {id:'tax', label:'Tax codes, rates and posting accounts confirmed', auto:function(){return !!(APP.confirmed&&APP.confirmed.tax);}, done:false},
+    {id:'rules', label:'Posting templates reviewed and saved for go-live', auto:function(){return !!(APP.confirmed&&APP.confirmed.posting);}, done:false},
+    {id:'balanced', label:function(){var b=openingBalanceTotals();return b.diff===0?'Opening trial balance is balanced — total debit equals total credit':'Opening trial balance is OUT of balance — difference '+rupiahID(b.diff);}, auto:function(){return openingBalanceTotals().diff===0;}, done:false},
+    {id:'subledger', label:'AR, AP and Inventory subledgers reconciled to their GL control accounts', done:false},
+    {id:'open', label:'Opening balances per account agree with the legacy system', done:false},
+    {id:'cutoff', label:'Cut-off date confirmed — no transactions dated before go-live will be entered afterward', done:false},
+    {id:'uat', label:function(){var n=APP.uat?uatDone():0,t=APP.uat?APP.uat.tasks.length:3;return 'UAT passed — all '+t+' scenarios run in the ERP and verified ('+n+'/'+t+')';}, auto:function(){return APP.uat&&uatDone()===APP.uat.tasks.length;}, done:false},
+    {id:'uat_signoff', label:'Company has completed UAT and agrees the system is ready to go live', done:false, requiresUat:true},
     {id:'team', label:'Go-live date agreed with the migration team', done:false}
   ];
   APP.approvals=[
@@ -3760,7 +3771,10 @@ function ensureSignoff(){
   ];
 }
 function checklistState(){
-  return APP.checklist.map(function(c){ return c.auto? c.auto() : c.done; });
+  return APP.checklist.map(function(c){
+    if(c.requiresUat){ var uatReady=APP.uat&&uatDone()===APP.uat.tasks.length; return !!(uatReady&&c.done); }
+    return c.auto? c.auto() : c.done;
+  });
 }
 function renderSignoff(){
   ensureSignoff();
@@ -3771,21 +3785,44 @@ function renderSignoff(){
   var allSigned=signedN===APP.approvals.length;
   var ready = allChecks && allSigned;
 
-  // split auto (system-verified) vs manual (you confirm)
-  var autoItems=[], manualItems=[];
-  APP.checklist.forEach(function(c,i){ (c.auto?autoItems:manualItems).push({c:c,i:i,on:states[i]}); });
+  // split auto (system-verified) vs manual (you confirm); pull the go-live attestation out separately
+  var autoItems=[], manualItems=[], goLiveItem=null;
+  APP.checklist.forEach(function(c,i){
+    if(c.id==='uat_signoff'){ goLiveItem={c:c,i:i,on:states[i]}; return; }
+    (c.auto?autoItems:manualItems).push({c:c,i:i,on:states[i]});
+  });
 
   function checkRow(o){
     var c=o.c, i=o.i, on=o.on, isAuto=!!c.auto;
+    var label = (typeof c.label==='function')? c.label() : c.label;
     if(isAuto){
-      return '<div class="signrow '+(on?'on':'')+'">'
+      var extra='';
+      if(c.id==='balanced'){
+        var b=openingBalanceTotals();
+        extra='<div style="display:flex;gap:18px;flex-wrap:wrap;margin:6px 0 2px 30px;padding:10px 14px;background:var(--color-surface-base);border:1px solid var(--color-border-subtle);border-radius:var(--radius-sm)">'
+          + '<div><div class="section-label" style="margin-bottom:2px">Total debit</div><div class="num fs13 fw7">'+rupiahID(b.debit)+'</div></div>'
+          + '<div><div class="section-label" style="margin-bottom:2px">Total credit</div><div class="num fs13 fw7">'+rupiahID(b.credit)+'</div></div>'
+          + '<div><div class="section-label" style="margin-bottom:2px">Difference</div><div class="num fs13 fw7" style="color:'+(b.diff===0?'var(--success-text)':'var(--danger-text)')+'">'+rupiahID(b.diff)+'</div></div>'
+        + '</div>';
+      }
+      return '<div class="signrow '+(on?'on':'')+'" style="flex-wrap:wrap">'
         + '<span class="signrow-ic" style="color:'+(on?'var(--success-text)':'var(--color-text-tertiary)')+'">'+svg(on?'checkCircle':'clock')+'</span>'
-        + '<span class="fs13 '+(on?'fw6':'sec')+'" style="flex:1">'+c.label+'</span>'
-        + '<span class="badge '+(on?'b-success':'b-neutral')+'" style="font-size:10px">'+(on?'Verified by system':'Pending')+'</span></div>';
+        + '<span class="fs13 '+(on?'fw6':'sec')+'" style="flex:1">'+label+'</span>'
+        + '<span class="badge '+(on?'b-success':'b-neutral')+'" style="font-size:10px">'+(on?'Verified by system':'Pending')+'</span>'
+        + (extra?'<div style="flex-basis:100%">'+extra+'</div>':'')+'</div>';
+    }
+    // manual confirm — uat_signoff is gated until all UAT scenarios are verified
+    var uatReady = APP.uat && uatDone()===APP.uat.tasks.length;
+    var locked = c.requiresUat && !uatReady;
+    if(locked){
+      return '<div class="signrow" style="opacity:.55">'
+        + '<input type="checkbox" disabled style="width:18px;height:18px">'
+        + '<span class="fs13 sec" style="flex:1">'+label+'</span>'
+        + '<span class="badge b-warning" style="font-size:10px">'+svg('lock')+'Finish UAT first</span></div>';
     }
     return '<label class="signrow clickable '+(on?'on':'')+'">'
       + '<input type="checkbox" '+(c.done?'checked':'')+' onchange="toggleCheck('+i+',this.checked)" style="width:18px;height:18px;accent-color:var(--success-text)">'
-      + '<span class="fs13 '+(on?'fw6':'sec')+'" style="flex:1">'+c.label+'</span>'
+      + '<span class="fs13 '+(on?'fw6':'sec')+'" style="flex:1">'+label+(c.requiresUat?' <span class="badge b-info" style="font-size:9px">UAT sign-off</span>':'')+'</span>'
       + '<span class="fs11 muted">You confirm</span></label>';
   }
 
@@ -3824,6 +3861,24 @@ function renderSignoff(){
     + '<div class="card card-pad mb5"><div class="disp" style="font-size:18px;margin-bottom:2px">Your confirmations</div>'
       + '<div class="fs13 muted mb4">Tick each item once you\'ve verified it with your team.</div>'
       + manualItems.map(checkRow).join('')+'</div>'
+    + (function(){
+        var c=goLiveItem.c, i=goLiveItem.i, on=goLiveItem.on;
+        var uatReady = APP.uat && uatDone()===APP.uat.tasks.length;
+        var n=APP.uat?uatDone():0, tot=APP.uat?APP.uat.tasks.length:3;
+        var inner;
+        if(!uatReady){
+          inner='<div class="flex g3 ac" style="align-items:flex-start"><span class="signrow-ic" style="color:var(--warning-text)">'+svg('lock')+'</span>'
+            + '<div><div class="fw7 fs14" style="margin-bottom:2px">UAT not finished yet</div><div class="fs12.5 muted" style="line-height:1.5">Run and verify all '+tot+' UAT scenarios in the ERP first ('+n+'/'+tot+' done). This attestation unlocks once UAT passes.</div></div></div>';
+        } else {
+          inner='<label class="flex g3 clickable" style="align-items:flex-start"><input type="checkbox" '+(c.done?'checked':'')+' onchange="toggleCheck('+i+',this.checked)" style="margin-top:2px;width:18px;height:18px;accent-color:var(--success-text)">'
+            + '<div><div class="fw7 fs14" style="margin-bottom:2px">We have completed UAT and agree the system is ready to go live</div>'
+            + '<div class="fs12.5 muted" style="line-height:1.5">PT Makmur Jaya confirms all '+tot+' scenarios were tested in the live ERP and the results \u2014 journals, tax, and trial balance \u2014 are correct. This is the company\u2019s agreement to proceed to go-live.</div></div></label>';
+        }
+        return '<div class="card card-pad mb5" style="border-color:'+(on?'var(--success-border)':'var(--color-brand-subtle)')+';background:'+(on?'var(--success-surface)':'linear-gradient(160deg,var(--color-brand-wash),#fff)')+'">'
+          + '<div class="flex ac g2 mb3"><span class="disp" style="font-size:18px">UAT sign-off</span>'+(on?'<span class="badge b-success" style="font-size:10px">'+svg('checkCircle')+'Agreed</span>':'<span class="badge b-brand" style="font-size:10px">Required</span>')+'</div>'
+          + inner
+        + '</div>';
+      })()
     // approvals
     + '<div class="card card-pad mb5"><div class="disp" style="font-size:18px;margin-bottom:2px">Approvals</div>'
       + '<div class="fs13 muted mb4">Each approver signs off in turn. All three are required before go-live.</div>'
@@ -3845,7 +3900,7 @@ function signoffMini(label,n,total){
   return '<div style="flex:1;min-width:200px"><div class="flex jb ac mb1"><span class="fs12" style="color:rgba(255,255,255,.8);font-weight:600">'+label+'</span><span class="num fs12" style="color:#fff">'+n+'/'+total+'</span></div>'
     + '<div style="height:7px;background:rgba(255,255,255,.22);border-radius:var(--radius-full);overflow:hidden"><div style="height:100%;width:'+pct+'%;background:#fff;border-radius:var(--radius-full);transition:width .4s"></div></div></div>';
 }
-function toggleCheck(i,v){ APP.checklist[i].done=v; renderPage(); }
+function toggleCheck(i,v){ var c=APP.checklist[i]; c.done=v; if(c.id==='uat_signoff'){ APP.companyUatApproved=v; } renderPage(); }
 function signApproval(i){
   var a=APP.approvals[i];
   openModal('<div class="modal-card"><div class="modal-icon" style="background:var(--color-action-wash)"><svg viewBox="0 0 24 24" style="stroke:var(--color-action)">'+IC.shield+'</svg></div>'
