@@ -521,22 +521,15 @@ var KLAY_FLAT=[]; KLAY_COA.forEach(function(grp){grp.items.forEach(function(it){
 function klayByCode(c){return KLAY_FLAT.filter(function(x){return x.c===c;})[0];}
 var KLAY_TYPE_PREFIX={Assets:'1',Liabilities:'2',Equity:'3',Revenue:'4',COGS:'5','Operating Expenses':'6','Non-Operating':'7',Tax:'8',Reserved:'9'};
 
-/* ---- DIMENSIONS ---- */
+/* ---- DIMENSIONS ----
+   Three recommended dimensions ship by default. Users can still edit these and add their own. */
 var DIMS = [
-  {id:'dept', ai:true, name:'Department', color:'#1A46C8', values:['Sales','Marketing','IT','Product','Finance','HR','Operations','Warehouse'], rec:'strong', system:false,
-   why:'Tracks profitability, spending, and headcount by department. Without it, all salary, overhead, and operating expenses collapse into a single line.'},
-  {id:'branch', ai:true, name:'Branch', color:'#B83D08', values:['Jakarta HQ','Surabaya','Bandung','Medan'], rec:'strong', system:false,
-   why:'Essential for multi-location businesses, and the basis for data-access scoping — a Surabaya analyst should only see Surabaya transactions.'},
-  {id:'cur', name:'Currency', color:'#E8C870', values:['IDR','USD','SGD','JPY'], rec:'detected', system:true,
-   why:'Detected from your Chart of Accounts (multi-currency bank & AR/AP accounts).'},
-  {id:'loc', ai:true, name:'Location', color:'#166638', values:['Jakarta','Yogyakarta','Bandung','Semarang'], rec:'detected', system:false,
-   why:'Detected from your finished-goods accounts split by physical site.'},
-  {id:'prodcat', ai:true, name:'Product Category', color:'#A03206', values:['Electronics','Raw Material','Packaging'], rec:'optional', system:false,
-   why:'Recommended if the client carries multiple product lines and wants gross margin by category.'},
-  {id:'channel', ai:true, name:'Sales Channel', color:'#4D72E0', values:['Modern Trade','Traditional Trade','Online','Direct'], rec:'optional', system:false,
-   why:'Recommended if selling through more than one channel.'},
-  {id:'region', ai:true, name:'Region', color:'#7A4D00', values:['Java','Sumatra','Kalimantan'], rec:'optional', system:false,
-   why:'Only if the client has a national operation needing regional P&L above the branch level.'},
+  {id:'costcenter', name:'Cost Center', color:'#1A46C8', values:['Sales','Marketing','Production','G&A','R&D'], rec:'recommended', system:false,
+   why:'Tracks profitability and spending by cost center. Without it, overhead and operating expenses collapse into a single line.'},
+  {id:'loc', name:'Location', color:'#166638', values:['Jakarta','Yogyakarta','Bandung','Semarang'], rec:'recommended', system:false,
+   why:'For multi-location businesses — splits results by physical site.'},
+  {id:'dept', name:'Department', color:'#B83D08', values:['Sales','Marketing','IT','Product','Finance','HR','Operations','Warehouse'], rec:'recommended', system:false,
+   why:'Tracks headcount and spending by department.'},
 ];
 function dimById(id){return DIMS.filter(function(d){return d.id===id;})[0];}
 
@@ -1246,13 +1239,8 @@ function buildMappingRows(){
     if(r.name.indexOf('Finished goods')>=0) target='11620';
     if(r.name==='Goods in transit') target='11600';
     if(r.name==='Inventory') target='11600';
-    var dims=[];
-    if(r.cur && r.cur!=='IDR') dims.push({dim:'cur',v:r.cur});
-    else if(r.type==='Bank'||r.type==='Cash'||r.type==='Receivable') dims.push({dim:'cur',v:'IDR'});
-    if(r.name.indexOf('Jakarta')>=0) dims.push({dim:'loc',v:'Jakarta'});
-    if(r.name.indexOf('Yogyakarta')>=0) dims.push({dim:'loc',v:'Yogyakarta'});
     return {code:r.code,name:r.name,cat:r.cat,ltype:r.type,cur:r.cur,target:target,
-            mapStatus: target? 'auto':'unmapped', issue:null, dims:dims};
+            mapStatus: target? 'auto':'unmapped', issue:null};
   });
   // Inject issues to reproduce the screenshots' issue mix
   function find(code){return rows.filter(function(x){return x.code===code;})[0];}
@@ -2118,7 +2106,7 @@ function renderMappingOverview(){
   });
 
   // dimensions panel
-  var dimHTML = DIMS.filter(function(d){return d.rec==='strong'||d.rec==='detected';}).map(dimChipBlock).join('');
+  var dimHTML = DIMS.filter(function(d){return d.rec==='recommended';}).map(dimChipBlock).join('');
 
   return '<div class="canvas">'
     + '<div class="page-head-row"><div>'
@@ -2148,20 +2136,10 @@ function renderMappingOverview(){
       + '</div>'
       // dimensions
       + '<div class="card card-pad">'
-        + '<div class="flex ac g2 mb1"><span class="disp" style="font-size:21px">Dimensions</span><span class="ai-pill">'+svg('spark')+'AI recommended</span></div>'
-        + '<div class="fs13 muted mb4" style="line-height:1.55">Klay analyzed your legacy CoA and recommends these dimensions to categorize your transactions.</div>'
-        + '<div style="background:var(--color-action-wash);border:1px solid var(--color-action-subtle);border-radius:var(--radius-md);padding:11px 13px;font-size:12px;color:var(--color-action);line-height:1.45;margin-bottom:16px">'+svg('info')+' You can manage and assign these to each account in the workspace.</div>'
+        + '<div class="flex ac g2 mb1"><span class="disp" style="font-size:21px">Dimensions</span><span class="badge b-info" style="font-size:9.5px">Recommended</span></div>'
+        + '<div class="fs13 muted mb4" style="line-height:1.55">These three dimensions are recommended to categorize your transactions. You can edit them or add your own.</div>'
+        + '<div style="background:var(--color-action-wash);border:1px solid var(--color-action-subtle);border-radius:var(--radius-md);padding:11px 13px;font-size:12px;color:var(--color-action);line-height:1.45;margin-bottom:16px">'+svg('info')+' Required dimensions are carried onto each account when you map it — manage them per row in the workspace.</div>'
         + dimHTML
-        + '<div class="hr"></div>'
-        + '<div class="section-label mb3">Also recommended</div>'
-        + DIMS.filter(function(d){return d.rec==='optional';}).map(function(d){
-            var open=APP.dimAccOpen&&APP.dimAccOpen[d.id];
-            return '<div class="acc-item">'
-              + '<div class="acc-head clickable" onclick="toggleDimAcc(\''+d.id+'\')"><span class="flex ac g2 fs13 sec fw6"><span class="dot" style="background:'+d.color+'"></span>'+d.name+'</span>'
-                + '<span class="flex ac g2"><span class="fs11 muted">'+d.values.length+' values</span><span class="acc-chev'+(open?' open':'')+'">'+svg('chevDown')+'</span></span></div>'
-              + (open? '<div class="acc-body"><div class="flex g1 ac" style="flex-wrap:wrap">'+d.values.map(function(v){return '<span class="badge b-neutral" style="font-size:11px">'+v+'</span>';}).join(' ')+'</div></div>':'')
-            + '</div>';
-          }).join('')
       + '</div>'
     + '</div>'
     + '<style>.acc-item{border-bottom:1px solid var(--color-border-subtle)}.acc-item:last-child{border-bottom:none}.acc-head{display:flex;align-items:center;justify-content:space-between;padding:10px 0}.acc-chev{display:inline-flex;color:var(--color-text-tertiary);transition:transform .2s}.acc-chev.open{transform:rotate(180deg)}.acc-chev svg{width:15px;height:15px}.acc-body{padding:2px 0 12px}</style>'
@@ -2175,7 +2153,7 @@ function tierTag(it){
   return t;
 }
 function dimChipBlock(d){
-  var recBadge = d.rec==='detected'?'<span class="badge b-info" style="font-size:9.5px">Detected</span>':'<span class="ai-pill">'+svg('spark')+'AI</span>';
+  var recBadge='<span class="badge b-info" style="font-size:9.5px">Recommended</span>';
   var chips=d.values.slice(0,5).map(function(v){return '<span class="badge b-neutral" style="font-size:11px">'+v+'</span>';}).join(' ');
   return '<div class="mb4"><div class="flex jb ac mb2"><span class="flex ac g2 fw7 fs13"><span class="dot" style="background:'+d.color+'"></span>'+d.name+'</span>'+recBadge+'</div>'
     + '<div class="flex g1 ac" style="flex-wrap:wrap">'+chips+(d.values.length>5?'<span class="fs11 muted">+'+(d.values.length-5)+'</span>':'')+'</div></div>';
@@ -2336,8 +2314,8 @@ function renderWorkspace(){
   if(APP.mapTypeFilter){
     shown=shown.filter(function(r){
       if(APP.mapTypeFilter==='Has issue') return !!r.issue;
-      if(APP.mapTypeFilter==='No dimensions') return !r.dims||r.dims.length===0;
-      if(APP.mapTypeFilter==='Has dimensions') return r.dims&&r.dims.length>0;
+      if(APP.mapTypeFilter==='No dimensions') return !r.target || getAcctReqDims(r.target).length===0;
+      if(APP.mapTypeFilter==='Has dimensions') return r.target && getAcctReqDims(r.target).length>0;
       return true;
     });
   }
@@ -2429,7 +2407,7 @@ function renderWorkspace(){
     + bulkBar()
     // table
     + '<div class="card" style="overflow:hidden"><div style="overflow:auto"><table class="tbl" style="min-width:980px">'
-      + '<thead><tr><th style="width:38px"><label class="rowchk"><input type="checkbox" onchange="toggleSelectAll(this.checked)"></label></th><th>Legacy account</th><th>Klay account</th><th>Dimensions</th><th style="width:170px" class="tr">Action</th></tr></thead>'
+      + '<thead><tr><th style="width:38px"><label class="rowchk"><input type="checkbox" onchange="toggleSelectAll(this.checked)"></label></th><th>Legacy account</th><th>Klay account</th><th>Required dimensions</th><th style="width:170px" class="tr">Action</th></tr></thead>'
       + '<tbody>'+trs+'</tbody></table></div>'
       + paginationBar(rangeFrom,rangeTo,total,pg,pageCount)
     + '</div>'
@@ -2572,22 +2550,23 @@ function mapRowHTML(r){
 function shortName(n){ var i=n.indexOf('('); return i>0? n.slice(0,i).trim() : n; }
 
 function dimCellHTML(r,idx){
-  var chips=r.dims.map(function(d,di){
-    var dim=dimById(d.dim);
-    return '<span class="badge" style="background:'+hexA(dim.color,.12)+';color:'+dim.color+';border-color:'+hexA(dim.color,.3)+';font-size:10.5px">'+dim.name+': '+d.v+' <span class="clickable" style="opacity:.6" onclick="removeDim('+idx+','+di+')">×</span></span>';
-  }).join(' ');
-  // dimensions are optional here — required dimensions are enforced via Configure Klay CoA, not in this table
-  return '<div class="flex g1 ac" style="flex-wrap:wrap;max-width:280px">'+chips
-    + (chips?' ':'<span class="fs12 muted">Optional</span> ')
-    + '<button class="btn btn-ghost btn-xs" onclick="openDimPicker('+idx+')">'+svg('plus')+'</button></div>';
+  if(!r.target){ return '<span class="fs12 muted">Map an account first</span>'; }
+  var ids = getAcctReqDims(r.target);
+  var chips=ids.map(function(did){
+    var dim=dimById(did); if(!dim) return '';
+    return '<span class="reqdim-chip" style="--c:'+dim.color+';background:'+hexA(dim.color,.1)+';color:'+dim.color+';border:1px solid '+hexA(dim.color,.3)+'">'
+      + '<span class="dot" style="background:'+dim.color+';width:7px;height:7px;border-radius:50%;display:inline-block"></span>'+dim.name
+      + '<span class="reqdim-x clickable" onclick="event.stopPropagation();removeReqDimFromAccount('+idx+',\''+did+'\')" title="Remove from this account">'+svg('x')+'</span></span>';
+  }).join('');
+  return '<div class="flex g1 ac" style="flex-wrap:wrap;max-width:320px">'+chips
+    + '<button class="btn btn-ghost btn-xs reqdim-add" onclick="openReqDimMenu('+idx+',event)" title="Add required dimension">'+svg('plus')+(ids.length?'':'Add dimension')+'</button></div>';
 }
 function requiredDimsFor(r){
-  // policy: cash/bank/AR/AP accounts require currency; P&L accounts require department
+  // policy: P&L accounts (revenue/COGS/opex) recommend Cost Center + Department; everything else none by default
   if(!r.target) return [];
   var k=klayByCode(r.target); if(!k) return [];
   var req=[];
-  if(['Assets','Liabilities'].indexOf(k.atype)>=0 && (k.group.indexOf('Cash')>=0||k.group.indexOf('Receivable')>=0||k.group.indexOf('Payable')>=0)) req.push('cur');
-  if(['Revenue','COGS','Operating Expenses'].indexOf(k.atype)>=0) req.push('dept');
+  if(['Revenue','COGS','Operating Expenses'].indexOf(k.atype)>=0){ req.push('costcenter'); req.push('dept'); }
   return req;
 }
 function hexA(hex,a){ var h=hex.replace('#',''); var r=parseInt(h.slice(0,2),16),g=parseInt(h.slice(2,4),16),b=parseInt(h.slice(4,6),16); return 'rgba('+r+','+g+','+b+','+a+')'; }
@@ -2662,12 +2641,18 @@ function filterPicker(){
 function setKlayTarget(idx,code){
   var r=APP.mapRows[idx];
   var hadIssue=!!r.issue;
+  var changed = r.target!==code;
   r.target=code; r.issue=null; // editing resolves any issue
   if(r.mapStatus!=='deactivated') r.mapStatus='mapped'; // editing the target maps it directly (no separate confirm)
-  // when a previously-issue row is edited, drop it just below the "note" rows so it doesn't jump far
+  // required dimensions live on the Klay account (single source of truth, shared with Configure CoA).
+  // Seed the account's required-dim set from defaults if it hasn't been configured yet.
+  if(changed && code){
+    APP.acctReqDims=APP.acctReqDims||{};
+    if(!APP.acctReqDims[code]){ APP.acctReqDims[code]=defaultReqDims(klayByCode(code)||{atype:'',group:''}).slice(); }
+  }
   if(hadIssue){ reorderEditedRow(idx); }
   closeDrawer(); renderPage();
-  toast('Account mapped','Mapped to '+code+'.','success');
+  toast('Account mapped','Mapped to '+code+'. The account\u2019s required dimensions are shown in the row \u2014 add or remove as needed.','success');
 }
 function reorderEditedRow(idx){
   // After editing, the row loses its issue and falls into the "resolved" bucket (3).
@@ -2677,40 +2662,70 @@ function reorderEditedRow(idx){
   APP.mapRows[idx].ord = (minOrd===Infinity? 0 : minOrd-0.5);
 }
 
-/* ---- dimension picker ---- */
-function openDimPicker(idx){
-  var r=APP.mapRows[idx];
-  var req=requiredDimsFor(r);
-  var blocks=DIMS.map(function(d){
-    var current=r.dims.filter(function(x){return x.dim===d.id;})[0];
-    var isReq=req.indexOf(d.id)>=0;
-    var vals=d.values.map(function(v){
-      var sel=current&&current.v===v;
-      return '<button class="dimchip'+(sel?' sel':'')+'" style="'+(sel?'--c:'+d.color:'')+'" onclick="addDimVal('+idx+',\''+d.id+'\',\''+v+'\')">'
-        + (sel?'<span class="dimchip-check">'+svg('check')+'</span>':'')+v+'</button>';
-    }).join('');
-    var clearBtn = current? '<button class="btn btn-ghost btn-xs" onclick="clearDim('+idx+',\''+d.id+'\')">'+svg('x')+'Clear</button>':'';
-    return '<div class="mb5"><div class="flex jb ac mb3"><span class="flex ac g2 fw7 fs13"><span class="dot" style="background:'+d.color+'"></span>'+d.name
-      + (d.ai?' <span class="ai-pill">'+svg('spark')+'AI</span>':'')+'</span>'
-      + (isReq?'<span class="badge b-warning" style="font-size:10px">'+svg('alert')+'Required</span>':clearBtn)+'</div>'
-      + '<div class="flex g2 ac" style="flex-wrap:wrap">'+vals+'</div></div>';
+/* ---- required-dimension containers (mapping) ----
+   These edit the Klay ACCOUNT's required-dim set (APP.acctReqDims[code]),
+   so changes here are reflected in Configure Klay CoA, and vice-versa. */
+function setAcctReqDims(code,arr){ APP.acctReqDims=APP.acctReqDims||{}; APP.acctReqDims[code]=arr; }
+function removeReqDimFromAccount(idx,did){
+  var r=APP.mapRows[idx]; if(!r.target) return;
+  var cur=getAcctReqDims(r.target).filter(function(x){return x!==did;});
+  setAcctReqDims(r.target,cur); renderPage();
+}
+function addReqDimToAccount(idx,did){
+  var r=APP.mapRows[idx]; if(!r.target) return;
+  var cur=getAcctReqDims(r.target).slice(); if(cur.indexOf(did)<0) cur.push(did);
+  setAcctReqDims(r.target,cur); renderPage();
+}
+function openReqDimMenu(idx,ev){
+  if(ev&&ev.stopPropagation) ev.stopPropagation();
+  var r=APP.mapRows[idx]; if(!r.target) return;
+  var cur=getAcctReqDims(r.target);
+  var acctName = (function(){ var k=klayByCode(r.target); return k?shortName(k.n):r.target; })();
+  // seed a staging selection from current required dims
+  APP.reqDimDraft = cur.slice();
+  var rows=DIMS.map(function(d){
+    var on=cur.indexOf(d.id)>=0;
+    return '<label class="reqdim-opt">'
+      + '<input type="checkbox" '+(on?'checked':'')+' onchange="toggleReqDimDraft(\''+d.id+'\',this.checked)">'
+      + '<span class="dot" style="background:'+d.color+';width:9px;height:9px;border-radius:50%;display:inline-block;flex-shrink:0"></span>'
+      + '<span class="reqdim-opt-name">'+d.name+(d.rec==='recommended'?' <span class="fs10 muted">· recommended</span>':'')+'</span>'
+    + '</label>';
   }).join('');
-  openDrawer('<div class="drawer-head"><div><div class="section-label mb2">Assign dimension values</div><div class="fw7 fs17" style="font-family:var(--font-display);font-weight:500">'+r.name+'</div><div class="mono fs12 muted mt1">'+r.code+'</div></div><button class="x-btn" onclick="closeDrawer()">'+svg('x')+'</button></div>'
-    + '<div class="drawer-body">'
-      + '<div class="ai-banner mb5">'+svg('spark')+'<div><div class="fw7 fs13" style="color:var(--color-brand-hover)">Some dimensions are required for this account</div><div class="fs12" style="color:var(--color-text-secondary);line-height:1.5;margin-top:2px">Pick a value for each required dimension. Tap a chip to select; the highlighted chip is the current value.</div></div></div>'
-      + blocks
-    + '</div>'
-    + '<div class="drawer-foot"><button class="btn btn-primary" onclick="closeDrawer();renderPage()">Done</button></div>');
+  var menu='<div class="rowmenu-h">Required on '+acctName+'</div>'
+    + '<div class="rowmenu-note">Pick one or more. Applies to the Klay account — also updates Configure Klay CoA.</div>'
+    + rows
+    + '<div class="rowmenu-hint">'+svg('info')+'<span>Add the dimension <b>values</b> later in the <b>Dimensions</b> menu.</span></div>'
+    + '<div class="rowmenu-sep"></div>'
+    + '<div class="rowmenu-item" onclick="closeAnchoredMenu();openCreateDimForRow('+idx+')"><span class="muted" style="margin-right:8px;display:inline-flex">'+svg('plus')+'</span>Create new dimension…</div>'
+    + '<div style="padding:8px 6px 4px"><button class="btn btn-primary btn-sm btn-block" onclick="applyReqDimDraft('+idx+')">'+svg('check')+'Done</button></div>';
+  openAnchoredMenu(ev?ev.currentTarget:document.body, menu, true);
 }
-function clearDim(idx,dimId){ var r=APP.mapRows[idx]; r.dims=r.dims.filter(function(x){return x.dim!==dimId;}); renderPage(); openDimPicker(idx); }
-function addDimVal(idx,dimId,v){
-  var r=APP.mapRows[idx];
-  var ex=r.dims.filter(function(x){return x.dim===dimId;})[0];
-  if(ex) ex.v=v; else r.dims.push({dim:dimId,v:v});
-  // refresh drawer + page silently
-  renderPage(); openDimPicker(idx);
+function toggleReqDimDraft(did,on){
+  APP.reqDimDraft = APP.reqDimDraft||[];
+  var i=APP.reqDimDraft.indexOf(did);
+  if(on){ if(i<0) APP.reqDimDraft.push(did); }
+  else { if(i>=0) APP.reqDimDraft.splice(i,1); }
 }
-function removeDim(idx,di){ APP.mapRows[idx].dims.splice(di,1); renderPage(); }
+function applyReqDimDraft(idx){
+  var r=APP.mapRows[idx]; if(!r.target){ closeAnchoredMenu(); return; }
+  setAcctReqDims(r.target, (APP.reqDimDraft||[]).slice());
+  APP.reqDimDraft=null; closeAnchoredMenu(); renderPage();
+}
+function openCreateDimForRow(idx){
+  openModal('<div class="modal-card"><div class="modal-icon" style="background:var(--color-action-wash)"><svg viewBox="0 0 24 24" style="stroke:var(--color-action)">'+IC.layers+'</svg></div>'
+    + '<div class="modal-title">New dimension</div><div class="modal-text">Create a custom dimension to tag transactions (e.g. Project, Channel). It becomes available across all accounts.</div>'
+    + '<input id="newDimName" class="cfg-input2 mb2" placeholder="Dimension name (e.g. Project)" style="width:100%">'
+    + '<div class="modal-foot"><button class="btn btn-ghost" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="createDimFromRow('+idx+')">'+svg('check')+'Create &amp; add</button></div></div>');
+  setTimeout(function(){ var el=document.getElementById('newDimName'); if(el) el.focus(); },50);
+}
+function createDimFromRow(idx){
+  var el=document.getElementById('newDimName'); var name=(el&&el.value||'').trim();
+  if(!name){ if(el) el.focus(); return; }
+  var id='custom_'+name.toLowerCase().replace(/[^a-z0-9]+/g,'_').replace(/^_|_$/g,'');
+  if(!dimById(id)){ var palette=['#7A4D00','#4D72E0','#A03206','#0E7C86','#9333EA']; DIMS.push({id:id,name:name,color:palette[DIMS.length%palette.length],values:[],rec:'custom',system:false,why:'Custom dimension you created.'}); }
+  closeModal(); addReqDimToAccount(idx,id);
+  toast('Dimension created','\u201C'+name+'\u201D added as a required dimension on this account.','success');
+}
 
 /* ---- row actions ---- */
 function confirmRow(idx){ var r=APP.mapRows[idx]; r.mapStatus='mapped'; renderPage(); }
@@ -2783,6 +2798,24 @@ function finishMapping(){ toast('Mapping complete','Great — moving on to tax c
 </script>
 <style>
 .rowmenu{position:absolute;right:0;top:34px;z-index:30;background:#fff;border:1px solid var(--color-border-default);border-radius:var(--radius-md);box-shadow:var(--shadow-lg);padding:6px;min-width:200px}
+.rowmenu-h{font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--color-text-tertiary);padding:6px 10px 2px}
+.rowmenu-note{font-size:10.5px;color:var(--color-text-tertiary);padding:0 10px 6px;line-height:1.4}
+.rowmenu-item{display:flex;align-items:center;gap:2px;padding:8px 10px;border-radius:var(--radius-sm);cursor:pointer;font-size:13px;color:var(--color-text-secondary)}
+.rowmenu-item:hover{background:var(--color-surface-sunken)}
+.rowmenu-item svg{width:14px;height:14px}
+.rowmenu-sep{height:1px;background:var(--color-border-subtle);margin:5px 4px}
+.reqdim-opt{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:var(--radius-sm);cursor:pointer;font-size:13px;color:var(--color-text-secondary);text-align:left}
+.reqdim-opt:hover{background:var(--color-surface-sunken)}
+.reqdim-opt input{width:15px;height:15px;accent-color:var(--color-action);cursor:pointer;flex-shrink:0;margin:0}
+.reqdim-opt-name{flex:1;text-align:left}
+.rowmenu-hint{display:flex;align-items:flex-start;gap:7px;margin:6px 6px 2px;padding:8px 10px;background:var(--color-action-wash);border:1px solid var(--color-action-subtle);border-radius:var(--radius-sm);font-size:11px;color:var(--color-action);line-height:1.45}
+.rowmenu-hint svg{width:13px;height:13px;flex-shrink:0;margin-top:1px}
+.reqdim-chip{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:600;padding:3px 7px 3px 8px;border-radius:var(--radius-full);white-space:nowrap}
+.reqdim-chip .reqdim-x{display:inline-flex;align-items:center;justify-content:center;width:14px;height:14px;border-radius:50%;opacity:.55;margin-left:1px}
+.reqdim-chip .reqdim-x:hover{opacity:1;background:rgba(0,0,0,.08)}
+.reqdim-chip .reqdim-x svg{width:10px;height:10px}
+.reqdim-add{border:1px dashed var(--color-border-strong)!important;color:var(--color-text-tertiary)!important;gap:3px}
+.reqdim-add:hover{border-color:var(--color-action)!important;color:var(--color-action)!important;background:var(--color-action-wash)!important}
 .rowchk{display:inline-flex;align-items:center;justify-content:center}
 .rowchk input{width:16px;height:16px;accent-color:var(--color-action);cursor:pointer}
 .bulkbar{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:12px 16px;background:var(--color-action-wash);border:1px solid var(--color-action-subtle);border-radius:var(--radius-md);flex-wrap:wrap}
@@ -2866,8 +2899,7 @@ function renderConfigCoa(){
       var nameCell = locked
         ? '<span class="fs13">'+it.n+'</span>'
         : '<div class="cfg-edit"><input class="cfg-input" value="'+it.n.replace(/"/g,'&quot;')+'" onchange="editKlayName(\''+it.c+'\',this.value)">'+svg('edit')+'</div>';
-      var codeCell = '<span class="mono fs13 flex ac" style="gap:1px"><span class="muted">'+prefix+'</span>'
-        + (locked? '<span>'+suffix+'</span>' : '<input class="cfg-code" maxlength="2" value="'+suffix+'" onchange="editKlaySuffix(\''+it.c+'\',this.value)" title="Edit last 2 digits">')+'</span>';
+      var codeCell = '<span class="mono fs13 flex ac" style="gap:1px"><span class="muted">'+prefix+'</span><span>'+suffix+'</span></span>';
       // required dimensions chips
       var reqDims = (APP.acctReqDims&&APP.acctReqDims[it.c]) || defaultReqDims(it);
       var reqChips = reqDims.map(function(did){var d=dimById(did);return d?'<span class="badge" style="background:'+hexA(d.color,.12)+';color:'+d.color+';border-color:'+hexA(d.color,.3)+';font-size:10.5px">'+d.name+' <span class="clickable" style="opacity:.6" onclick="toggleAcctReqDim(\''+it.c+'\',\''+did+'\')">×</span></span>':'';}).join(' ');
@@ -2883,7 +2915,7 @@ function renderConfigCoa(){
   return '<div class="canvas">'
     + '<div class="flex ac g2 fs13 mb4"><span class="clickable" style="color:var(--color-action);font-weight:600" onclick="backToWorkspace()">Account Mapping</span><span class="muted">/</span><span class="muted">Configure Klay CoA</span></div>'
     + '<div class="page-head-row"><div><div class="page-title" style="font-size:30px">Configure Klay Chart of Accounts</div>'
-      + '<div class="page-sub mt2">Rename accounts, adjust the last 2 digits of a code, and set which <b>dimensions are required</b> on each account. Required dimensions must be filled in before a transaction can post. You assign the actual dimension <i>values</i> later, in the mapping workspace.</div></div>'
+      + '<div class="page-sub mt2">Rename accounts and set which <b>dimensions are required</b> on each account. Account codes are fixed. Required dimensions must be filled in before a transaction can post to that account.</div></div>'
       + '<button class="btn btn-primary" onclick="backToWorkspace()">'+svg('check')+'Done</button></div>'
     + '<div class="card mb5" style="overflow:hidden">'
       + '<div class="flex jb ac clickable" style="padding:16px 20px" onclick="APP.lockTierOpen='+(APP.lockTierOpen===false?'true':'false')+';renderPage()">'
@@ -2910,8 +2942,7 @@ function renderConfigCoa(){
 function defaultReqDims(it){
   // sensible defaults mirroring requiredDimsFor
   var req=[];
-  if(['Assets','Liabilities'].indexOf(it.atype)>=0 && (it.group.indexOf('Cash')>=0||it.group.indexOf('Receivable')>=0||it.group.indexOf('Payable')>=0)) req.push('cur');
-  if(['Revenue','COGS','Operating Expenses'].indexOf(it.atype)>=0) req.push('dept');
+  if(['Revenue','COGS','Operating Expenses'].indexOf(it.atype)>=0){ req.push('costcenter'); req.push('dept'); }
   return req;
 }
 function getAcctReqDims(code){ var it=klayByCode(code); return (APP.acctReqDims&&APP.acctReqDims[code]) || defaultReqDims(it||{atype:'',group:''}); }
@@ -3027,7 +3058,7 @@ function deleteDimension(id){
 function doDeleteDimension(id){
   DIMS=DIMS.filter(function(d){return d.id!==id;});
   // clear from any mapped rows + required-dim config
-  if(APP.mapRows) APP.mapRows.forEach(function(r){ r.dims=r.dims.filter(function(x){return x.dim!==id;}); });
+  // clear from account required-dim config (the single source of truth)
   if(APP.acctReqDims){ Object.keys(APP.acctReqDims).forEach(function(code){ APP.acctReqDims[code]=(APP.acctReqDims[code]||[]).filter(function(x){return x!==id;}); }); }
   closeModal(); render(); toast('Dimension deleted','It has been removed from your workspace.','info');
 }
@@ -3056,28 +3087,28 @@ function ensurePosting(){
   // Deterministic, pre-defined journal posting templates commonly used by Indonesian SMEs.
   // No AI, no auto-post, no confidence, no trigger/category — these are reusable journal templates.
   APP.rules = [
-    {id:'ap_inv', name:'Vendor Bill (AP Invoice)', status:'active', ai:true, recommend:'strong', saved:false,
+    {id:'ap_inv', name:'Vendor Bill (AP Invoice)', status:'active', ai:false, recommend:'strong', saved:false,
      lines:[{dr:'Expense / Inventory (by item)',drc:'var'},{dr:'PPN Masukan',drc:'11400',tax:true},{cr:'Utang Usaha',crc:'21000',ctrl:true}],
      note:'PPN Masukan accrues when the vendor is PKP. PPh 23 (2%) is withheld on services to the matching tax-payable account.'},
-    {id:'ar_inv', name:'Customer Invoice (AR Invoice)', status:'active', ai:true, recommend:'strong', saved:false,
+    {id:'ar_inv', name:'Customer Invoice (AR Invoice)', status:'active', ai:false, recommend:'strong', saved:false,
      lines:[{dr:'Piutang Usaha',drc:'11200',ctrl:true},{cr:'Pendapatan Penjualan',crc:'41000'},{cr:'PPN Keluaran',crc:'22000',tax:true}],
      note:'COGS recognition posts a paired entry when the item is tracked inventory.'},
-    {id:'ap_pay', name:'Vendor Payment', status:'active', ai:true, recommend:'strong', saved:false,
+    {id:'ap_pay', name:'Vendor Payment', status:'active', ai:false, recommend:'strong', saved:false,
      lines:[{dr:'Utang Usaha',drc:'21000',ctrl:true},{cr:'Bank',crc:'11110'}],
      note:'Realized FX gain/loss posts for foreign-currency settlement.'},
-    {id:'ar_rcpt', name:'Customer Receipt', status:'active', ai:true, recommend:'strong', saved:false,
+    {id:'ar_rcpt', name:'Customer Receipt', status:'active', ai:false, recommend:'strong', saved:false,
      lines:[{dr:'Bank',drc:'11110'},{cr:'Piutang Usaha',crc:'11200',ctrl:true}],
      note:'Matches to the open invoice; partial receipts supported.'},
-    {id:'payroll', name:'Payroll Run', status:'active', ai:true, recommend:'normal', saved:false,
+    {id:'payroll', name:'Payroll Run', status:'active', ai:false, recommend:'normal', saved:false,
      lines:[{dr:'Gaji & Upah',drc:'61000'},{cr:'Utang PPh 21',crc:'22100',tax:true},{cr:'Utang BPJS',crc:'22200',tax:true},{cr:'Bank / Accrued Salaries',crc:'21110'}],
      note:'PPh 21 and BPJS employee contributions are withheld to their payable accounts.'},
-    {id:'expense', name:'Cash / Petty Expense', status:'active', ai:true, recommend:'normal', saved:false,
+    {id:'expense', name:'Cash / Petty Expense', status:'active', ai:false, recommend:'normal', saved:false,
      lines:[{dr:'Operating Expense (by category)',drc:'var'},{cr:'Kas / Bank',crc:'11100'}],
      note:'PPN Masukan accrues if a valid faktur is attached.'},
-    {id:'inv_adj', name:'Inventory Adjustment', status:'active', ai:true, recommend:'normal', saved:false,
+    {id:'inv_adj', name:'Inventory Adjustment', status:'active', ai:false, recommend:'normal', saved:false,
      lines:[{dr:'COGS / Loss',drc:'51000'},{cr:'Persediaan',crc:'11620'}],
      note:'Used for stock-count differences and write-offs.'},
-    {id:'depr', name:'Depreciation', status:'active', ai:true, recommend:'normal', saved:false,
+    {id:'depr', name:'Depreciation', status:'active', ai:false, recommend:'normal', saved:false,
      lines:[{dr:'Beban Penyusutan',drc:'63000'},{cr:'Akumulasi Penyusutan',crc:'12200',contra:true}],
      note:'Straight-line schedule generated from the Fixed Asset register.'}
   ];
@@ -3096,7 +3127,7 @@ function postingRuleDims(r){
 function postingCounts(){
   var r=APP.rules; return { total:r.length, active:r.filter(function(x){return x.status==='active';}).length,
     saved:r.filter(function(x){return x.saved;}).length,
-    aiUnsaved:r.filter(function(x){return x.ai&&!x.saved;}).length };
+    aiUnsaved:r.filter(function(x){return x.recommend&&!x.saved;}).length };
 }
 function renderPosting(){
   ensurePosting();
@@ -3105,11 +3136,10 @@ function renderPosting(){
 
   var workspace = ''
     + aiPostingSummary(c)
-    + '<div class="flex g2 ac mb5" style="align-items:flex-start;background:var(--color-action-wash);border:1px solid var(--color-action-subtle);border-radius:var(--radius-md);padding:12px 15px;font-size:12.5px;color:var(--color-action);line-height:1.55">'+svg('info')+'<span>These templates follow standard Indonesian SME bookkeeping. <b>Only the templates you save are carried into your live ERP</b> at go-live \u2014 review each one and hit Save. They never auto-post; nothing hits the ledger until someone approves it in the ERP.</span></div>'
     + '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:18px">'
       + statCard('Templates',c.total,'book','var(--color-action)')
       + statCard('Saved for go-live',c.saved,'checkCircle','var(--success-text)')
-      + statCard('AI-drafted',c.total,'spark','var(--color-brand)')
+      + statCard('Recommended',c.total,'book','var(--color-brand)')
     + '</div>'
     + '<div class="flex jb ac mb3"><span class="disp" style="font-size:18px">Journal templates <span class="pill-count">'+c.total+'</span></span>'
       + '<button class="btn btn-ghost btn-sm" onclick="addPostingRule()">'+svg('plus')+'New template</button></div>'
@@ -3134,12 +3164,12 @@ function renderPosting(){
 // AI summary acts as a shortcut to save ALL AI-suggested templates at once (like account mapping)
 function aiPostingSummary(c){
   if(!c.aiUnsaved) return '';
-  return '<div class="card ai-card mb5">'
+  return '<div class="card mb5" style="border-color:var(--color-action-subtle);background:var(--color-action-wash)">'
     + '<div class="flex jb ac" style="padding:16px 20px;gap:16px;flex-wrap:wrap">'
       + '<div class="flex g3 ac" style="align-items:flex-start;flex:1;min-width:280px">'
-        + '<span class="ai-ico">'+svg('spark')+'</span>'
-        + '<div><div class="ai-title fs15">Klay drafted '+c.aiUnsaved+' posting template'+(c.aiUnsaved>1?'s':'')+' for you</div>'
-          + '<div class="ai-body fs12.5" style="margin-top:3px;max-width:560px">These are AI-generated from standard Indonesian SME bookkeeping. Review them, then <b>save all at once</b> \u2014 or open any card to adjust and save it individually. Only saved templates go to your live ERP.</div></div>'
+        + '<span style="width:38px;height:38px;border-radius:var(--radius-md);background:#fff;color:var(--color-action);display:flex;align-items:center;justify-content:center;flex-shrink:0">'+svg('book')+'</span>'
+        + '<div><div class="fw7 fs15" style="color:var(--color-action)">'+c.aiUnsaved+' recommended template'+(c.aiUnsaved>1?'s':'')+' ready to save</div>'
+          + '<div class="fs12.5" style="margin-top:3px;max-width:560px;color:var(--color-text-secondary);line-height:1.55">These are pre-built from standard Indonesian SME bookkeeping. Review them, then <b>save all at once</b> \u2014 or open any card to adjust and save it individually. Only saved templates go to your live ERP.</div></div>'
       + '</div>'
       + '<div class="flex g2 ac" style="flex-shrink:0">'
         + '<button class="btn btn-primary btn-sm" onclick="saveAllAiPosting()">'+svg('check')+'Save all '+c.aiUnsaved+'</button>'
@@ -3168,7 +3198,7 @@ function postingCard(r){
     return '<div class="flex g2 ac" style="padding:3px 0;font-size:12px"><span class="badge '+(isDr?'b-info':'b-neutral')+'" style="font-size:9.5px;width:26px;justify-content:center">'+(isDr?'DR':'CR')+'</span>'+codeTxt+'<span class="sec" style="flex:1">'+name+'</span>'+tag+'</div>';
   }).join('');
   // AI + recommendation labels
-  var aiTag = r.ai? '<span class="ai-pill">'+svg('spark')+'Generated by AI</span>':'';
+  var aiTag = '';
   var recTag = r.recommend==='strong'
       ? '<span class="badge b-success" style="font-size:9.5px">'+svg('check')+'Strongly recommended</span>'
       : (r.recommend==='normal'? '<span class="badge b-info" style="font-size:9.5px">Recommended</span>':'');
@@ -3198,7 +3228,7 @@ function openPostingRule(idx){
       + '<div class="flex jb ac mb2"><span class="section-label">Journal template</span><button class="btn btn-ghost btn-xs" onclick="addPostingLine('+idx+')">'+svg('plus')+'Add line</button></div>'
       + '<div class="fs12 muted mb3">Pick the account for each line. Leave a line as <b>Dynamic</b> when the account is resolved at posting time (e.g. expense by item).</div>'
       + '<div class="mb5">'+lines+'</div>'
-      + (r.note?'<div class="flex g2 ac mb5" style="align-items:flex-start;background:var(--color-surface-base);border:1px solid var(--color-border-default);border-radius:var(--radius-md);padding:12px 14px;font-size:12.5px;color:var(--color-text-secondary);line-height:1.55">'+svg('info')+'<span>'+r.note+'</span></div>':'')
+      + ''
       + '<div class="hr"></div>'
       + '<button class="btn btn-danger-ghost btn-sm btn-block" onclick="deletePostingRule('+idx+')">'+svg('trash')+'Delete this template</button>'
     + '</div>'
@@ -3292,7 +3322,6 @@ function renderNewPostingRule(){
       + '<div class="flex jb ac mb3"><span class="fw7 fs15">Journal template</span><button class="btn btn-ghost btn-sm" onclick="newRuleAddLine()">'+svg('plus')+'Add line</button></div>'
       + '<div class="fs12 muted mb3">Leave a line as <b>Dynamic</b> for an account resolved at posting time (e.g. expense by item). Debits and credits must balance at posting time.</div>'
       + lineRows
-      + '<div class="flex g2 ac mt3" style="align-items:flex-start;background:var(--color-surface-base);border:1px solid var(--color-border-default);border-radius:var(--radius-md);padding:11px 13px;font-size:12px;color:var(--color-text-secondary);line-height:1.5">'+svg('info')+'<span>Dimensions to tag are inherited from each account\'s required dimensions — configure those in <b>Configure Klay CoA</b>.</span></div>'
     + '</div>'
     + '<div class="flex jb ac"><button class="btn btn-ghost" onclick="cancelNewPostingRule()">Cancel</button>'
       + '<button class="btn btn-primary" onclick="saveNewPostingRule()">'+svg('check')+'Create template</button></div>'
@@ -3314,8 +3343,8 @@ function saveNewPostingRule(){
 function savePostingRule(idx){ var r=APP.rules[idx]; if(r){r.saved=true;} closeDrawer(); renderPage(); toast('Template saved',(r?r.name:'Template')+' will be created in your live ERP.','success'); }
 function unsavePostingRule(idx){ var r=APP.rules[idx]; if(r){r.saved=false;} renderPage(); toast('Removed from go-live',(r?r.name:'Template')+' won\u2019t be carried to the ERP.','info'); }
 function saveAllAiPosting(){
-  var n=0; APP.rules.forEach(function(r){ if(r.ai&&!r.saved){r.saved=true;n++;} });
-  renderPage(); toast('Saved '+n+' template'+(n!==1?'s':''),'All AI-drafted templates will be created in your live ERP.','success');
+  var n=0; APP.rules.forEach(function(r){ if(r.recommend&&!r.saved){r.saved=true;n++;} });
+  renderPage(); toast('Saved '+n+' template'+(n!==1?'s':''),'All recommended templates will be created in your live ERP.','success');
 }
 function resetPosting(){
   openModal('<div class="modal-card"><div class="modal-icon" style="background:var(--warning-surface)"><svg viewBox="0 0 24 24" style="stroke:var(--warning-text)">'+IC.replace+'</svg></div>'
@@ -3336,7 +3365,7 @@ function continuePosting(){
   if(c.aiUnsaved>0){
     openModal('<div class="modal-card"><div class="modal-icon" style="background:var(--warning-surface)"><svg viewBox="0 0 24 24" style="stroke:var(--warning-text)">'+IC.alert+'</svg></div>'
       + '<div class="modal-title">'+c.aiUnsaved+' template'+(c.aiUnsaved>1?'s':'')+' not saved</div>'
-      + '<div class="modal-text">'+c.saved+' saved, but '+c.aiUnsaved+' AI-drafted template'+(c.aiUnsaved>1?'s are':' is')+' still unsaved and <b>won\u2019t go to your live ERP</b>. Save '+(c.aiUnsaved>1?'them':'it')+' first, or continue without.</div>'
+      + '<div class="modal-text">'+c.saved+' saved, but '+c.aiUnsaved+' recommended template'+(c.aiUnsaved>1?'s are':' is')+' still unsaved and <b>won\u2019t go to your live ERP</b>. Save '+(c.aiUnsaved>1?'them':'it')+' first, or continue without.</div>'
       + '<div class="modal-foot"><button class="btn btn-ghost" onclick="closeModal();confirmStage(\'posting\')">Continue without</button><button class="btn btn-primary" onclick="closeModal();saveAllAiPosting()">Save all '+c.aiUnsaved+'</button></div></div>');
     return;
   }
@@ -3448,17 +3477,7 @@ function renderTax(){
         + '<th>Tax Code</th><th>Tax Name</th><th>Tax Category</th><th>Applies To</th><th class="tr">Rate</th><th>Tax Base</th><th class="tc">Recoverable</th><th>Account</th><th>Notes</th><th class="tc">Active</th><th></th>'
         + '</tr></thead><tbody>'+rows+'</tbody></table></div></div>'
       + '<div class="card-pad" style="padding-top:14px"><button class="btn btn-ghost btn-sm" onclick="addTaxCode()">'+svg('plus')+'Add tax code</button></div>'
-    + '</div>'
-    // faktur settings — only relevant when PKP; system pre-filled (NOT AI)
-    + (t.pkp? '<div class="card card-pad mb5"><div class="flex jb ac mb2"><div class="flex ac g2"><span class="disp" style="font-size:19px">Faktur Pajak Settings</span></div>'
-      + '<span class="badge b-neutral" style="font-size:10px">'+svg('info')+'System default</span></div>'
-      + '<div class="fs13 muted mb4" style="line-height:1.5">Pre-filled from the standard PKP faktur format. Adjust to match your DJP registration.</div>'
-      + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px 24px">'
-        + taxFieldEdit('Faktur prefix','prefix',t.faktur.prefix)
-        + taxFieldEdit('Next serial','serial',t.faktur.serial)
-        + taxFieldSelect('SPT period','period',t.faktur.period,['Monthly','Quarterly'])
-        + taxFieldSelect('Reporting basis','basis',t.faktur.basis,['Accrual','Cash'])
-      + '</div></div>' : '');
+    + '</div>';
 
   var rail = aiSummaryCard('tax') + activityLogCard('tax');
 
