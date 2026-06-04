@@ -2272,24 +2272,36 @@ function rowSortKey(r){
 }
 function aiMappingSummary(c){
   if(!c.auto) return ''; // nothing AI-suggested left
-  // ALL dependent accounts still needing resolution — AI-suggested, blocked, or plain unmapped.
-  // These are the load-bearing rows the user can't ignore (can't deactivate, must be mapped).
+  // dependent accounts still needing resolution — AI-suggested, blocked, or plain unmapped.
   var depUnresolved=APP.mapRows.filter(function(r){ return depTotal(r.dep)>0 && r.mapStatus!=='mapped' && r.mapStatus!=='deactivated'; }).length;
   var depBlocked=APP.mapRows.filter(function(r){ return depTotal(r.dep)>0 && r.issue && (r.issue.sev==='hard'||r.issue.sev==='soft'); }).length;
-  var body = 'These are AI suggestions based on your legacy account types and names. Review them, then <b>confirm all at once</b> — or open any row to change the Klay account it maps to.'
-    + (depUnresolved>0? ' <span style="background:var(--color-brand-wash);color:var(--color-brand-hover);font-weight:700;padding:1px 6px;border-radius:var(--radius-sm)">'+depUnresolved+' affect master data</span> — these accounts can\u2019t be deactivated; they must be mapped, and the mapping you choose will be applied to the master data that references them.'
-      + (depBlocked>0? ' <b>'+depBlocked+'</b> of them ha'+(depBlocked>1?'ve':'s')+' a blocking issue the AI couldn\u2019t resolve — fix those first.':'') :'');
-  var actions=''
-    + (depUnresolved>0?'<button class="btn btn-ghost btn-sm" onclick="filterDepSuggestions()">'+svg('link')+'Review '+depUnresolved+' affecting master data</button>':'<button class="btn btn-ghost btn-sm" onclick="setMapFilter(\'auto\')">'+svg('filter')+'Review suggestions</button>')
-    + '<button class="btn btn-primary btn-sm" onclick="bulkConfirmAuto()">'+svg('check')+'Confirm all '+c.auto+'</button>';
+
+  // Block 1 — AI suggested mapping
+  var b1 = '<div class="flex g3" style="align-items:flex-start">'
+    + '<span class="ai-sub-ico" style="background:var(--warning-surface);color:var(--warning-text);border-color:var(--warning-border)">'+svg('spark')+'</span>'
+    + '<div style="flex:1;min-width:0">'
+      + '<div class="flex jb ac" style="gap:12px;flex-wrap:wrap"><div class="fw7 fs14">Klay suggested mapping for '+c.auto+' account'+(c.auto>1?'s':'')+'</div>'
+        + '<div class="flex g2 ac" style="flex-shrink:0"><button class="btn btn-ghost btn-xs" onclick="setMapFilter(\'auto\')">'+svg('filter')+'Review</button>'
+          + '<button class="btn btn-primary btn-xs" onclick="bulkConfirmAuto()">'+svg('check')+'Confirm all '+c.auto+'</button></div></div>'
+      + '<div class="fs12 muted" style="margin-top:3px;line-height:1.5;max-width:600px">Based on your legacy account types and names. Confirm all at once, or open any row to change the Klay account it maps to.</div>'
+    + '</div></div>';
+
+  // Block 2 — Affecting master data (only when there are any)
+  var b2 = depUnresolved>0 ? '<div class="ai-sub-sep"></div>'
+    + '<div class="flex g3" style="align-items:flex-start">'
+      + '<span class="ai-sub-ico" style="background:var(--color-surface-sunken);color:var(--color-text-secondary);border-color:var(--color-border-default)">'+svg('link')+'</span>'
+      + '<div style="flex:1;min-width:0">'
+        + '<div class="flex jb ac" style="gap:12px;flex-wrap:wrap"><div class="fw7 fs14">'+depUnresolved+' account'+(depUnresolved>1?'s':'')+' affect master data</div>'
+          + '<button class="btn btn-ghost btn-xs" style="flex-shrink:0" onclick="filterDepSuggestions()">'+svg('link')+'Review '+depUnresolved+'</button></div>'
+        + '<div class="fs12 muted" style="margin-top:3px;line-height:1.5;max-width:600px">These can\u2019t be deactivated and must be mapped — the mapping you choose is applied to the products, vendors or customers that reference them. Some may not be AI-mapped yet.'
+          + (depBlocked>0? ' <span style="color:var(--warning-text);font-weight:600">'+depBlocked+' ha'+(depBlocked>1?'ve':'s')+' a blocking issue to fix first.</span>':'')+'</div>'
+      + '</div></div>'
+    : '';
+
   return '<div class="card ai-card mb5">'
-    + '<div class="flex jb ac" style="padding:16px 20px;gap:16px;flex-wrap:wrap">'
-      + '<div class="flex g3 ac" style="align-items:flex-start;flex:1;min-width:280px">'
-        + '<span class="ai-ico">'+svg('spark')+'</span>'
-        + '<div><div class="ai-title fs15">Klay mapped '+c.auto+' account'+(c.auto>1?'s':'')+' for you</div>'
-          + '<div class="ai-body fs12.5" style="margin-top:3px;max-width:580px">'+body+'</div></div>'
-      + '</div>'
-      + '<div class="flex g2 ac" style="flex-shrink:0">'+actions+'</div>'
+    + '<div style="padding:14px 20px 16px">'
+      + '<div class="flex g2 ac mb3" style="color:var(--color-brand-hover)"><span class="ai-ico" style="width:30px;height:30px">'+svg('spark')+'</span><span class="fw7 fs13" style="letter-spacing:.01em">Klay reviewed your accounts</span></div>'
+      + b1 + b2
     + '</div>'
   + '</div>';
 }
@@ -2559,9 +2571,9 @@ function renderWorkspace(){
       + '<button class="btn btn-ghost" onclick="openConfigDims()">'+svg('layers')+'Dimensions</button>'
       + '<button class="btn btn-primary" '+(allConfirmed?'onclick="confirmStage(\'map\')"':'disabled')+'>'+svg('check')+'Confirm &amp; continue '+svg('arrowRight')+'</button></div>'
     + '</div>'
-    + (issueCards? '<div class="flex ac jb mb3"><div class="disp" style="font-size:18px">Issues to resolve <span class="muted fs13" style="font-family:var(--font-sans);font-weight:400">— click a card to filter the table</span></div></div><div class="issue-grid mb5">'+issueCards+'</div>':'')
-    // AI suggestions summary box
+    // AI suggestions summary box (above issues — it's the higher-level entry point)
     + aiMappingSummary(c)
+    + (issueCards? '<div class="flex ac jb mb3"><div class="disp" style="font-size:18px">Issues to resolve <span class="muted fs13" style="font-family:var(--font-sans);font-weight:400">— click a card to filter the table</span></div></div><div class="issue-grid mb5">'+issueCards+'</div>':'')
     // search + dropdown filter bar (above the table)
     + mappingFilterBar(c)
     // status filter pills
@@ -2699,7 +2711,7 @@ function mapRowHTML(r){
   var legCell='<div class="mono fs11 muted">'+r.code+'</div>'
     + '<div class="fw6 fs13" style="color:var(--color-text-primary);margin:1px 0 3px">'+r.name+'</div>'
     + '<div class="flex g2 ac" style="flex-wrap:wrap">'+mapStatusLabel(r)
-    + (depTotal(r.dep)?'<span class="dep-chip'+(r.issue&&(r.issue.sev==='hard'||r.issue.sev==='soft')?' dep-chip-warn':'')+'" title="'+depPhrase(r.dep)+' reference this account">'+svg('link')+'used by master data: '+depTypesLabel(r.dep)+'</span>':'')
+    + (depTotal(r.dep)?'<span class="dep-chip" title="'+depPhrase(r.dep)+' reference this account">'+svg('link')+'used by master data: '+depTypesLabel(r.dep)+'</span>':'')
     + (r.issue?'<span class="badge '+(r.issue.sev==='hard'?'b-danger':r.issue.sev==='note'||r.issue.sev==='warn'?'b-info':'b-warning')+'" style="font-size:9.5px">'+r.issue.label+'</span>':'')
     + (r.issue && r.issue.sev==='note' ? '<button class="btn btn-ghost btn-xs" style="padding:2px 8px;font-size:11px" onclick="acknowledgeIssue('+idx+')">'+svg('check')+'Got it</button>':'')
     + '</div>';
@@ -3052,6 +3064,9 @@ function finishMapping(){ toast('Mapping complete','Great — moving on to tax c
 .ai-banner .fw7{color:var(--color-brand-hover)!important}
 /* Unified AI card — terracotta sparkle, brand title, soft peach gradient */
 .ai-card{overflow:hidden;border:1px solid var(--color-brand-subtle)!important;background:linear-gradient(160deg,var(--color-brand-wash),#fff);border-radius:var(--radius-lg)}
+.ai-card .ai-sub-ico{width:32px;height:32px;border-radius:var(--radius-md);border:1px solid;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.ai-card .ai-sub-ico svg{width:16px;height:16px}
+.ai-card .ai-sub-sep{height:1px;background:var(--color-border-default);margin:14px 0;opacity:.7}
 .ai-card .ai-ico{width:38px;height:38px;border-radius:var(--radius-md);background:#fff;border:1px solid var(--color-brand-subtle);display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .ai-card .ai-ico svg{width:19px;height:19px;stroke:none;fill:var(--color-brand)}
 .ai-card .ai-title{font-weight:700;color:var(--color-brand-hover)}
