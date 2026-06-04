@@ -1342,7 +1342,9 @@ function buildMappingRows(){
   // SOFT: Klay control account name mismatch (1)
   (function(){var r=find('1200-003');r.issue={sev:'soft',label:'Account type mismatch'};r.target='';r.mapStatus='unmapped';})();
   // NOTE: duplicate account names (AR variants)
-  ['1300-001','1300-002','1300-003','1300-004'].forEach(function(c){var r=find(c);if(r)r.issue={sev:'note',label:'Duplicate account names'};});
+  ['1300-001','1300-002','1300-003'].forEach(function(c){var r=find(c);if(r)r.issue={sev:'note',label:'Duplicate account names'};});
+  // a dependent (Receivable → customers) account the AI can't map because of a blocking issue
+  (function(){var r=find('1300-004');if(r){r.issue={sev:'hard',label:'Unresolvable parent'};r.target='';r.mapStatus='unmapped';}})();
   return rows;
 }
 
@@ -2270,15 +2272,15 @@ function rowSortKey(r){
 }
 function aiMappingSummary(c){
   if(!c.auto) return ''; // nothing AI-suggested left
-  // how many AI suggestions re-point master data
-  var depAi=APP.mapRows.filter(function(r){
-    var isAi=r.mapStatus==='auto'||(r.issue&&r.issue.sev==='note');
-    return isAi && r.target && !(r.issue&&(r.issue.sev==='hard'||r.issue.sev==='soft')) && depTotal(r.dep)>0;
-  }).length;
+  // ALL dependent accounts still needing resolution — AI-suggested, blocked, or plain unmapped.
+  // These are the load-bearing rows the user can't ignore (can't deactivate, must be mapped).
+  var depUnresolved=APP.mapRows.filter(function(r){ return depTotal(r.dep)>0 && r.mapStatus!=='mapped' && r.mapStatus!=='deactivated'; }).length;
+  var depBlocked=APP.mapRows.filter(function(r){ return depTotal(r.dep)>0 && r.issue && (r.issue.sev==='hard'||r.issue.sev==='soft'); }).length;
   var body = 'These are AI suggestions based on your legacy account types and names. Review them, then <b>confirm all at once</b> — or open any row to change the Klay account it maps to.'
-    + (depAi>0? ' <span style="background:var(--color-brand-wash);color:var(--color-brand-hover);font-weight:700;padding:1px 6px;border-radius:var(--radius-sm)">'+depAi+' affect master data</span> — these accounts can\u2019t be deactivated; they must be mapped, and the mapping you choose will be applied to the master data that references them.':'');
+    + (depUnresolved>0? ' <span style="background:var(--color-brand-wash);color:var(--color-brand-hover);font-weight:700;padding:1px 6px;border-radius:var(--radius-sm)">'+depUnresolved+' affect master data</span> — these accounts can\u2019t be deactivated; they must be mapped, and the mapping you choose will be applied to the master data that references them.'
+      + (depBlocked>0? ' <b>'+depBlocked+'</b> of them ha'+(depBlocked>1?'ve':'s')+' a blocking issue the AI couldn\u2019t resolve — fix those first.':'') :'');
   var actions=''
-    + (depAi>0?'<button class="btn btn-ghost btn-sm" onclick="filterDepSuggestions()">'+svg('link')+'Review '+depAi+' affecting master data</button>':'<button class="btn btn-ghost btn-sm" onclick="setMapFilter(\'auto\')">'+svg('filter')+'Review suggestions</button>')
+    + (depUnresolved>0?'<button class="btn btn-ghost btn-sm" onclick="filterDepSuggestions()">'+svg('link')+'Review '+depUnresolved+' affecting master data</button>':'<button class="btn btn-ghost btn-sm" onclick="setMapFilter(\'auto\')">'+svg('filter')+'Review suggestions</button>')
     + '<button class="btn btn-primary btn-sm" onclick="bulkConfirmAuto()">'+svg('check')+'Confirm all '+c.auto+'</button>';
   return '<div class="card ai-card mb5">'
     + '<div class="flex jb ac" style="padding:16px 20px;gap:16px;flex-wrap:wrap">'
@@ -2291,10 +2293,13 @@ function aiMappingSummary(c){
     + '</div>'
   + '</div>';
 }
-// Filter the table to AI-suggested rows that affect master data
+// Filter the table to ALL unresolved accounts that affect master data (AI-suggested, blocked, or unmapped)
 function filterDepSuggestions(){
-  APP.mapFilter='auto';
+  APP.mapFilter='all';
+  APP.mapIssueFilter=null;
+  APP.mapTierFilter=[]; APP.mapDimFilter=[];
   APP.mapDepFilter=['products','vendors','customers'];
+  APP.mapDepUnresolvedOnly=true;
   APP.mapPage=1; renderPage();
 }
 function mappingFilterBar(c){
@@ -2393,11 +2398,12 @@ function toggleMapDepFilter(val,on){
   APP.mapDepFilter=APP.mapDepFilter||[];
   var i=APP.mapDepFilter.indexOf(val);
   if(on){ if(i<0) APP.mapDepFilter.push(val); } else { if(i>=0) APP.mapDepFilter.splice(i,1); }
+  APP.mapDepUnresolvedOnly=false; // manual dropdown use shows all dependent rows
   APP.mapPage=1; renderPage();
 }
 function clearMapMultiFilter(kind){
-  if(kind==='all'){ APP.mapTierFilter=[]; APP.mapDimFilter=[]; APP.mapDepFilter=[]; }
-  else if(kind==='dep'){ APP.mapDepFilter=[]; }
+  if(kind==='all'){ APP.mapTierFilter=[]; APP.mapDimFilter=[]; APP.mapDepFilter=[]; APP.mapDepUnresolvedOnly=false; }
+  else if(kind==='dep'){ APP.mapDepFilter=[]; APP.mapDepUnresolvedOnly=false; }
   else APP[(kind==='tier'?'mapTierFilter':'mapDimFilter')]=[];
   APP.mapPage=1; closeAnchoredMenu(); renderPage();
 }
@@ -2474,7 +2480,9 @@ function renderWorkspace(){
   if(APP.mapDepFilter && APP.mapDepFilter.length){
     shown=shown.filter(function(r){
       if(!r.dep) return false;
-      return APP.mapDepFilter.some(function(k){ return (r.dep[k]||0)>0; });
+      if(!APP.mapDepFilter.some(function(k){ return (r.dep[k]||0)>0; })) return false;
+      if(APP.mapDepUnresolvedOnly && (r.mapStatus==='mapped'||r.mapStatus==='deactivated')) return false;
+      return true;
     });
   }
   var pct=Math.round((c.mapped+c.deactivated)/c.all*100);
@@ -2508,7 +2516,7 @@ function renderWorkspace(){
   // active master-data dependency pill (set via "Review N affecting master data")
   var depPill = (APP.mapDepFilter && APP.mapDepFilter.length)
     ? '<button class="btn btn-sm activefilter-pill" style="border-radius:var(--radius-full)" onclick="clearMapMultiFilter(\'dep\')">'
-      + svg('link')+'Affecting master data <span style="opacity:.8">'+shown.filter(function(r){return depTotal(r.dep)>0;}).length+'</span> <span class="afp-x">'+svg('x')+'</span></button>'
+      + svg('link')+(APP.mapDepUnresolvedOnly?'Affecting master data — to resolve':'Affecting master data')+' <span style="opacity:.8">'+shown.filter(function(r){return depTotal(r.dep)>0;}).length+'</span> <span class="afp-x">'+svg('x')+'</span></button>'
     : '';
 
   // pagination
@@ -2691,8 +2699,8 @@ function mapRowHTML(r){
   var legCell='<div class="mono fs11 muted">'+r.code+'</div>'
     + '<div class="fw6 fs13" style="color:var(--color-text-primary);margin:1px 0 3px">'+r.name+'</div>'
     + '<div class="flex g2 ac" style="flex-wrap:wrap">'+mapStatusLabel(r)
+    + (depTotal(r.dep)?'<span class="dep-chip'+(r.issue&&(r.issue.sev==='hard'||r.issue.sev==='soft')?' dep-chip-warn':'')+'" title="'+depPhrase(r.dep)+' reference this account">'+svg('link')+'used by master data: '+depTypesLabel(r.dep)+'</span>':'')
     + (r.issue?'<span class="badge '+(r.issue.sev==='hard'?'b-danger':r.issue.sev==='note'||r.issue.sev==='warn'?'b-info':'b-warning')+'" style="font-size:9.5px">'+r.issue.label+'</span>':'')
-    + (depTotal(r.dep)?'<span class="dep-chip" title="'+depPhrase(r.dep)+' reference this account">'+svg('link')+'used by master data: '+depTypesLabel(r.dep)+'</span>':'')
     + (r.issue && r.issue.sev==='note' ? '<button class="btn btn-ghost btn-xs" style="padding:2px 8px;font-size:11px" onclick="acknowledgeIssue('+idx+')">'+svg('check')+'Got it</button>':'')
     + '</div>';
   // klay target cell — dropdown with AI sparkle when auto
@@ -2937,7 +2945,7 @@ function setMapFilter(f){
   APP.mapFilter=f;
   // a status pill is a clean primary filter — clear refinements so combinations are never invisible
   APP.mapIssueFilter=null;
-  APP.mapTierFilter=[]; APP.mapDimFilter=[]; APP.mapDepFilter=[];
+  APP.mapTierFilter=[]; APP.mapDimFilter=[]; APP.mapDepFilter=[]; APP.mapDepUnresolvedOnly=false;
   APP.mapPage=1; renderPage();
 }
 function bulkBar(){
@@ -3022,6 +3030,7 @@ function finishMapping(){ toast('Mapping complete','Great — moving on to tax c
 .reqdim-chip{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:600;padding:3px 7px 3px 8px;border-radius:var(--radius-full);white-space:nowrap}
 .dep-chip{display:inline-flex;align-items:center;gap:4px;font-size:9.5px;font-weight:600;padding:2px 8px;border-radius:var(--radius-full);background:var(--color-surface-sunken);color:var(--color-text-tertiary);border:1px solid var(--color-border-default);white-space:nowrap;cursor:default}
 .dep-chip svg{width:11px;height:11px}
+.dep-chip-warn{background:var(--warning-surface);color:var(--warning-text);border-color:var(--warning-border)}
 .reqdim-chip .reqdim-x{display:inline-flex;align-items:center;justify-content:center;width:14px;height:14px;border-radius:50%;opacity:.55;margin-left:1px}
 .reqdim-chip .reqdim-x:hover{opacity:1;background:rgba(0,0,0,.08)}
 .reqdim-chip .reqdim-x svg{width:10px;height:10px}
