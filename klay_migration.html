@@ -2204,17 +2204,16 @@ function mappingFilterBar(c){
     if(disp.length>26) disp=disp.slice(0,25)+'…';
     return '<button class="map-dd'+(raw?' on':'')+'" onclick="openMapFilterMenu(event,\''+id+'\')">'+svg(icon)+'<span>'+disp+'</span>'+svg('chevDown')+'</button>';
   }
-  // multi-select dropdowns (issue tier + dimensions)
-  function multiDd(id,label,icon,selArr){
-    var n=(selArr||[]).length;
+  // one combined multi-select Filter (issue tier + dimensions)
+  function multiDd(id,label,icon){
+    var n=((APP.mapTierFilter||[]).length)+((APP.mapDimFilter||[]).length);
     var disp = n? label+' · '+n : label;
     return '<button class="map-dd'+(n?' on':'')+'" onclick="openMapFilterMenu(event,\''+id+'\')">'+svg(icon)+'<span>'+disp+'</span>'+svg('chevDown')+'</button>';
   }
   return '<div class="map-filterbar mb4">'
     + dd('legacy','Legacy Account','layers')
     + dd('klay','Klay Account','layers')
-    + multiDd('tier','Issue tier','flag',APP.mapTierFilter)
-    + multiDd('dim','Dimensions','layers',APP.mapDimFilter)
+    + multiDd('filter','Filter','filter')
     + '<div class="map-search"><span class="map-search-ic">'+svg('search')+'</span>'
       + '<input class="map-search-in" placeholder="Search legacy account name or code" value="'+sv.replace(/"/g,'&quot;')+'" oninput="APP.mapSearch=this.value;APP.mapPage=1;renderPage()">'
       + (sv?'<button class="map-search-x" onclick="APP.mapSearch=\'\';renderPage()">'+svg('x')+'</button>':'')
@@ -2232,31 +2231,22 @@ function mappingFilterBar(c){
 }
 function openMapFilterMenu(e,kind){
   e.stopPropagation();
-  // multi-select: issue tier
-  if(kind==='tier'){
+  // combined multi-select: issue tier + dimensions in one menu
+  if(kind==='filter'){
     var tiers=[['hard','Blocking'],['soft','Need attention'],['note','Note']];
-    var sel=APP.mapTierFilter||[];
+    var selT=APP.mapTierFilter||[]; var selD=APP.mapDimFilter||[];
+    var totalSel=selT.length+selD.length;
     var menu='<div class="rowmenu-h">Issue tier</div>'
-      + '<div class="rowmenu-note">Pick one or more to filter the table.</div>'
-      + tiers.map(function(t){ var on=sel.indexOf(t[0])>=0;
+      + tiers.map(function(t){ var on=selT.indexOf(t[0])>=0;
         return '<label class="reqdim-opt"><input type="checkbox" '+(on?'checked':'')+' onchange="toggleMapMultiFilter(\'tier\',\''+t[0]+'\',this.checked)"><span class="reqdim-opt-name">'+t[1]+'</span></label>';
       }).join('')
       + '<div class="rowmenu-sep"></div>'
-      + '<div class="rowmenu-item" onclick="clearMapMultiFilter(\'tier\')"><span class="muted" style="margin-right:8px;display:inline-flex">'+svg('x')+'</span>Clear</div>';
-    openAnchoredMenu(e.currentTarget,menu,true);
-    return;
-  }
-  // multi-select: dimensions
-  if(kind==='dim'){
-    var sel2=APP.mapDimFilter||[];
-    var menu2='<div class="rowmenu-h">Required dimensions</div>'
-      + '<div class="rowmenu-note">Show accounts that require any of these.</div>'
-      + DIMS.map(function(d){ var on=sel2.indexOf(d.id)>=0;
+      + '<div class="rowmenu-h">Dimensions</div>'
+      + DIMS.map(function(d){ var on=selD.indexOf(d.id)>=0;
         return '<label class="reqdim-opt"><input type="checkbox" '+(on?'checked':'')+' onchange="toggleMapMultiFilter(\'dim\',\''+d.id+'\',this.checked)"><span class="dot" style="background:'+d.color+';width:9px;height:9px;border-radius:50%;display:inline-block;flex-shrink:0"></span><span class="reqdim-opt-name">'+d.name+'</span></label>';
       }).join('')
-      + '<div class="rowmenu-sep"></div>'
-      + '<div class="rowmenu-item" onclick="clearMapMultiFilter(\'dim\')"><span class="muted" style="margin-right:8px;display:inline-flex">'+svg('x')+'</span>Clear</div>';
-    openAnchoredMenu(e.currentTarget,menu2,true);
+      + (totalSel? '<div class="rowmenu-sep"></div><div class="rowmenu-item" onclick="clearMapMultiFilter(\'all\')"><span class="muted" style="margin-right:8px;display:inline-flex">'+svg('x')+'</span>Clear all filters</div>':'');
+    openAnchoredMenu(e.currentTarget,menu,true);
     return;
   }
   var cur=(kind==='legacy'?APP.mapLegacyFilter:APP.mapKlayFilter);
@@ -2288,7 +2278,8 @@ function toggleMapMultiFilter(kind,val,on){
   APP.mapPage=1; renderPage();
 }
 function clearMapMultiFilter(kind){
-  APP[(kind==='tier'?'mapTierFilter':'mapDimFilter')]=[];
+  if(kind==='all'){ APP.mapTierFilter=[]; APP.mapDimFilter=[]; }
+  else APP[(kind==='tier'?'mapTierFilter':'mapDimFilter')]=[];
   APP.mapPage=1; closeAnchoredMenu(); renderPage();
 }
 function filterAcctMenu(q){
