@@ -2271,28 +2271,30 @@ function rowSortKey(r){
   return 3; // mapped, auto, unmapped — original order preserved via ord tiebreaker
 }
 function aiMappingSummary(c){
-  if(!c.auto) return ''; // nothing AI-suggested left
-  // dependent accounts still needing resolution — AI-suggested, blocked, or plain unmapped.
-  var depUnresolved=APP.mapRows.filter(function(r){ return depTotal(r.dep)>0 && r.mapStatus!=='mapped' && r.mapStatus!=='deactivated'; }).length;
+  // Accounts that affect master data is a FIXED property — count all of them, regardless of map status.
+  var depAll=APP.mapRows.filter(function(r){ return depTotal(r.dep)>0; }).length;
   var depBlocked=APP.mapRows.filter(function(r){ return depTotal(r.dep)>0 && r.issue && (r.issue.sev==='hard'||r.issue.sev==='soft'); }).length;
+  // Card persists while there are AI suggestions to confirm OR any accounts that affect master data.
+  if(!c.auto && !depAll) return '';
 
-  // Block 1 — AI suggested mapping
-  var b1 = '<div class="flex g3" style="align-items:flex-start">'
+  // Block 1 — AI suggested mapping (only while suggestions remain)
+  var b1 = c.auto>0 ? '<div class="flex g3" style="align-items:flex-start">'
     + '<span class="ai-sub-ico" style="background:var(--warning-surface);color:var(--warning-text);border-color:var(--warning-border)">'+svg('spark')+'</span>'
     + '<div style="flex:1;min-width:0">'
       + '<div class="flex jb ac" style="gap:12px;flex-wrap:wrap"><div class="fw7 fs14">Klay suggested mapping for '+c.auto+' account'+(c.auto>1?'s':'')+'</div>'
         + '<div class="flex g2 ac" style="flex-shrink:0"><button class="btn btn-ghost btn-xs" onclick="setMapFilter(\'auto\')">'+svg('filter')+'Review</button>'
           + '<button class="btn btn-primary btn-xs" onclick="bulkConfirmAuto()">'+svg('check')+'Confirm all '+c.auto+'</button></div></div>'
       + '<div class="fs12 muted" style="margin-top:3px;line-height:1.5;max-width:600px">Based on your legacy account types and names. Confirm all at once, or open any row to change the Klay account it maps to.</div>'
-    + '</div></div>';
+    + '</div></div>'
+    : '';
 
-  // Block 2 — Affecting master data (only when there are any)
-  var b2 = depUnresolved>0 ? '<div class="ai-sub-sep"></div>'
+  // Block 2 — Affecting master data (persists until all dependent accounts are resolved)
+  var b2 = depAll>0 ? (b1?'<div class="ai-sub-sep"></div>':'')
     + '<div class="flex g3" style="align-items:flex-start">'
       + '<span class="ai-sub-ico" style="background:var(--color-surface-sunken);color:var(--color-text-secondary);border-color:var(--color-border-default)">'+svg('link')+'</span>'
       + '<div style="flex:1;min-width:0">'
-        + '<div class="flex jb ac" style="gap:12px;flex-wrap:wrap"><div class="fw7 fs14">'+depUnresolved+' account'+(depUnresolved>1?'s':'')+' affect master data</div>'
-          + '<button class="btn btn-ghost btn-xs" style="flex-shrink:0" onclick="filterDepSuggestions()">'+svg('link')+'Review '+depUnresolved+'</button></div>'
+        + '<div class="flex jb ac" style="gap:12px;flex-wrap:wrap"><div class="fw7 fs14">'+depAll+' account'+(depAll>1?'s':'')+' affect master data</div>'
+          + '<button class="btn btn-ghost btn-xs" style="flex-shrink:0" onclick="filterDepSuggestions()">'+svg('link')+'See '+depAll+' account'+(depAll>1?'s':'')+'</button></div>'
         + '<div class="fs12 muted" style="margin-top:3px;line-height:1.5;max-width:600px">These can\u2019t be deactivated and must be mapped — the mapping you choose is applied to the products, vendors or customers that reference them. Some may not be AI-mapped yet.'
           + (depBlocked>0? ' <span style="color:var(--warning-text);font-weight:600">'+depBlocked+' ha'+(depBlocked>1?'ve':'s')+' a blocking issue to fix first.</span>':'')+'</div>'
       + '</div></div>'
@@ -2305,13 +2307,13 @@ function aiMappingSummary(c){
     + '</div>'
   + '</div>';
 }
-// Filter the table to ALL unresolved accounts that affect master data (AI-suggested, blocked, or unmapped)
+// Filter the table to ALL accounts that affect master data (a fixed set, regardless of map status)
 function filterDepSuggestions(){
   APP.mapFilter='all';
   APP.mapIssueFilter=null;
   APP.mapTierFilter=[]; APP.mapDimFilter=[];
   APP.mapDepFilter=['products','vendors','customers'];
-  APP.mapDepUnresolvedOnly=true;
+  APP.mapDepUnresolvedOnly=false;
   APP.mapPage=1; renderPage();
 }
 function mappingFilterBar(c){
@@ -2528,7 +2530,7 @@ function renderWorkspace(){
   // active master-data dependency pill (set via "Review N affecting master data")
   var depPill = (APP.mapDepFilter && APP.mapDepFilter.length)
     ? '<button class="btn btn-sm activefilter-pill" style="border-radius:var(--radius-full)" onclick="clearMapMultiFilter(\'dep\')">'
-      + svg('link')+(APP.mapDepUnresolvedOnly?'Affecting master data — to resolve':'Affecting master data')+' <span style="opacity:.8">'+shown.filter(function(r){return depTotal(r.dep)>0;}).length+'</span> <span class="afp-x">'+svg('x')+'</span></button>'
+      + svg('link')+'Affecting master data <span style="opacity:.8">'+shown.filter(function(r){return depTotal(r.dep)>0;}).length+'</span> <span class="afp-x">'+svg('x')+'</span></button>'
     : '';
 
   // pagination
