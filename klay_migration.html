@@ -323,6 +323,7 @@ var IC = {
   filter:'<polygon points="3 4 21 4 14 12 14 19 10 21 10 12"/>',
   sort:'<path d="M8 4v16"/><polyline points="4 8 8 4 12 8"/><path d="M16 20V4"/><polyline points="12 16 16 20 20 16"/>',
   layers:'<polygon points="12 3 21 8 12 13 3 8"/><polyline points="3 13 12 18 21 13"/>',
+  link:'<path d="M10 13a5 5 0 0 0 7.07 0l3-3a5 5 0 0 0-7.07-7.07l-1.5 1.5"/><path d="M14 11a5 5 0 0 0-7.07 0l-3 3a5 5 0 0 0 7.07 7.07l1.5-1.5"/>',
   gear:'<circle cx="12" cy="12" r="3"/><path d="M19.4 13a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 0 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1H3a2 2 0 0 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.9.3H10a1.7 1.7 0 0 0 1-1.5V3a2 2 0 0 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.9-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.9V10a1.7 1.7 0 0 0 1.5 1H21a2 2 0 0 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/>',
   building:'<rect x="6" y="3" width="12" height="18" rx="1.5"/><line x1="9" y1="7" x2="9.01" y2="7"/><line x1="15" y1="7" x2="15.01" y2="7"/><line x1="9" y1="11" x2="9.01" y2="11"/><line x1="15" y1="11" x2="15.01" y2="11"/><path d="M10 21v-3a2 2 0 0 1 4 0v3"/>',
   rocket:'<path d="M4.5 16.5c-1.5 1-2 5-2 5s4-.5 5-2a2.1 2.1 0 1 0-3-3z"/><path d="M12 15l-3-3a14 14 0 0 1 3-6.5C13.7 3 17 3 21 3c0 4 0 7.3-2.5 9A14 14 0 0 1 12 15z"/><path d="M9 12H5a1 1 0 0 1-.7-1.7l2.4-2.4a2 2 0 0 1 1.4-.6h2.3"/><path d="M12 15v4a1 1 0 0 0 1.7.7l2.4-2.4a2 2 0 0 0 .6-1.4v-2.3"/><circle cx="15" cy="9" r="1"/>',
@@ -354,166 +355,166 @@ function svg(name,cls){ return '<svg viewBox="0 0 24 24" class="'+(cls||'')+'">'
 var KLAY_COA = [
   // ASSETS (1)
   {g:'Cash & Cash Equivalent', type:'Assets', items:[
-    {c:'11100',n:'Kas (Petty Cash)',tier:'NONE'},
-    {c:'11110',n:'Bank IDR — [Bank Name]',tier:'NONE'},
-    {c:'11120',n:'Bank Foreign Currency — [Currency]',tier:'NONE'},
-    {c:'11130',n:'Deposito Berjangka (Time Deposit)',tier:'NONE'},
+    {c:'1110000',n:'Kas (Petty Cash)',tier:'NONE'},
+    {c:'1111000',n:'Bank IDR — [Bank Name]',tier:'NONE'},
+    {c:'1112000',n:'Bank Foreign Currency — [Currency]',tier:'NONE'},
+    {c:'1113000',n:'Deposito Berjangka (Time Deposit)',tier:'NONE'},
   ]},
   {g:'Trade Receivables', type:'Assets', items:[
-    {c:'11200',n:'Piutang Usaha (Trade Receivable)',tier:'HARD',ctrl:true,sys:'SYS-AR'},
-    {c:'11210',n:'Piutang Usaha — Pihak Berelasi (Intercompany Receivable)',tier:'SOFT',ctrl:true,sys:'SYS-AR-INTERCO'},
-    {c:'11220',n:'Penyisihan Piutang Tak Tertagih (Allowance for Doubtful Accounts)',tier:'NONE'},
+    {c:'1120000',n:'Piutang Usaha (Trade Receivable)',tier:'HARD',ctrl:true,sys:'SYS-AR'},
+    {c:'1121000',n:'Piutang Usaha — Pihak Berelasi (Intercompany Receivable)',tier:'SOFT',ctrl:true,sys:'SYS-AR-INTERCO'},
+    {c:'1122000',n:'Penyisihan Piutang Tak Tertagih (Allowance for Doubtful Accounts)',tier:'NONE'},
   ]},
   {g:'Tax Receivables', type:'Assets', items:[
-    {c:'11400',n:'PPN Masukan (Input VAT)',tier:'HARD',sys:'SYS-TAX-INPUT-PPN'},
-    {c:'11410',n:'Uang Muka PPh 22 (PPh 22 Prepayment)',tier:'HARD',sys:'SYS-TAX-PPH22-PREPAY'},
-    {c:'11420',n:'Angsuran PPh 25 (PPh 25 Installment)',tier:'HARD',sys:'SYS-TAX-PPH25-INSTALL'},
-    {c:'11430',n:'Lebih Bayar PPh 29 (PPh 29 Overpayment)',tier:'HARD',sys:'SYS-TAX-PPH29-OVER'},
+    {c:'1140000',n:'PPN Masukan (Input VAT)',tier:'HARD',sys:'SYS-TAX-INPUT-PPN'},
+    {c:'1141000',n:'Uang Muka PPh 22 (PPh 22 Prepayment)',tier:'HARD',sys:'SYS-TAX-PPH22-PREPAY'},
+    {c:'1142000',n:'Angsuran PPh 25 (PPh 25 Installment)',tier:'HARD',sys:'SYS-TAX-PPH25-INSTALL'},
+    {c:'1143000',n:'Lebih Bayar PPh 29 (PPh 29 Overpayment)',tier:'HARD',sys:'SYS-TAX-PPH29-OVER'},
   ]},
   {g:'Prepaid Expenses & Other Current Assets', type:'Assets', items:[
-    {c:'11500',n:'Biaya Dibayar Dimuka (Prepaid Expenses)',tier:'SOFT',sys:'SYS-PREPAID'},
-    {c:'11510',n:'Sewa Dibayar Dimuka (Prepaid Rent)',tier:'NONE'},
-    {c:'11520',n:'Asuransi Dibayar Dimuka (Prepaid Insurance)',tier:'NONE'},
-    {c:'11600',n:'Persediaan — Barang Dagangan (Merchandise Inventory)',tier:'NONE'},
-    {c:'11610',n:'Persediaan — Bahan Baku (Raw Material)',tier:'NONE'},
-    {c:'11620',n:'Persediaan — Barang Jadi (Finished Goods)',tier:'NONE'},
-    {c:'11630',n:'Persediaan — Bahan Pembantu (Supplies)',tier:'NONE'},
-    {c:'11640',n:'Persediaan — Barang Dalam Proses (Work in Progress)',tier:'NONE'},
-    {c:'11700',n:'Aset Lancar Lainnya (Other Current Assets)',tier:'NONE'},
+    {c:'1150000',n:'Biaya Dibayar Dimuka (Prepaid Expenses)',tier:'SOFT',sys:'SYS-PREPAID'},
+    {c:'1151000',n:'Sewa Dibayar Dimuka (Prepaid Rent)',tier:'NONE'},
+    {c:'1152000',n:'Asuransi Dibayar Dimuka (Prepaid Insurance)',tier:'NONE'},
+    {c:'1160000',n:'Persediaan — Barang Dagangan (Merchandise Inventory)',tier:'NONE'},
+    {c:'1161000',n:'Persediaan — Bahan Baku (Raw Material)',tier:'NONE'},
+    {c:'1162000',n:'Persediaan — Barang Jadi (Finished Goods)',tier:'NONE'},
+    {c:'1163000',n:'Persediaan — Bahan Pembantu (Supplies)',tier:'NONE'},
+    {c:'1164000',n:'Persediaan — Barang Dalam Proses (Work in Progress)',tier:'NONE'},
+    {c:'1170000',n:'Aset Lancar Lainnya (Other Current Assets)',tier:'NONE'},
   ]},
   {g:'Fixed Assets', type:'Assets', items:[
-    {c:'12100',n:'Tanah (Land)',tier:'NONE'},
-    {c:'12110',n:'Bangunan (Buildings)',tier:'NONE'},
-    {c:'12120',n:'Kendaraan (Vehicles)',tier:'NONE'},
-    {c:'12130',n:'Peralatan & Mesin (Equipment & Machinery)',tier:'NONE'},
-    {c:'12140',n:'Peralatan Kantor (Office Equipment)',tier:'NONE'},
-    {c:'12150',n:'Aset Hak Guna (Right-of-Use Assets)',tier:'NONE'},
-    {c:'12200',n:'Akumulasi Penyusutan — Bangunan',tier:'NONE',contra:true},
-    {c:'12210',n:'Akumulasi Penyusutan — Kendaraan',tier:'NONE',contra:true},
-    {c:'12220',n:'Akumulasi Penyusutan — Peralatan & Mesin',tier:'NONE',contra:true},
-    {c:'12230',n:'Akumulasi Penyusutan — Peralatan Kantor',tier:'NONE',contra:true},
+    {c:'1210000',n:'Tanah (Land)',tier:'NONE'},
+    {c:'1211000',n:'Bangunan (Buildings)',tier:'NONE'},
+    {c:'1212000',n:'Kendaraan (Vehicles)',tier:'NONE'},
+    {c:'1213000',n:'Peralatan & Mesin (Equipment & Machinery)',tier:'NONE'},
+    {c:'1214000',n:'Peralatan Kantor (Office Equipment)',tier:'NONE'},
+    {c:'1215000',n:'Aset Hak Guna (Right-of-Use Assets)',tier:'NONE'},
+    {c:'1220000',n:'Akumulasi Penyusutan — Bangunan',tier:'NONE',contra:true},
+    {c:'1221000',n:'Akumulasi Penyusutan — Kendaraan',tier:'NONE',contra:true},
+    {c:'1222000',n:'Akumulasi Penyusutan — Peralatan & Mesin',tier:'NONE',contra:true},
+    {c:'1223000',n:'Akumulasi Penyusutan — Peralatan Kantor',tier:'NONE',contra:true},
   ]},
   {g:'Intangible & Other Non-Current Assets', type:'Assets', items:[
-    {c:'12300',n:'Aset Tak Berwujud (Intangible Assets)',tier:'NONE'},
-    {c:'12310',n:'Akumulasi Amortisasi (Accumulated Amortization)',tier:'NONE',contra:true},
-    {c:'12400',n:'Uang Jaminan (Security Deposits)',tier:'NONE'},
-    {c:'12500',n:'Aset Pajak Tangguhan (Deferred Tax Asset)',tier:'NONE'},
-    {c:'12600',n:'Aset Tidak Lancar Lainnya (Other Non-Current Assets)',tier:'NONE'},
+    {c:'1230000',n:'Aset Tak Berwujud (Intangible Assets)',tier:'NONE'},
+    {c:'1231000',n:'Akumulasi Amortisasi (Accumulated Amortization)',tier:'NONE',contra:true},
+    {c:'1240000',n:'Uang Jaminan (Security Deposits)',tier:'NONE'},
+    {c:'1250000',n:'Aset Pajak Tangguhan (Deferred Tax Asset)',tier:'NONE'},
+    {c:'1260000',n:'Aset Tidak Lancar Lainnya (Other Non-Current Assets)',tier:'NONE'},
   ]},
   // LIABILITIES (2)
   {g:'Trade Payables', type:'Liabilities', items:[
-    {c:'21000',n:'Utang Usaha (Trade Payable)',tier:'HARD',ctrl:true,sys:'SYS-AP'},
-    {c:'21010',n:'Utang Usaha — Pihak Berelasi (Intercompany Payable)',tier:'SOFT',ctrl:true,sys:'SYS-AP-INTERCO'},
+    {c:'2100000',n:'Utang Usaha (Trade Payable)',tier:'HARD',ctrl:true,sys:'SYS-AP'},
+    {c:'2101000',n:'Utang Usaha — Pihak Berelasi (Intercompany Payable)',tier:'SOFT',ctrl:true,sys:'SYS-AP-INTERCO'},
   ]},
   {g:'Other Current Liabilities', type:'Liabilities', items:[
-    {c:'21100',n:'Biaya Yang Masih Harus Dibayar (Accrued Expenses)',tier:'NONE'},
-    {c:'21110',n:'Utang Gaji & Tunjangan (Accrued Salaries)',tier:'NONE'},
-    {c:'21120',n:'GRNI Clearing (Goods Received Not Invoiced)',tier:'NONE'},
-    {c:'21200',n:'Uang Muka Pelanggan (Advance from Customer)',tier:'NONE'},
-    {c:'21300',n:'Utang Jangka Pendek — Bank (Short-Term Bank Loans)',tier:'NONE'},
-    {c:'21400',n:'Utang Dividen (Dividends Payable)',tier:'NONE'},
-    {c:'21500',n:'Liabilitas Lancar Lainnya (Other Current Liabilities)',tier:'NONE'},
+    {c:'2110000',n:'Biaya Yang Masih Harus Dibayar (Accrued Expenses)',tier:'NONE'},
+    {c:'2111000',n:'Utang Gaji & Tunjangan (Accrued Salaries)',tier:'NONE'},
+    {c:'2112000',n:'GRNI Clearing (Goods Received Not Invoiced)',tier:'NONE'},
+    {c:'2120000',n:'Uang Muka Pelanggan (Advance from Customer)',tier:'NONE'},
+    {c:'2130000',n:'Utang Jangka Pendek — Bank (Short-Term Bank Loans)',tier:'NONE'},
+    {c:'2140000',n:'Utang Dividen (Dividends Payable)',tier:'NONE'},
+    {c:'2150000',n:'Liabilitas Lancar Lainnya (Other Current Liabilities)',tier:'NONE'},
   ]},
   {g:'Tax Payables', type:'Liabilities', items:[
-    {c:'22000',n:'PPN Keluaran (Output VAT)',tier:'HARD',sys:'SYS-TAX-OUTPUT-PPN'},
-    {c:'22100',n:'Utang PPh 21',tier:'HARD',sys:'SYS-TAX-PPH21'},
-    {c:'22110',n:'Utang PPh 22',tier:'HARD',sys:'SYS-TAX-PPH22'},
-    {c:'22120',n:'Utang PPh 23',tier:'HARD',sys:'SYS-TAX-PPH23'},
-    {c:'22130',n:'Utang PPh 4(2)',tier:'HARD',sys:'SYS-TAX-PPH42'},
-    {c:'22140',n:'Utang PPh 26',tier:'HARD',sys:'SYS-TAX-PPH26'},
-    {c:'22150',n:'Utang PPh 29',tier:'HARD',sys:'SYS-TAX-PPH29'},
-    {c:'22200',n:'Utang BPJS Ketenagakerjaan',tier:'HARD',sys:'SYS-BPJS-TK'},
-    {c:'22210',n:'Utang BPJS Kesehatan',tier:'HARD',sys:'SYS-BPJS-KES'},
-    {c:'22300',n:'Utang Pajak Lainnya',tier:'HARD',sys:'SYS-TAX-OTHER'},
+    {c:'2200000',n:'PPN Keluaran (Output VAT)',tier:'HARD',sys:'SYS-TAX-OUTPUT-PPN'},
+    {c:'2210000',n:'Utang PPh 21',tier:'HARD',sys:'SYS-TAX-PPH21'},
+    {c:'2211000',n:'Utang PPh 22',tier:'HARD',sys:'SYS-TAX-PPH22'},
+    {c:'2212000',n:'Utang PPh 23',tier:'HARD',sys:'SYS-TAX-PPH23'},
+    {c:'2213000',n:'Utang PPh 4(2)',tier:'HARD',sys:'SYS-TAX-PPH42'},
+    {c:'2214000',n:'Utang PPh 26',tier:'HARD',sys:'SYS-TAX-PPH26'},
+    {c:'2215000',n:'Utang PPh 29',tier:'HARD',sys:'SYS-TAX-PPH29'},
+    {c:'2220000',n:'Utang BPJS Ketenagakerjaan',tier:'HARD',sys:'SYS-BPJS-TK'},
+    {c:'2221000',n:'Utang BPJS Kesehatan',tier:'HARD',sys:'SYS-BPJS-KES'},
+    {c:'2230000',n:'Utang Pajak Lainnya',tier:'HARD',sys:'SYS-TAX-OTHER'},
   ]},
   {g:'Non-Current Liabilities', type:'Liabilities', items:[
-    {c:'23000',n:'Utang Bank Jangka Panjang (Long-Term Bank Loans)',tier:'NONE'},
-    {c:'23100',n:'Utang Leasing (Lease Liability)',tier:'NONE'},
-    {c:'23200',n:'Utang Pihak Berelasi — Jangka Panjang (Related Party Long-Term)',tier:'NONE'},
-    {c:'23300',n:'Liabilitas Pajak Tangguhan (Deferred Tax Liability)',tier:'NONE'},
-    {c:'23400',n:'Provisi Imbalan Kerja (Employee Benefit Provision)',tier:'NONE'},
-    {c:'23500',n:'Liabilitas Tidak Lancar Lainnya (Other Non-Current Liabilities)',tier:'NONE'},
+    {c:'2300000',n:'Utang Bank Jangka Panjang (Long-Term Bank Loans)',tier:'NONE'},
+    {c:'2310000',n:'Utang Leasing (Lease Liability)',tier:'NONE'},
+    {c:'2320000',n:'Utang Pihak Berelasi — Jangka Panjang (Related Party Long-Term)',tier:'NONE'},
+    {c:'2330000',n:'Liabilitas Pajak Tangguhan (Deferred Tax Liability)',tier:'NONE'},
+    {c:'2340000',n:'Provisi Imbalan Kerja (Employee Benefit Provision)',tier:'NONE'},
+    {c:'2350000',n:'Liabilitas Tidak Lancar Lainnya (Other Non-Current Liabilities)',tier:'NONE'},
   ]},
   // EQUITY (3)
   {g:'Equity', type:'Equity', items:[
-    {c:'31000',n:'Modal Disetor (Paid-in Capital)',tier:'NONE'},
-    {c:'31100',n:'Tambahan Modal Disetor (Additional Paid-in Capital)',tier:'NONE'},
-    {c:'32000',n:'Saldo Laba (Retained Earnings)',tier:'HARD',sys:'SYS-RETAINED-EARNINGS'},
-    {c:'32100',n:'Saldo Laba Belum Dicadangkan (Unappropriated RE)',tier:'NONE'},
-    {c:'32200',n:'Saldo Laba Dicadangkan (Appropriated RE)',tier:'NONE'},
-    {c:'33000',n:'Laba / Rugi Tahun Berjalan (Current Year P&L)',tier:'HARD',sys:'SYS-CURRENT-YEAR-PL'},
-    {c:'34000',n:'Dividen (Dividends Declared)',tier:'NONE'},
-    {c:'35000',n:'Penghasilan Komprehensif Lain (Other Comprehensive Income)',tier:'NONE'},
+    {c:'3100000',n:'Modal Disetor (Paid-in Capital)',tier:'NONE'},
+    {c:'3110000',n:'Tambahan Modal Disetor (Additional Paid-in Capital)',tier:'NONE'},
+    {c:'3200000',n:'Saldo Laba (Retained Earnings)',tier:'HARD',sys:'SYS-RETAINED-EARNINGS'},
+    {c:'3210000',n:'Saldo Laba Belum Dicadangkan (Unappropriated RE)',tier:'NONE'},
+    {c:'3220000',n:'Saldo Laba Dicadangkan (Appropriated RE)',tier:'NONE'},
+    {c:'3300000',n:'Laba / Rugi Tahun Berjalan (Current Year P&L)',tier:'HARD',sys:'SYS-CURRENT-YEAR-PL'},
+    {c:'3400000',n:'Dividen (Dividends Declared)',tier:'NONE'},
+    {c:'3500000',n:'Penghasilan Komprehensif Lain (Other Comprehensive Income)',tier:'NONE'},
   ]},
   // REVENUE (4)
   {g:'Revenue', type:'Revenue', items:[
-    {c:'41000',n:'Pendapatan Penjualan — Barang (Sales Revenue — Goods)',tier:'NONE'},
-    {c:'41100',n:'Pendapatan Penjualan — Jasa (Sales Revenue — Services)',tier:'NONE'},
-    {c:'41200',n:'Pendapatan Ekspor (Export Revenue)',tier:'NONE'},
-    {c:'42000',n:'Retur Penjualan (Sales Returns)',tier:'NONE',contra:true},
-    {c:'43000',n:'Diskon Penjualan (Sales Discounts)',tier:'NONE',contra:true},
-    {c:'44000',n:'Pendapatan Lain-lain Usaha (Other Operating Revenue)',tier:'NONE'},
+    {c:'4100000',n:'Pendapatan Penjualan — Barang (Sales Revenue — Goods)',tier:'NONE'},
+    {c:'4110000',n:'Pendapatan Penjualan — Jasa (Sales Revenue — Services)',tier:'NONE'},
+    {c:'4120000',n:'Pendapatan Ekspor (Export Revenue)',tier:'NONE'},
+    {c:'4200000',n:'Retur Penjualan (Sales Returns)',tier:'NONE',contra:true},
+    {c:'4300000',n:'Diskon Penjualan (Sales Discounts)',tier:'NONE',contra:true},
+    {c:'4400000',n:'Pendapatan Lain-lain Usaha (Other Operating Revenue)',tier:'NONE'},
   ]},
   // COGS (5)
   {g:'Cost of Goods Sold', type:'COGS', items:[
-    {c:'51000',n:'HPP — Barang Dagangan (COGS — Merchandise)',tier:'NONE'},
-    {c:'51100',n:'HPP — Bahan Baku (COGS — Raw Material)',tier:'NONE'},
-    {c:'51200',n:'HPP — Tenaga Kerja Langsung (COGS — Direct Labor)',tier:'NONE'},
-    {c:'51300',n:'HPP — Overhead Pabrik (COGS — Manufacturing Overhead)',tier:'NONE'},
-    {c:'52000',n:'Retur Pembelian (Purchase Returns)',tier:'NONE',contra:true},
-    {c:'53000',n:'Diskon Pembelian (Purchase Discounts)',tier:'NONE',contra:true},
-    {c:'54000',n:'Biaya Pengiriman Masuk (Inbound Freight)',tier:'NONE'},
+    {c:'5100000',n:'HPP — Barang Dagangan (COGS — Merchandise)',tier:'NONE'},
+    {c:'5110000',n:'HPP — Bahan Baku (COGS — Raw Material)',tier:'NONE'},
+    {c:'5120000',n:'HPP — Tenaga Kerja Langsung (COGS — Direct Labor)',tier:'NONE'},
+    {c:'5130000',n:'HPP — Overhead Pabrik (COGS — Manufacturing Overhead)',tier:'NONE'},
+    {c:'5200000',n:'Retur Pembelian (Purchase Returns)',tier:'NONE',contra:true},
+    {c:'5300000',n:'Diskon Pembelian (Purchase Discounts)',tier:'NONE',contra:true},
+    {c:'5400000',n:'Biaya Pengiriman Masuk (Inbound Freight)',tier:'NONE'},
   ]},
   // OPEX (6)
   {g:'Operating Expenses — Payroll', type:'Operating Expenses', items:[
-    {c:'61000',n:'Gaji & Upah (Salaries & Wages)',tier:'NONE'},
-    {c:'61100',n:'Tunjangan Karyawan (Employee Allowances)',tier:'NONE'},
-    {c:'61200',n:'Bonus & Insentif (Bonus & Incentives)',tier:'NONE'},
-    {c:'61300',n:'THR (Religious Holiday Allowance)',tier:'NONE'},
-    {c:'61400',n:'BPJS — Beban Perusahaan (BPJS — Employer Contribution)',tier:'NONE'},
-    {c:'61500',n:'Pelatihan & Pengembangan (Training & Development)',tier:'NONE'},
+    {c:'6100000',n:'Gaji & Upah (Salaries & Wages)',tier:'NONE'},
+    {c:'6110000',n:'Tunjangan Karyawan (Employee Allowances)',tier:'NONE'},
+    {c:'6120000',n:'Bonus & Insentif (Bonus & Incentives)',tier:'NONE'},
+    {c:'6130000',n:'THR (Religious Holiday Allowance)',tier:'NONE'},
+    {c:'6140000',n:'BPJS — Beban Perusahaan (BPJS — Employer Contribution)',tier:'NONE'},
+    {c:'6150000',n:'Pelatihan & Pengembangan (Training & Development)',tier:'NONE'},
   ]},
   {g:'Operating Expenses — Depreciation', type:'Operating Expenses', items:[
-    {c:'63000',n:'Beban Penyusutan (Depreciation Expense)',tier:'NONE'},
-    {c:'63100',n:'Beban Amortisasi (Amortization Expense)',tier:'NONE'},
+    {c:'6300000',n:'Beban Penyusutan (Depreciation Expense)',tier:'NONE'},
+    {c:'6310000',n:'Beban Amortisasi (Amortization Expense)',tier:'NONE'},
   ]},
   {g:'Operating Expenses — Selling', type:'Operating Expenses', items:[
-    {c:'64000',n:'Iklan & Promosi (Advertising & Promotion)',tier:'NONE'},
-    {c:'64100',n:'Pengiriman & Logistik (Delivery & Logistics)',tier:'NONE'},
-    {c:'64200',n:'Komisi Penjualan (Sales Commission)',tier:'NONE'},
+    {c:'6400000',n:'Iklan & Promosi (Advertising & Promotion)',tier:'NONE'},
+    {c:'6410000',n:'Pengiriman & Logistik (Delivery & Logistics)',tier:'NONE'},
+    {c:'6420000',n:'Komisi Penjualan (Sales Commission)',tier:'NONE'},
   ]},
   {g:'Operating Expenses — General & Admin', type:'Operating Expenses', items:[
-    {c:'65000',n:'Jasa Profesional (Professional Services)',tier:'NONE'},
-    {c:'65100',n:'Alat Tulis Kantor / ATK (Office Supplies)',tier:'NONE'},
-    {c:'65200',n:'Perjalanan Dinas (Business Travel)',tier:'NONE'},
-    {c:'65300',n:'Representasi & Jamuan (Entertainment & Representation)',tier:'NONE'},
-    {c:'65400',n:'Asuransi (Insurance)',tier:'NONE'},
-    {c:'65500',n:'Perizinan & Regulasi (Licenses & Regulatory Fees)',tier:'NONE'},
-    {c:'65600',n:'Beban Piutang Tak Tertagih (Bad Debt Expense)',tier:'NONE'},
-    {c:'65700',n:'Beban Umum Lainnya (Other G&A Expenses)',tier:'NONE'},
+    {c:'6500000',n:'Jasa Profesional (Professional Services)',tier:'NONE'},
+    {c:'6510000',n:'Alat Tulis Kantor / ATK (Office Supplies)',tier:'NONE'},
+    {c:'6520000',n:'Perjalanan Dinas (Business Travel)',tier:'NONE'},
+    {c:'6530000',n:'Representasi & Jamuan (Entertainment & Representation)',tier:'NONE'},
+    {c:'6540000',n:'Asuransi (Insurance)',tier:'NONE'},
+    {c:'6550000',n:'Perizinan & Regulasi (Licenses & Regulatory Fees)',tier:'NONE'},
+    {c:'6560000',n:'Beban Piutang Tak Tertagih (Bad Debt Expense)',tier:'NONE'},
+    {c:'6570000',n:'Beban Umum Lainnya (Other G&A Expenses)',tier:'NONE'},
   ]},
   // NON-OPERATING (7)
   {g:'Non-Operating Income / Expense', type:'Non-Operating', items:[
-    {c:'71000',n:'Pendapatan Bunga (Interest Income)',tier:'NONE'},
-    {c:'71100',n:'Laba Penjualan Aset (Gain on Asset Disposal)',tier:'NONE'},
-    {c:'71200',n:'Laba Selisih Kurs — Realisasi (Realized FX Gain)',tier:'NONE'},
-    {c:'71300',n:'Laba Selisih Kurs — Belum Realisasi (Unrealized FX Gain)',tier:'NONE'},
-    {c:'71400',n:'Pendapatan Non-Operasi Lainnya (Other Non-Op Income)',tier:'NONE'},
-    {c:'72000',n:'Beban Bunga (Interest Expense)',tier:'NONE'},
-    {c:'72100',n:'Rugi Penjualan Aset (Loss on Asset Disposal)',tier:'NONE'},
-    {c:'72200',n:'Rugi Selisih Kurs — Realisasi (Realized FX Loss)',tier:'NONE'},
-    {c:'72300',n:'Rugi Selisih Kurs — Belum Realisasi (Unrealized FX Loss)',tier:'NONE'},
-    {c:'72400',n:'Beban Non-Operasi Lainnya (Other Non-Op Expense)',tier:'NONE'},
+    {c:'7100000',n:'Pendapatan Bunga (Interest Income)',tier:'NONE'},
+    {c:'7110000',n:'Laba Penjualan Aset (Gain on Asset Disposal)',tier:'NONE'},
+    {c:'7120000',n:'Laba Selisih Kurs — Realisasi (Realized FX Gain)',tier:'NONE'},
+    {c:'7130000',n:'Laba Selisih Kurs — Belum Realisasi (Unrealized FX Gain)',tier:'NONE'},
+    {c:'7140000',n:'Pendapatan Non-Operasi Lainnya (Other Non-Op Income)',tier:'NONE'},
+    {c:'7200000',n:'Beban Bunga (Interest Expense)',tier:'NONE'},
+    {c:'7210000',n:'Rugi Penjualan Aset (Loss on Asset Disposal)',tier:'NONE'},
+    {c:'7220000',n:'Rugi Selisih Kurs — Realisasi (Realized FX Loss)',tier:'NONE'},
+    {c:'7230000',n:'Rugi Selisih Kurs — Belum Realisasi (Unrealized FX Loss)',tier:'NONE'},
+    {c:'7240000',n:'Beban Non-Operasi Lainnya (Other Non-Op Expense)',tier:'NONE'},
   ]},
   // TAX (8)
   {g:'Income Tax', type:'Tax', items:[
-    {c:'81000',n:'Beban Pajak Penghasilan — Kini (Current Income Tax Expense)',tier:'NONE'},
-    {c:'81100',n:'Beban Pajak Penghasilan — Tangguhan (Deferred Tax Expense)',tier:'NONE'},
+    {c:'8100000',n:'Beban Pajak Penghasilan — Kini (Current Income Tax Expense)',tier:'NONE'},
+    {c:'8110000',n:'Beban Pajak Penghasilan — Tangguhan (Deferred Tax Expense)',tier:'NONE'},
   ]},
   // RESERVED (9)
   {g:'System Reserved', type:'Reserved', items:[
-    {c:'91000',n:'Akun Suspensi (Suspense)',tier:'SOFT',sys:'SYS-SUSPENSE'},
-    {c:'91100',n:'Selisih Pembulatan (Rounding Differences)',tier:'SOFT',sys:'SYS-ROUNDING'},
+    {c:'9100000',n:'Akun Suspensi (Suspense)',tier:'SOFT',sys:'SYS-SUSPENSE'},
+    {c:'9110000',n:'Selisih Pembulatan (Rounding Differences)',tier:'SOFT',sys:'SYS-ROUNDING'},
   ]},
 ];
 // flat lookup
@@ -674,10 +675,13 @@ var HC = {
     {sev:'hard', title:'Accounts not found in CoA', cat:'Action Required', rows:2, desc:'A bank account references a CoA code that does not exist.', fix:'Correct the account codes and names.', key:'accounts_not_found_coa'},
     {sev:'hard', title:'Accounts not in sync with CoA', cat:'Action Required', rows:1, desc:'Account code and name do not match the CoA.', fix:'Sync with your CoA and re-upload.', key:'accounts_not_in_sync_coa'}
   ],
+  product:[
+    {sev:'hard', title:'Required columns missing', cat:'Action Required', rows:1, desc:'Some required columns (e.g. Conversion Ratio) are missing from the file.', fix:'Add the missing columns and re-upload.', key:'required_columns_missing'},
+    {sev:'attention', title:'Duplicate product code', cat:'Review', rows:1, desc:'A Product Code/SKU appears more than once in the file.', fix:'Make each Product Code/SKU unique, then re-upload.', key:'duplicate_product_code'}
+  ],
   inventory:[
-    {sev:'hard', title:'Required columns missing', cat:'Action Required', rows:1, desc:'Some required columns are missing from the file.', fix:'Add the missing columns and re-upload.', key:'required_columns_missing'},
-    {sev:'hard', title:'Accounts not found in CoA', cat:'Action Required', rows:2, desc:'An inventory account references a CoA code that does not exist.', fix:'Correct the account codes and names.', key:'accounts_not_found_coa'},
-    {sev:'hard', title:'Accounts not in sync with CoA', cat:'Action Required', rows:1, desc:'Account code and name do not match the CoA.', fix:'Sync with your CoA and re-upload.', key:'accounts_not_in_sync_coa'}
+    {sev:'hard', title:'Product not found in Product Master', cat:'Action Required', rows:2, desc:'An inventory balance references a Product Code/SKU that does not exist in your locked Product Master Data.', fix:'Add the product to Product Master, or correct the SKU, then re-upload.', key:'product_not_found'},
+    {sev:'hard', title:'Product code and name do not match', cat:'Action Required', rows:2, desc:'The Product Code/SKU exists but its name does not match the name in Product Master Data.', fix:'Use the exact product name from Product Master, then re-upload.', key:'product_name_mismatch'}
   ],
   fixed:[],
   vendor:[
@@ -867,58 +871,111 @@ var PREVIEW_DEFS = {
       {bank:'Bank Danamon',acc:'1440006288',code:'1-1158',name:'Bank Danamon (IDR)',cur:'IDR'},
       {bank:'Bank Mandiri',acc:'1440006419',code:'1-1159',name:'Bank Mandiri (IDR)',cur:'IDR'}
     ]},
-  inventory:{ minw:2400, cols:[{h:'Item ID',k:'iid',mono:true},{h:'Product Code/SKU',k:'sku',mono:true},{h:'Product Name',k:'name'},{h:'Organization ID',k:'org',mono:true},{h:'Category',k:'cat'},{h:'Quantity',k:'qty',num:true},{h:'Primary UoM',k:'uom1'},{h:'Secondary UoM',k:'uom2'},{h:'Conversion Ratio',k:'conv',num:true},{h:'Secondary Quantity',k:'qty2',num:true},{h:'Unit Price',k:'price',num:true,money:true},{h:'Inventory Value',k:'val',num:true,money:true},{h:'Notes',k:'notes'},{h:'Inventory Account Code',k:'invc',mono:true},{h:'Inventory Account Name',k:'invn'},{h:'Sales Account Code',k:'salc',mono:true},{h:'Sales Account Name',k:'saln'},{h:'Sales Return Account Code',k:'srtc',mono:true},{h:'Sales Return Account Name',k:'srtn'},{h:'Sales Discount Account Code',k:'sdc',mono:true},{h:'Sales Discount Account Name',k:'sdn'},{h:'Goods In Transit Account Code',k:'gitc',mono:true},{h:'Goods In Transit Account Name',k:'gitn'},{h:'COGS Account Code',k:'cogc',mono:true},{h:'COGS Account Name',k:'cogn'},{h:'Purchase Return Account Code',k:'prc',mono:true},{h:'Purchase Return Account Name',k:'prn'},{h:'GRNI Account Code',k:'grc',mono:true},{h:'GRNI Account Name',k:'grn'}],
+  product:{ minw:1700, cols:[{h:'Item ID',k:'iid',mono:true},{h:'Product Code/SKU',k:'sku',mono:true},{h:'Product Name',k:'name'},{h:'Category',k:'cat'},{h:'Quantity',k:'qty',num:true},{h:'Primary UoM',k:'uom1'},{h:'Secondary UoM',k:'uom2'},{h:'Conversion Ratio',k:'conv',num:true},{h:'Secondary Quantity',k:'qty2',num:true},{h:'Sales Price',k:'sprice',num:true,money:true},{h:'Costing Method',k:'method'},{h:'Cost Price',k:'cprice',num:true,money:true},{h:'Purchase Price',k:'pprice',num:true,money:true},{h:'Organization ID',k:'org',mono:true}],
     rows:[
-      {iid:'ITM-9001',sku:'SKU-001',name:'Smartphone X12',org:'ORG-01',cat:'Electronics',qty:100,uom1:'EA',uom2:'BOX',conv:12,qty2:8,price:15000,val:1500000,notes:'',invc:'1-9999',invn:'Akun Persediaan Hilang',salc:'4-1000',saln:'Pendapatan Penjualan Barang',srtc:'4-2000',srtn:'Retur Penjualan',sdc:'4-3000',sdn:'Diskon Penjualan',gitc:'1-1600',gitn:'Barang Dalam Perjalanan',cogc:'5-1000',cogn:'HPP Barang Dagangan',prc:'5-2000',prn:'Retur Pembelian',grc:'2-1120',grn:'GRNI Clearing',_sev:'hard',_bad:['invc'],_issueKey:'accounts_not_found_coa'},
-      {iid:'ITM-9002',sku:'SKU-002',name:'USB-C Cable 2m',org:'ORG-01',cat:'Packaging',qty:107,uom1:'EA',uom2:'BOX',conv:12,qty2:8,price:16000,val:1712000,notes:'',invc:'1-1620',invn:'Persediaan Barang Jadi',salc:'4-1000',saln:'Pendapatan Penjualan Barang',srtc:'4-2000',srtn:'Retur Penjualan',sdc:'4-3000',sdn:'Diskon Penjualan',gitc:'1-1600',gitn:'Barang Dalam Perjalanan',cogc:'5-9999',cogn:'HPP Tidak Ada',prc:'5-2000',prn:'Retur Pembelian',grc:'2-1120',grn:'GRNI Clearing',_sev:'hard',_bad:['cogc'],_issueKey:'accounts_not_found_coa'},
-      {iid:'ITM-9003',sku:'SKU-003',name:'Carton Box L',org:'ORG-01',cat:'Raw Material',qty:114,uom1:'EA',uom2:'BOX',conv:12,qty2:9,price:17000,val:1938000,notes:'',invc:'1-1620',invn:'Persediaan Salah Nama',salc:'4-1000',saln:'Pendapatan Penjualan Barang',srtc:'4-2000',srtn:'Retur Penjualan',sdc:'4-3000',sdn:'Diskon Penjualan',gitc:'1-1600',gitn:'Barang Dalam Perjalanan',cogc:'5-1000',cogn:'HPP Barang Dagangan',prc:'5-2000',prn:'Retur Pembelian',grc:'2-1120',grn:'GRNI Clearing',_sev:'hard',_bad:['invn'],_issueKey:'accounts_not_in_sync_coa'},
-      {iid:'ITM-9004',sku:'SKU-004',name:'Resistor Pack',org:'ORG-01',cat:'Finished Goods',qty:121,uom1:'EA',uom2:'BOX',conv:12,qty2:10,price:18000,val:2178000,notes:'',invc:'',invn:'',salc:'',saln:'',srtc:'4-2000',srtn:'Retur Penjualan',sdc:'4-3000',sdn:'Diskon Penjualan',gitc:'1-1600',gitn:'Barang Dalam Perjalanan',cogc:'5-1000',cogn:'HPP Barang Dagangan',prc:'5-2000',prn:'Retur Pembelian',grc:'2-1120',grn:'GRNI Clearing',_sev:'hard',_bad:['invc','invn','salc','saln'],_issueKey:'required_columns_missing'},
-      {iid:'ITM-1005',sku:'SKU-005',name:'LED Module',org:'ORG-01',cat:'Electronics',qty:128,uom1:'EA',uom2:'BOX',conv:12,qty2:10,price:19000,val:2432000,notes:'',invc:'1-1620',invn:'Persediaan Barang Jadi',salc:'4-1000',saln:'Pendapatan Penjualan Barang',srtc:'4-2000',srtn:'Retur Penjualan',sdc:'4-3000',sdn:'Diskon Penjualan',gitc:'1-1600',gitn:'Barang Dalam Perjalanan',cogc:'5-1000',cogn:'HPP Barang Dagangan',prc:'5-2000',prn:'Retur Pembelian',grc:'2-1120',grn:'GRNI Clearing'},
-      {iid:'ITM-1006',sku:'SKU-006',name:'Power Adapter',org:'ORG-01',cat:'Packaging',qty:135,uom1:'EA',uom2:'BOX',conv:12,qty2:11,price:20000,val:2700000,notes:'',invc:'1-1620',invn:'Persediaan Barang Jadi',salc:'4-1000',saln:'Pendapatan Penjualan Barang',srtc:'4-2000',srtn:'Retur Penjualan',sdc:'4-3000',sdn:'Diskon Penjualan',gitc:'1-1600',gitn:'Barang Dalam Perjalanan',cogc:'5-1000',cogn:'HPP Barang Dagangan',prc:'5-2000',prn:'Retur Pembelian',grc:'2-1120',grn:'GRNI Clearing'},
-      {iid:'ITM-1007',sku:'SKU-007',name:'Steel Bracket',org:'ORG-01',cat:'Raw Material',qty:142,uom1:'EA',uom2:'BOX',conv:12,qty2:11,price:21000,val:2982000,notes:'',invc:'1-1620',invn:'Persediaan Barang Jadi',salc:'4-1000',saln:'Pendapatan Penjualan Barang',srtc:'4-2000',srtn:'Retur Penjualan',sdc:'4-3000',sdn:'Diskon Penjualan',gitc:'1-1600',gitn:'Barang Dalam Perjalanan',cogc:'5-1000',cogn:'HPP Barang Dagangan',prc:'5-2000',prn:'Retur Pembelian',grc:'2-1120',grn:'GRNI Clearing'},
-      {iid:'ITM-1008',sku:'SKU-008',name:'Foam Insert',org:'ORG-01',cat:'Finished Goods',qty:149,uom1:'EA',uom2:'BOX',conv:12,qty2:12,price:22000,val:3278000,notes:'',invc:'1-1620',invn:'Persediaan Barang Jadi',salc:'4-1000',saln:'Pendapatan Penjualan Barang',srtc:'4-2000',srtn:'Retur Penjualan',sdc:'4-3000',sdn:'Diskon Penjualan',gitc:'1-1600',gitn:'Barang Dalam Perjalanan',cogc:'5-1000',cogn:'HPP Barang Dagangan',prc:'5-2000',prn:'Retur Pembelian',grc:'2-1120',grn:'GRNI Clearing'},
-      {iid:'ITM-1009',sku:'SKU-009',name:'Smartphone X12',org:'ORG-01',cat:'Electronics',qty:156,uom1:'EA',uom2:'BOX',conv:12,qty2:13,price:23000,val:3588000,notes:'',invc:'1-1620',invn:'Persediaan Barang Jadi',salc:'4-1000',saln:'Pendapatan Penjualan Barang',srtc:'4-2000',srtn:'Retur Penjualan',sdc:'4-3000',sdn:'Diskon Penjualan',gitc:'1-1600',gitn:'Barang Dalam Perjalanan',cogc:'5-1000',cogn:'HPP Barang Dagangan',prc:'5-2000',prn:'Retur Pembelian',grc:'2-1120',grn:'GRNI Clearing'},
-      {iid:'ITM-1010',sku:'SKU-010',name:'USB-C Cable 2m',org:'ORG-01',cat:'Packaging',qty:163,uom1:'EA',uom2:'BOX',conv:12,qty2:13,price:24000,val:3912000,notes:'',invc:'1-1620',invn:'Persediaan Barang Jadi',salc:'4-1000',saln:'Pendapatan Penjualan Barang',srtc:'4-2000',srtn:'Retur Penjualan',sdc:'4-3000',sdn:'Diskon Penjualan',gitc:'1-1600',gitn:'Barang Dalam Perjalanan',cogc:'5-1000',cogn:'HPP Barang Dagangan',prc:'5-2000',prn:'Retur Pembelian',grc:'2-1120',grn:'GRNI Clearing'},
-      {iid:'ITM-1011',sku:'SKU-011',name:'Carton Box L',org:'ORG-01',cat:'Raw Material',qty:170,uom1:'EA',uom2:'BOX',conv:12,qty2:14,price:25000,val:4250000,notes:'',invc:'1-1620',invn:'Persediaan Barang Jadi',salc:'4-1000',saln:'Pendapatan Penjualan Barang',srtc:'4-2000',srtn:'Retur Penjualan',sdc:'4-3000',sdn:'Diskon Penjualan',gitc:'1-1600',gitn:'Barang Dalam Perjalanan',cogc:'5-1000',cogn:'HPP Barang Dagangan',prc:'5-2000',prn:'Retur Pembelian',grc:'2-1120',grn:'GRNI Clearing'},
-      {iid:'ITM-1012',sku:'SKU-012',name:'Resistor Pack',org:'ORG-01',cat:'Finished Goods',qty:177,uom1:'EA',uom2:'BOX',conv:12,qty2:14,price:26000,val:4602000,notes:'',invc:'1-1620',invn:'Persediaan Barang Jadi',salc:'4-1000',saln:'Pendapatan Penjualan Barang',srtc:'4-2000',srtn:'Retur Penjualan',sdc:'4-3000',sdn:'Diskon Penjualan',gitc:'1-1600',gitn:'Barang Dalam Perjalanan',cogc:'5-1000',cogn:'HPP Barang Dagangan',prc:'5-2000',prn:'Retur Pembelian',grc:'2-1120',grn:'GRNI Clearing'},
-      {iid:'ITM-1013',sku:'SKU-013',name:'LED Module',org:'ORG-01',cat:'Electronics',qty:184,uom1:'EA',uom2:'BOX',conv:12,qty2:15,price:27000,val:4968000,notes:'',invc:'1-1620',invn:'Persediaan Barang Jadi',salc:'4-1000',saln:'Pendapatan Penjualan Barang',srtc:'4-2000',srtn:'Retur Penjualan',sdc:'4-3000',sdn:'Diskon Penjualan',gitc:'1-1600',gitn:'Barang Dalam Perjalanan',cogc:'5-1000',cogn:'HPP Barang Dagangan',prc:'5-2000',prn:'Retur Pembelian',grc:'2-1120',grn:'GRNI Clearing'},
-      {iid:'ITM-1014',sku:'SKU-014',name:'Power Adapter',org:'ORG-01',cat:'Packaging',qty:191,uom1:'EA',uom2:'BOX',conv:12,qty2:15,price:28000,val:5348000,notes:'',invc:'1-1620',invn:'Persediaan Barang Jadi',salc:'4-1000',saln:'Pendapatan Penjualan Barang',srtc:'4-2000',srtn:'Retur Penjualan',sdc:'4-3000',sdn:'Diskon Penjualan',gitc:'1-1600',gitn:'Barang Dalam Perjalanan',cogc:'5-1000',cogn:'HPP Barang Dagangan',prc:'5-2000',prn:'Retur Pembelian',grc:'2-1120',grn:'GRNI Clearing'},
-      {iid:'ITM-1015',sku:'SKU-015',name:'Steel Bracket',org:'ORG-01',cat:'Raw Material',qty:198,uom1:'EA',uom2:'BOX',conv:12,qty2:16,price:29000,val:5742000,notes:'',invc:'1-1620',invn:'Persediaan Barang Jadi',salc:'4-1000',saln:'Pendapatan Penjualan Barang',srtc:'4-2000',srtn:'Retur Penjualan',sdc:'4-3000',sdn:'Diskon Penjualan',gitc:'1-1600',gitn:'Barang Dalam Perjalanan',cogc:'5-1000',cogn:'HPP Barang Dagangan',prc:'5-2000',prn:'Retur Pembelian',grc:'2-1120',grn:'GRNI Clearing'},
-      {iid:'ITM-1016',sku:'SKU-016',name:'Foam Insert',org:'ORG-01',cat:'Finished Goods',qty:205,uom1:'EA',uom2:'BOX',conv:12,qty2:17,price:30000,val:6150000,notes:'',invc:'1-1620',invn:'Persediaan Barang Jadi',salc:'4-1000',saln:'Pendapatan Penjualan Barang',srtc:'4-2000',srtn:'Retur Penjualan',sdc:'4-3000',sdn:'Diskon Penjualan',gitc:'1-1600',gitn:'Barang Dalam Perjalanan',cogc:'5-1000',cogn:'HPP Barang Dagangan',prc:'5-2000',prn:'Retur Pembelian',grc:'2-1120',grn:'GRNI Clearing'},
-      {iid:'ITM-1017',sku:'SKU-017',name:'Smartphone X12',org:'ORG-01',cat:'Electronics',qty:212,uom1:'EA',uom2:'BOX',conv:12,qty2:17,price:31000,val:6572000,notes:'',invc:'1-1620',invn:'Persediaan Barang Jadi',salc:'4-1000',saln:'Pendapatan Penjualan Barang',srtc:'4-2000',srtn:'Retur Penjualan',sdc:'4-3000',sdn:'Diskon Penjualan',gitc:'1-1600',gitn:'Barang Dalam Perjalanan',cogc:'5-1000',cogn:'HPP Barang Dagangan',prc:'5-2000',prn:'Retur Pembelian',grc:'2-1120',grn:'GRNI Clearing'},
-      {iid:'ITM-1018',sku:'SKU-018',name:'USB-C Cable 2m',org:'ORG-01',cat:'Packaging',qty:219,uom1:'EA',uom2:'BOX',conv:12,qty2:18,price:32000,val:7008000,notes:'',invc:'1-1620',invn:'Persediaan Barang Jadi',salc:'4-1000',saln:'Pendapatan Penjualan Barang',srtc:'4-2000',srtn:'Retur Penjualan',sdc:'4-3000',sdn:'Diskon Penjualan',gitc:'1-1600',gitn:'Barang Dalam Perjalanan',cogc:'5-1000',cogn:'HPP Barang Dagangan',prc:'5-2000',prn:'Retur Pembelian',grc:'2-1120',grn:'GRNI Clearing'},
-      {iid:'ITM-1019',sku:'SKU-019',name:'Carton Box L',org:'ORG-01',cat:'Raw Material',qty:226,uom1:'EA',uom2:'BOX',conv:12,qty2:18,price:33000,val:7458000,notes:'',invc:'1-1620',invn:'Persediaan Barang Jadi',salc:'4-1000',saln:'Pendapatan Penjualan Barang',srtc:'4-2000',srtn:'Retur Penjualan',sdc:'4-3000',sdn:'Diskon Penjualan',gitc:'1-1600',gitn:'Barang Dalam Perjalanan',cogc:'5-1000',cogn:'HPP Barang Dagangan',prc:'5-2000',prn:'Retur Pembelian',grc:'2-1120',grn:'GRNI Clearing'},
-      {iid:'ITM-1020',sku:'SKU-020',name:'Resistor Pack',org:'ORG-01',cat:'Finished Goods',qty:233,uom1:'EA',uom2:'BOX',conv:12,qty2:19,price:34000,val:7922000,notes:'',invc:'1-1620',invn:'Persediaan Barang Jadi',salc:'4-1000',saln:'Pendapatan Penjualan Barang',srtc:'4-2000',srtn:'Retur Penjualan',sdc:'4-3000',sdn:'Diskon Penjualan',gitc:'1-1600',gitn:'Barang Dalam Perjalanan',cogc:'5-1000',cogn:'HPP Barang Dagangan',prc:'5-2000',prn:'Retur Pembelian',grc:'2-1120',grn:'GRNI Clearing'},
-      {iid:'ITM-1021',sku:'SKU-021',name:'LED Module',org:'ORG-01',cat:'Electronics',qty:240,uom1:'EA',uom2:'BOX',conv:12,qty2:20,price:35000,val:8400000,notes:'',invc:'1-1620',invn:'Persediaan Barang Jadi',salc:'4-1000',saln:'Pendapatan Penjualan Barang',srtc:'4-2000',srtn:'Retur Penjualan',sdc:'4-3000',sdn:'Diskon Penjualan',gitc:'1-1600',gitn:'Barang Dalam Perjalanan',cogc:'5-1000',cogn:'HPP Barang Dagangan',prc:'5-2000',prn:'Retur Pembelian',grc:'2-1120',grn:'GRNI Clearing'},
-      {iid:'ITM-1022',sku:'SKU-022',name:'Power Adapter',org:'ORG-01',cat:'Packaging',qty:247,uom1:'EA',uom2:'BOX',conv:12,qty2:20,price:36000,val:8892000,notes:'',invc:'1-1620',invn:'Persediaan Barang Jadi',salc:'4-1000',saln:'Pendapatan Penjualan Barang',srtc:'4-2000',srtn:'Retur Penjualan',sdc:'4-3000',sdn:'Diskon Penjualan',gitc:'1-1600',gitn:'Barang Dalam Perjalanan',cogc:'5-1000',cogn:'HPP Barang Dagangan',prc:'5-2000',prn:'Retur Pembelian',grc:'2-1120',grn:'GRNI Clearing'},
-      {iid:'ITM-1023',sku:'SKU-023',name:'Steel Bracket',org:'ORG-01',cat:'Raw Material',qty:254,uom1:'EA',uom2:'BOX',conv:12,qty2:21,price:37000,val:9398000,notes:'',invc:'1-1620',invn:'Persediaan Barang Jadi',salc:'4-1000',saln:'Pendapatan Penjualan Barang',srtc:'4-2000',srtn:'Retur Penjualan',sdc:'4-3000',sdn:'Diskon Penjualan',gitc:'1-1600',gitn:'Barang Dalam Perjalanan',cogc:'5-1000',cogn:'HPP Barang Dagangan',prc:'5-2000',prn:'Retur Pembelian',grc:'2-1120',grn:'GRNI Clearing'},
-      {iid:'ITM-1024',sku:'SKU-024',name:'Foam Insert',org:'ORG-01',cat:'Finished Goods',qty:261,uom1:'EA',uom2:'BOX',conv:12,qty2:21,price:38000,val:9918000,notes:'',invc:'1-1620',invn:'Persediaan Barang Jadi',salc:'4-1000',saln:'Pendapatan Penjualan Barang',srtc:'4-2000',srtn:'Retur Penjualan',sdc:'4-3000',sdn:'Diskon Penjualan',gitc:'1-1600',gitn:'Barang Dalam Perjalanan',cogc:'5-1000',cogn:'HPP Barang Dagangan',prc:'5-2000',prn:'Retur Pembelian',grc:'2-1120',grn:'GRNI Clearing'},
-      {iid:'ITM-1025',sku:'SKU-025',name:'Smartphone X12',org:'ORG-01',cat:'Electronics',qty:268,uom1:'EA',uom2:'BOX',conv:12,qty2:22,price:39000,val:10452000,notes:'',invc:'1-1620',invn:'Persediaan Barang Jadi',salc:'4-1000',saln:'Pendapatan Penjualan Barang',srtc:'4-2000',srtn:'Retur Penjualan',sdc:'4-3000',sdn:'Diskon Penjualan',gitc:'1-1600',gitn:'Barang Dalam Perjalanan',cogc:'5-1000',cogn:'HPP Barang Dagangan',prc:'5-2000',prn:'Retur Pembelian',grc:'2-1120',grn:'GRNI Clearing'},
-      {iid:'ITM-1026',sku:'SKU-026',name:'USB-C Cable 2m',org:'ORG-01',cat:'Packaging',qty:275,uom1:'EA',uom2:'BOX',conv:12,qty2:22,price:40000,val:11000000,notes:'',invc:'1-1620',invn:'Persediaan Barang Jadi',salc:'4-1000',saln:'Pendapatan Penjualan Barang',srtc:'4-2000',srtn:'Retur Penjualan',sdc:'4-3000',sdn:'Diskon Penjualan',gitc:'1-1600',gitn:'Barang Dalam Perjalanan',cogc:'5-1000',cogn:'HPP Barang Dagangan',prc:'5-2000',prn:'Retur Pembelian',grc:'2-1120',grn:'GRNI Clearing'},
-      {iid:'ITM-1027',sku:'SKU-027',name:'Carton Box L',org:'ORG-01',cat:'Raw Material',qty:282,uom1:'EA',uom2:'BOX',conv:12,qty2:23,price:41000,val:11562000,notes:'',invc:'1-1620',invn:'Persediaan Barang Jadi',salc:'4-1000',saln:'Pendapatan Penjualan Barang',srtc:'4-2000',srtn:'Retur Penjualan',sdc:'4-3000',sdn:'Diskon Penjualan',gitc:'1-1600',gitn:'Barang Dalam Perjalanan',cogc:'5-1000',cogn:'HPP Barang Dagangan',prc:'5-2000',prn:'Retur Pembelian',grc:'2-1120',grn:'GRNI Clearing'},
-      {iid:'ITM-1028',sku:'SKU-028',name:'Resistor Pack',org:'ORG-01',cat:'Finished Goods',qty:289,uom1:'EA',uom2:'BOX',conv:12,qty2:24,price:42000,val:12138000,notes:'',invc:'1-1620',invn:'Persediaan Barang Jadi',salc:'4-1000',saln:'Pendapatan Penjualan Barang',srtc:'4-2000',srtn:'Retur Penjualan',sdc:'4-3000',sdn:'Diskon Penjualan',gitc:'1-1600',gitn:'Barang Dalam Perjalanan',cogc:'5-1000',cogn:'HPP Barang Dagangan',prc:'5-2000',prn:'Retur Pembelian',grc:'2-1120',grn:'GRNI Clearing'},
-      {iid:'ITM-1029',sku:'SKU-029',name:'LED Module',org:'ORG-01',cat:'Electronics',qty:296,uom1:'EA',uom2:'BOX',conv:12,qty2:24,price:43000,val:12728000,notes:'',invc:'1-1620',invn:'Persediaan Barang Jadi',salc:'4-1000',saln:'Pendapatan Penjualan Barang',srtc:'4-2000',srtn:'Retur Penjualan',sdc:'4-3000',sdn:'Diskon Penjualan',gitc:'1-1600',gitn:'Barang Dalam Perjalanan',cogc:'5-1000',cogn:'HPP Barang Dagangan',prc:'5-2000',prn:'Retur Pembelian',grc:'2-1120',grn:'GRNI Clearing'},
-      {iid:'ITM-1030',sku:'SKU-030',name:'Power Adapter',org:'ORG-01',cat:'Packaging',qty:303,uom1:'EA',uom2:'BOX',conv:12,qty2:25,price:44000,val:13332000,notes:'',invc:'1-1620',invn:'Persediaan Barang Jadi',salc:'4-1000',saln:'Pendapatan Penjualan Barang',srtc:'4-2000',srtn:'Retur Penjualan',sdc:'4-3000',sdn:'Diskon Penjualan',gitc:'1-1600',gitn:'Barang Dalam Perjalanan',cogc:'5-1000',cogn:'HPP Barang Dagangan',prc:'5-2000',prn:'Retur Pembelian',grc:'2-1120',grn:'GRNI Clearing'},
-      {iid:'ITM-1031',sku:'SKU-031',name:'Steel Bracket',org:'ORG-01',cat:'Raw Material',qty:310,uom1:'EA',uom2:'BOX',conv:12,qty2:25,price:45000,val:13950000,notes:'',invc:'1-1620',invn:'Persediaan Barang Jadi',salc:'4-1000',saln:'Pendapatan Penjualan Barang',srtc:'4-2000',srtn:'Retur Penjualan',sdc:'4-3000',sdn:'Diskon Penjualan',gitc:'1-1600',gitn:'Barang Dalam Perjalanan',cogc:'5-1000',cogn:'HPP Barang Dagangan',prc:'5-2000',prn:'Retur Pembelian',grc:'2-1120',grn:'GRNI Clearing'},
-      {iid:'ITM-1032',sku:'SKU-032',name:'Foam Insert',org:'ORG-01',cat:'Finished Goods',qty:317,uom1:'EA',uom2:'BOX',conv:12,qty2:26,price:46000,val:14582000,notes:'',invc:'1-1620',invn:'Persediaan Barang Jadi',salc:'4-1000',saln:'Pendapatan Penjualan Barang',srtc:'4-2000',srtn:'Retur Penjualan',sdc:'4-3000',sdn:'Diskon Penjualan',gitc:'1-1600',gitn:'Barang Dalam Perjalanan',cogc:'5-1000',cogn:'HPP Barang Dagangan',prc:'5-2000',prn:'Retur Pembelian',grc:'2-1120',grn:'GRNI Clearing'},
-      {iid:'ITM-1033',sku:'SKU-033',name:'Smartphone X12',org:'ORG-01',cat:'Electronics',qty:324,uom1:'EA',uom2:'BOX',conv:12,qty2:27,price:47000,val:15228000,notes:'',invc:'1-1620',invn:'Persediaan Barang Jadi',salc:'4-1000',saln:'Pendapatan Penjualan Barang',srtc:'4-2000',srtn:'Retur Penjualan',sdc:'4-3000',sdn:'Diskon Penjualan',gitc:'1-1600',gitn:'Barang Dalam Perjalanan',cogc:'5-1000',cogn:'HPP Barang Dagangan',prc:'5-2000',prn:'Retur Pembelian',grc:'2-1120',grn:'GRNI Clearing'},
-      {iid:'ITM-1034',sku:'SKU-034',name:'USB-C Cable 2m',org:'ORG-01',cat:'Packaging',qty:331,uom1:'EA',uom2:'BOX',conv:12,qty2:27,price:48000,val:15888000,notes:'',invc:'1-1620',invn:'Persediaan Barang Jadi',salc:'4-1000',saln:'Pendapatan Penjualan Barang',srtc:'4-2000',srtn:'Retur Penjualan',sdc:'4-3000',sdn:'Diskon Penjualan',gitc:'1-1600',gitn:'Barang Dalam Perjalanan',cogc:'5-1000',cogn:'HPP Barang Dagangan',prc:'5-2000',prn:'Retur Pembelian',grc:'2-1120',grn:'GRNI Clearing'},
-      {iid:'ITM-1035',sku:'SKU-035',name:'Carton Box L',org:'ORG-01',cat:'Raw Material',qty:338,uom1:'EA',uom2:'BOX',conv:12,qty2:28,price:49000,val:16562000,notes:'',invc:'1-1620',invn:'Persediaan Barang Jadi',salc:'4-1000',saln:'Pendapatan Penjualan Barang',srtc:'4-2000',srtn:'Retur Penjualan',sdc:'4-3000',sdn:'Diskon Penjualan',gitc:'1-1600',gitn:'Barang Dalam Perjalanan',cogc:'5-1000',cogn:'HPP Barang Dagangan',prc:'5-2000',prn:'Retur Pembelian',grc:'2-1120',grn:'GRNI Clearing'},
-      {iid:'ITM-1036',sku:'SKU-036',name:'Resistor Pack',org:'ORG-01',cat:'Finished Goods',qty:345,uom1:'EA',uom2:'BOX',conv:12,qty2:28,price:50000,val:17250000,notes:'',invc:'1-1620',invn:'Persediaan Barang Jadi',salc:'4-1000',saln:'Pendapatan Penjualan Barang',srtc:'4-2000',srtn:'Retur Penjualan',sdc:'4-3000',sdn:'Diskon Penjualan',gitc:'1-1600',gitn:'Barang Dalam Perjalanan',cogc:'5-1000',cogn:'HPP Barang Dagangan',prc:'5-2000',prn:'Retur Pembelian',grc:'2-1120',grn:'GRNI Clearing'},
-      {iid:'ITM-1037',sku:'SKU-037',name:'LED Module',org:'ORG-01',cat:'Electronics',qty:352,uom1:'EA',uom2:'BOX',conv:12,qty2:29,price:51000,val:17952000,notes:'',invc:'1-1620',invn:'Persediaan Barang Jadi',salc:'4-1000',saln:'Pendapatan Penjualan Barang',srtc:'4-2000',srtn:'Retur Penjualan',sdc:'4-3000',sdn:'Diskon Penjualan',gitc:'1-1600',gitn:'Barang Dalam Perjalanan',cogc:'5-1000',cogn:'HPP Barang Dagangan',prc:'5-2000',prn:'Retur Pembelian',grc:'2-1120',grn:'GRNI Clearing'},
-      {iid:'ITM-1038',sku:'SKU-038',name:'Power Adapter',org:'ORG-01',cat:'Packaging',qty:359,uom1:'EA',uom2:'BOX',conv:12,qty2:29,price:52000,val:18668000,notes:'',invc:'1-1620',invn:'Persediaan Barang Jadi',salc:'4-1000',saln:'Pendapatan Penjualan Barang',srtc:'4-2000',srtn:'Retur Penjualan',sdc:'4-3000',sdn:'Diskon Penjualan',gitc:'1-1600',gitn:'Barang Dalam Perjalanan',cogc:'5-1000',cogn:'HPP Barang Dagangan',prc:'5-2000',prn:'Retur Pembelian',grc:'2-1120',grn:'GRNI Clearing'},
-      {iid:'ITM-1039',sku:'SKU-039',name:'Steel Bracket',org:'ORG-01',cat:'Raw Material',qty:366,uom1:'EA',uom2:'BOX',conv:12,qty2:30,price:53000,val:19398000,notes:'',invc:'1-1620',invn:'Persediaan Barang Jadi',salc:'4-1000',saln:'Pendapatan Penjualan Barang',srtc:'4-2000',srtn:'Retur Penjualan',sdc:'4-3000',sdn:'Diskon Penjualan',gitc:'1-1600',gitn:'Barang Dalam Perjalanan',cogc:'5-1000',cogn:'HPP Barang Dagangan',prc:'5-2000',prn:'Retur Pembelian',grc:'2-1120',grn:'GRNI Clearing'},
-      {iid:'ITM-1040',sku:'SKU-040',name:'Foam Insert',org:'ORG-01',cat:'Finished Goods',qty:373,uom1:'EA',uom2:'BOX',conv:12,qty2:31,price:54000,val:20142000,notes:'',invc:'1-1620',invn:'Persediaan Barang Jadi',salc:'4-1000',saln:'Pendapatan Penjualan Barang',srtc:'4-2000',srtn:'Retur Penjualan',sdc:'4-3000',sdn:'Diskon Penjualan',gitc:'1-1600',gitn:'Barang Dalam Perjalanan',cogc:'5-1000',cogn:'HPP Barang Dagangan',prc:'5-2000',prn:'Retur Pembelian',grc:'2-1120',grn:'GRNI Clearing'},
-      {iid:'ITM-1041',sku:'SKU-041',name:'Smartphone X12',org:'ORG-01',cat:'Electronics',qty:380,uom1:'EA',uom2:'BOX',conv:12,qty2:31,price:55000,val:20900000,notes:'',invc:'1-1620',invn:'Persediaan Barang Jadi',salc:'4-1000',saln:'Pendapatan Penjualan Barang',srtc:'4-2000',srtn:'Retur Penjualan',sdc:'4-3000',sdn:'Diskon Penjualan',gitc:'1-1600',gitn:'Barang Dalam Perjalanan',cogc:'5-1000',cogn:'HPP Barang Dagangan',prc:'5-2000',prn:'Retur Pembelian',grc:'2-1120',grn:'GRNI Clearing'},
-      {iid:'ITM-1042',sku:'SKU-042',name:'USB-C Cable 2m',org:'ORG-01',cat:'Packaging',qty:387,uom1:'EA',uom2:'BOX',conv:12,qty2:32,price:56000,val:21672000,notes:'',invc:'1-1620',invn:'Persediaan Barang Jadi',salc:'4-1000',saln:'Pendapatan Penjualan Barang',srtc:'4-2000',srtn:'Retur Penjualan',sdc:'4-3000',sdn:'Diskon Penjualan',gitc:'1-1600',gitn:'Barang Dalam Perjalanan',cogc:'5-1000',cogn:'HPP Barang Dagangan',prc:'5-2000',prn:'Retur Pembelian',grc:'2-1120',grn:'GRNI Clearing'},
-      {iid:'ITM-1043',sku:'SKU-043',name:'Carton Box L',org:'ORG-01',cat:'Raw Material',qty:394,uom1:'EA',uom2:'BOX',conv:12,qty2:32,price:57000,val:22458000,notes:'',invc:'1-1620',invn:'Persediaan Barang Jadi',salc:'4-1000',saln:'Pendapatan Penjualan Barang',srtc:'4-2000',srtn:'Retur Penjualan',sdc:'4-3000',sdn:'Diskon Penjualan',gitc:'1-1600',gitn:'Barang Dalam Perjalanan',cogc:'5-1000',cogn:'HPP Barang Dagangan',prc:'5-2000',prn:'Retur Pembelian',grc:'2-1120',grn:'GRNI Clearing'},
-      {iid:'ITM-1044',sku:'SKU-044',name:'Resistor Pack',org:'ORG-01',cat:'Finished Goods',qty:401,uom1:'EA',uom2:'BOX',conv:12,qty2:33,price:58000,val:23258000,notes:'',invc:'1-1620',invn:'Persediaan Barang Jadi',salc:'4-1000',saln:'Pendapatan Penjualan Barang',srtc:'4-2000',srtn:'Retur Penjualan',sdc:'4-3000',sdn:'Diskon Penjualan',gitc:'1-1600',gitn:'Barang Dalam Perjalanan',cogc:'5-1000',cogn:'HPP Barang Dagangan',prc:'5-2000',prn:'Retur Pembelian',grc:'2-1120',grn:'GRNI Clearing'},
-      {iid:'ITM-1045',sku:'SKU-045',name:'LED Module',org:'ORG-01',cat:'Electronics',qty:408,uom1:'EA',uom2:'BOX',conv:12,qty2:34,price:59000,val:24072000,notes:'',invc:'1-1620',invn:'Persediaan Barang Jadi',salc:'4-1000',saln:'Pendapatan Penjualan Barang',srtc:'4-2000',srtn:'Retur Penjualan',sdc:'4-3000',sdn:'Diskon Penjualan',gitc:'1-1600',gitn:'Barang Dalam Perjalanan',cogc:'5-1000',cogn:'HPP Barang Dagangan',prc:'5-2000',prn:'Retur Pembelian',grc:'2-1120',grn:'GRNI Clearing'},
-      {iid:'ITM-1046',sku:'SKU-046',name:'Power Adapter',org:'ORG-01',cat:'Packaging',qty:415,uom1:'EA',uom2:'BOX',conv:12,qty2:34,price:60000,val:24900000,notes:'',invc:'1-1620',invn:'Persediaan Barang Jadi',salc:'4-1000',saln:'Pendapatan Penjualan Barang',srtc:'4-2000',srtn:'Retur Penjualan',sdc:'4-3000',sdn:'Diskon Penjualan',gitc:'1-1600',gitn:'Barang Dalam Perjalanan',cogc:'5-1000',cogn:'HPP Barang Dagangan',prc:'5-2000',prn:'Retur Pembelian',grc:'2-1120',grn:'GRNI Clearing'},
-      {iid:'ITM-1047',sku:'SKU-047',name:'Steel Bracket',org:'ORG-01',cat:'Raw Material',qty:422,uom1:'EA',uom2:'BOX',conv:12,qty2:35,price:61000,val:25742000,notes:'',invc:'1-1620',invn:'Persediaan Barang Jadi',salc:'4-1000',saln:'Pendapatan Penjualan Barang',srtc:'4-2000',srtn:'Retur Penjualan',sdc:'4-3000',sdn:'Diskon Penjualan',gitc:'1-1600',gitn:'Barang Dalam Perjalanan',cogc:'5-1000',cogn:'HPP Barang Dagangan',prc:'5-2000',prn:'Retur Pembelian',grc:'2-1120',grn:'GRNI Clearing'},
-      {iid:'ITM-1048',sku:'SKU-048',name:'Foam Insert',org:'ORG-01',cat:'Finished Goods',qty:429,uom1:'EA',uom2:'BOX',conv:12,qty2:35,price:62000,val:26598000,notes:'',invc:'1-1620',invn:'Persediaan Barang Jadi',salc:'4-1000',saln:'Pendapatan Penjualan Barang',srtc:'4-2000',srtn:'Retur Penjualan',sdc:'4-3000',sdn:'Diskon Penjualan',gitc:'1-1600',gitn:'Barang Dalam Perjalanan',cogc:'5-1000',cogn:'HPP Barang Dagangan',prc:'5-2000',prn:'Retur Pembelian',grc:'2-1120',grn:'GRNI Clearing'},
-      {iid:'ITM-1049',sku:'SKU-049',name:'Smartphone X12',org:'ORG-01',cat:'Electronics',qty:436,uom1:'EA',uom2:'BOX',conv:12,qty2:36,price:63000,val:27468000,notes:'',invc:'1-1620',invn:'Persediaan Barang Jadi',salc:'4-1000',saln:'Pendapatan Penjualan Barang',srtc:'4-2000',srtn:'Retur Penjualan',sdc:'4-3000',sdn:'Diskon Penjualan',gitc:'1-1600',gitn:'Barang Dalam Perjalanan',cogc:'5-1000',cogn:'HPP Barang Dagangan',prc:'5-2000',prn:'Retur Pembelian',grc:'2-1120',grn:'GRNI Clearing'},
-      {iid:'ITM-1050',sku:'SKU-050',name:'USB-C Cable 2m',org:'ORG-01',cat:'Packaging',qty:443,uom1:'EA',uom2:'BOX',conv:12,qty2:36,price:64000,val:28352000,notes:'',invc:'1-1620',invn:'Persediaan Barang Jadi',salc:'4-1000',saln:'Pendapatan Penjualan Barang',srtc:'4-2000',srtn:'Retur Penjualan',sdc:'4-3000',sdn:'Diskon Penjualan',gitc:'1-1600',gitn:'Barang Dalam Perjalanan',cogc:'5-1000',cogn:'HPP Barang Dagangan',prc:'5-2000',prn:'Retur Pembelian',grc:'2-1120',grn:'GRNI Clearing'}
+      {iid:'ITM-1001',sku:'SKU-001',name:'Smartphone X12',cat:'Electronics',qty:107,uom1:'EA',uom2:'BOX',conv:12,qty2:9,sprice:16000,method:'FIFO',cprice:10700,pprice:11750,org:'ORG-01'},
+      {iid:'ITM-1002',sku:'SKU-002',name:'USB-C Cable 2m',cat:'Packaging',qty:114,uom1:'EA',uom2:'BOX',conv:12,qty2:10,sprice:17000,method:'Average',cprice:11400,pprice:12500,org:'ORG-01'},
+      {iid:'ITM-1003',sku:'SKU-003',name:'Carton Box L',cat:'Raw Material',qty:121,uom1:'EA',uom2:'BOX',conv:12,qty2:11,sprice:18000,method:'FIFO',cprice:12100,pprice:13250,org:'ORG-01'},
+      {iid:'ITM-1004',sku:'SKU-004',name:'Resistor Pack',cat:'Finished Goods',qty:128,uom1:'EA',uom2:'BOX',conv:12,qty2:12,sprice:19000,method:'Average',cprice:12800,pprice:14000,org:'ORG-01'},
+      {iid:'ITM-1005',sku:'SKU-005',name:'LED Module',cat:'Electronics',qty:135,uom1:'EA',uom2:'BOX',conv:12,qty2:13,sprice:20000,method:'FIFO',cprice:13500,pprice:14750,org:'ORG-01'},
+      {iid:'ITM-1006',sku:'SKU-006',name:'Power Adapter',cat:'Packaging',qty:142,uom1:'EA',uom2:'BOX',conv:12,qty2:14,sprice:21000,method:'Average',cprice:14200,pprice:15500,org:'ORG-01'},
+      {iid:'ITM-1007',sku:'SKU-007',name:'Steel Bracket',cat:'Raw Material',qty:149,uom1:'EA',uom2:'BOX',conv:12,qty2:15,sprice:22000,method:'FIFO',cprice:14900,pprice:16250,org:'ORG-01'},
+      {iid:'ITM-1008',sku:'SKU-008',name:'Foam Insert',cat:'Finished Goods',qty:156,uom1:'EA',uom2:'BOX',conv:12,qty2:16,sprice:23000,method:'Average',cprice:15600,pprice:17000,org:'ORG-01'},
+      {iid:'ITM-1009',sku:'SKU-009',name:'Smartphone X12',cat:'Electronics',qty:163,uom1:'EA',uom2:'BOX',conv:12,qty2:17,sprice:24000,method:'FIFO',cprice:16300,pprice:17750,org:'ORG-01'},
+      {iid:'ITM-1010',sku:'SKU-010',name:'USB-C Cable 2m',cat:'Packaging',qty:170,uom1:'EA',uom2:'BOX',conv:12,qty2:18,sprice:25000,method:'Average',cprice:17000,pprice:18500,org:'ORG-01'},
+      {iid:'ITM-1011',sku:'SKU-011',name:'Carton Box L',cat:'Raw Material',qty:177,uom1:'EA',uom2:'BOX',conv:12,qty2:19,sprice:26000,method:'FIFO',cprice:17700,pprice:19250,org:'ORG-01'},
+      {iid:'ITM-1012',sku:'SKU-012',name:'Resistor Pack',cat:'Finished Goods',qty:184,uom1:'EA',uom2:'BOX',conv:12,qty2:20,sprice:27000,method:'Average',cprice:18400,pprice:20000,org:'ORG-01'},
+      {iid:'ITM-1013',sku:'SKU-013',name:'LED Module',cat:'Electronics',qty:191,uom1:'EA',uom2:'BOX',conv:12,qty2:21,sprice:28000,method:'FIFO',cprice:19100,pprice:20750,org:'ORG-01'},
+      {iid:'ITM-1014',sku:'SKU-014',name:'Power Adapter',cat:'Packaging',qty:198,uom1:'EA',uom2:'BOX',conv:12,qty2:22,sprice:29000,method:'Average',cprice:19800,pprice:21500,org:'ORG-01'},
+      {iid:'ITM-1015',sku:'SKU-015',name:'Steel Bracket',cat:'Raw Material',qty:205,uom1:'EA',uom2:'BOX',conv:12,qty2:23,sprice:30000,method:'FIFO',cprice:20500,pprice:22250,org:'ORG-01'},
+      {iid:'ITM-1016',sku:'SKU-016',name:'Foam Insert',cat:'Finished Goods',qty:212,uom1:'EA',uom2:'BOX',conv:12,qty2:24,sprice:31000,method:'Average',cprice:21200,pprice:23000,org:'ORG-01'},
+      {iid:'ITM-1017',sku:'SKU-017',name:'Smartphone X12',cat:'Electronics',qty:219,uom1:'EA',uom2:'BOX',conv:12,qty2:25,sprice:32000,method:'FIFO',cprice:21900,pprice:23750,org:'ORG-01'},
+      {iid:'ITM-1018',sku:'SKU-018',name:'USB-C Cable 2m',cat:'Packaging',qty:226,uom1:'EA',uom2:'BOX',conv:12,qty2:26,sprice:33000,method:'Average',cprice:22600,pprice:24500,org:'ORG-01'},
+      {iid:'ITM-1019',sku:'SKU-019',name:'Carton Box L',cat:'Raw Material',qty:233,uom1:'EA',uom2:'BOX',conv:12,qty2:27,sprice:34000,method:'FIFO',cprice:23300,pprice:25250,org:'ORG-01'},
+      {iid:'ITM-1020',sku:'SKU-020',name:'Resistor Pack',cat:'Finished Goods',qty:240,uom1:'EA',uom2:'BOX',conv:12,qty2:28,sprice:35000,method:'Average',cprice:24000,pprice:26000,org:'ORG-01'},
+      {iid:'ITM-1021',sku:'SKU-021',name:'LED Module',cat:'Electronics',qty:247,uom1:'EA',uom2:'BOX',conv:12,qty2:29,sprice:36000,method:'FIFO',cprice:24700,pprice:26750,org:'ORG-01'},
+      {iid:'ITM-1022',sku:'SKU-022',name:'Power Adapter',cat:'Packaging',qty:254,uom1:'EA',uom2:'BOX',conv:12,qty2:30,sprice:37000,method:'Average',cprice:25400,pprice:27500,org:'ORG-01'},
+      {iid:'ITM-1023',sku:'SKU-023',name:'Steel Bracket',cat:'Raw Material',qty:261,uom1:'EA',uom2:'BOX',conv:12,qty2:31,sprice:38000,method:'FIFO',cprice:26100,pprice:28250,org:'ORG-01'},
+      {iid:'ITM-1024',sku:'SKU-024',name:'Foam Insert',cat:'Finished Goods',qty:268,uom1:'EA',uom2:'BOX',conv:12,qty2:32,sprice:39000,method:'Average',cprice:26800,pprice:29000,org:'ORG-01'},
+      {iid:'ITM-1025',sku:'SKU-025',name:'Smartphone X12',cat:'Electronics',qty:275,uom1:'EA',uom2:'BOX',conv:12,qty2:33,sprice:40000,method:'FIFO',cprice:27500,pprice:29750,org:'ORG-01'},
+      {iid:'ITM-1026',sku:'SKU-026',name:'USB-C Cable 2m',cat:'Packaging',qty:282,uom1:'EA',uom2:'BOX',conv:12,qty2:34,sprice:41000,method:'Average',cprice:28200,pprice:30500,org:'ORG-01'},
+      {iid:'ITM-1027',sku:'SKU-027',name:'Carton Box L',cat:'Raw Material',qty:289,uom1:'EA',uom2:'BOX',conv:12,qty2:35,sprice:42000,method:'FIFO',cprice:28900,pprice:31250,org:'ORG-01'},
+      {iid:'ITM-1028',sku:'SKU-028',name:'Resistor Pack',cat:'Finished Goods',qty:296,uom1:'EA',uom2:'BOX',conv:12,qty2:36,sprice:43000,method:'Average',cprice:29600,pprice:32000,org:'ORG-01'},
+      {iid:'ITM-1029',sku:'SKU-029',name:'LED Module',cat:'Electronics',qty:303,uom1:'EA',uom2:'BOX',conv:12,qty2:37,sprice:44000,method:'FIFO',cprice:30300,pprice:32750,org:'ORG-01'},
+      {iid:'ITM-1030',sku:'SKU-030',name:'Power Adapter',cat:'Packaging',qty:310,uom1:'EA',uom2:'BOX',conv:12,qty2:38,sprice:45000,method:'Average',cprice:31000,pprice:33500,org:'ORG-01'},
+      {iid:'ITM-1031',sku:'SKU-031',name:'Steel Bracket',cat:'Raw Material',qty:317,uom1:'EA',uom2:'BOX',conv:12,qty2:39,sprice:46000,method:'FIFO',cprice:31700,pprice:34250,org:'ORG-01'},
+      {iid:'ITM-1032',sku:'SKU-032',name:'Foam Insert',cat:'Finished Goods',qty:324,uom1:'EA',uom2:'BOX',conv:12,qty2:40,sprice:47000,method:'Average',cprice:32400,pprice:35000,org:'ORG-01'},
+      {iid:'ITM-1033',sku:'SKU-033',name:'Smartphone X12',cat:'Electronics',qty:331,uom1:'EA',uom2:'BOX',conv:12,qty2:41,sprice:48000,method:'FIFO',cprice:33100,pprice:35750,org:'ORG-01'},
+      {iid:'ITM-1034',sku:'SKU-034',name:'USB-C Cable 2m',cat:'Packaging',qty:338,uom1:'EA',uom2:'BOX',conv:12,qty2:42,sprice:49000,method:'Average',cprice:33800,pprice:36500,org:'ORG-01'},
+      {iid:'ITM-1035',sku:'SKU-035',name:'Carton Box L',cat:'Raw Material',qty:345,uom1:'EA',uom2:'BOX',conv:12,qty2:43,sprice:50000,method:'FIFO',cprice:34500,pprice:37250,org:'ORG-01'},
+      {iid:'ITM-1036',sku:'SKU-036',name:'Resistor Pack',cat:'Finished Goods',qty:352,uom1:'EA',uom2:'BOX',conv:12,qty2:44,sprice:51000,method:'Average',cprice:35200,pprice:38000,org:'ORG-01'},
+      {iid:'ITM-1037',sku:'SKU-037',name:'LED Module',cat:'Electronics',qty:359,uom1:'EA',uom2:'BOX',conv:12,qty2:45,sprice:52000,method:'FIFO',cprice:35900,pprice:38750,org:'ORG-01'},
+      {iid:'ITM-1038',sku:'SKU-038',name:'Power Adapter',cat:'Packaging',qty:366,uom1:'EA',uom2:'BOX',conv:12,qty2:46,sprice:53000,method:'Average',cprice:36600,pprice:39500,org:'ORG-01'},
+      {iid:'ITM-1039',sku:'SKU-039',name:'Steel Bracket',cat:'Raw Material',qty:373,uom1:'EA',uom2:'BOX',conv:12,qty2:47,sprice:54000,method:'FIFO',cprice:37300,pprice:40250,org:'ORG-01'},
+      {iid:'ITM-1040',sku:'SKU-040',name:'Foam Insert',cat:'Finished Goods',qty:380,uom1:'EA',uom2:'BOX',conv:12,qty2:48,sprice:55000,method:'Average',cprice:38000,pprice:41000,org:'ORG-01'},
+      {iid:'ITM-1041',sku:'SKU-041',name:'Smartphone X12',cat:'Electronics',qty:387,uom1:'EA',uom2:'BOX',conv:12,qty2:49,sprice:56000,method:'FIFO',cprice:38700,pprice:41750,org:'ORG-01'},
+      {iid:'ITM-1042',sku:'SKU-042',name:'USB-C Cable 2m',cat:'Packaging',qty:394,uom1:'EA',uom2:'BOX',conv:12,qty2:50,sprice:57000,method:'Average',cprice:39400,pprice:42500,org:'ORG-01'},
+      {iid:'ITM-1043',sku:'SKU-043',name:'Carton Box L',cat:'Raw Material',qty:401,uom1:'EA',uom2:'BOX',conv:12,qty2:51,sprice:58000,method:'FIFO',cprice:40100,pprice:43250,org:'ORG-01'},
+      {iid:'ITM-1044',sku:'SKU-044',name:'Resistor Pack',cat:'Finished Goods',qty:408,uom1:'EA',uom2:'BOX',conv:12,qty2:52,sprice:59000,method:'Average',cprice:40800,pprice:44000,org:'ORG-01'},
+      {iid:'ITM-1045',sku:'SKU-045',name:'LED Module',cat:'Electronics',qty:415,uom1:'EA',uom2:'BOX',conv:12,qty2:53,sprice:60000,method:'FIFO',cprice:41500,pprice:44750,org:'ORG-01'},
+      {iid:'ITM-1046',sku:'SKU-046',name:'Power Adapter',cat:'Packaging',qty:422,uom1:'EA',uom2:'BOX',conv:12,qty2:54,sprice:61000,method:'Average',cprice:42200,pprice:45500,org:'ORG-01'},
+      {iid:'ITM-1047',sku:'SKU-047',name:'Steel Bracket',cat:'Raw Material',qty:429,uom1:'EA',uom2:'BOX',conv:12,qty2:55,sprice:62000,method:'FIFO',cprice:42900,pprice:46250,org:'ORG-01'},
+      {iid:'ITM-1048',sku:'SKU-048',name:'Foam Insert',cat:'Finished Goods',qty:436,uom1:'EA',uom2:'BOX',conv:12,qty2:56,sprice:63000,method:'Average',cprice:43600,pprice:47000,org:'ORG-01'},
+      {iid:'ITM-1049',sku:'SKU-049',name:'Smartphone X12',cat:'Electronics',qty:443,uom1:'EA',uom2:'BOX',conv:12,qty2:57,sprice:64000,method:'FIFO',cprice:44300,pprice:47750,org:'ORG-01'},
+      {iid:'ITM-1050',sku:'SKU-050',name:'USB-C Cable 2m',cat:'Packaging',qty:450,uom1:'EA',uom2:'BOX',conv:12,qty2:58,sprice:65000,method:'Average',cprice:45000,pprice:48500,org:'ORG-01'}
+    ]},
+  inventory:{ minw:2400, cols:[{h:'Product Code/SKU',k:'sku',mono:true},{h:'Product Name',k:'name'},{h:'Unit Price',k:'price',num:true,money:true},{h:'Inventory Value',k:'val',num:true,money:true},{h:'Inventory Account Code',k:'invc',mono:true},{h:'Inventory Account Name',k:'invn'},{h:'Sales Account Code',k:'salc',mono:true},{h:'Sales Account Name',k:'saln'},{h:'Sales Return Account Code',k:'srtc',mono:true},{h:'Sales Return Account Name',k:'srtn'},{h:'Sales Discount Account Code',k:'sdc',mono:true},{h:'Sales Discount Account Name',k:'sdn'},{h:'Goods In Transit Account Code',k:'gitc',mono:true},{h:'Goods In Transit Account Name',k:'gitn'},{h:'COGS Account Code',k:'cogc',mono:true},{h:'COGS Account Name',k:'cogn'},{h:'Purchase Return Account Code',k:'prc',mono:true},{h:'Purchase Return Account Name',k:'prn'},{h:'Goods Received Not Invoiced Account Code',k:'grc',mono:true},{h:'Goods Received Not Invoiced Account Name',k:'grn'}],
+    rows:[
+      {sku:'SKU-901',name:'Ghost Item',price:15000,val:1500000,invc:'1-1620',invn:'Persediaan Barang Jadi',salc:'4-1000',saln:'Pendapatan Penjualan Barang',srtc:'4-2000',srtn:'Retur Penjualan',sdc:'4-3000',sdn:'Diskon Penjualan',gitc:'1-1600',gitn:'Barang Dalam Perjalanan',cogc:'5-1000',cogn:'HPP Barang Dagangan',prc:'5-2000',prn:'Retur Pembelian',grc:'2-1120',grn:'GRNI Clearing',_sev:'hard',_bad:['sku'],_issueKey:'product_not_found'},
+      {sku:'SKU-902',name:'Unknown SKU',price:14000,val:980000,invc:'1-1620',invn:'Persediaan Barang Jadi',salc:'4-1000',saln:'Pendapatan Penjualan Barang',srtc:'4-2000',srtn:'Retur Penjualan',sdc:'4-3000',sdn:'Diskon Penjualan',gitc:'1-1600',gitn:'Barang Dalam Perjalanan',cogc:'5-1000',cogn:'HPP Barang Dagangan',prc:'5-2000',prn:'Retur Pembelian',grc:'2-1120',grn:'GRNI Clearing',_sev:'hard',_bad:['sku'],_issueKey:'product_not_found'},
+      {sku:'SKU-003',name:'Carton Box XL',price:17000,val:1938000,invc:'1-1620',invn:'Persediaan Barang Jadi',salc:'4-1000',saln:'Pendapatan Penjualan Barang',srtc:'4-2000',srtn:'Retur Penjualan',sdc:'4-3000',sdn:'Diskon Penjualan',gitc:'1-1600',gitn:'Barang Dalam Perjalanan',cogc:'5-1000',cogn:'HPP Barang Dagangan',prc:'5-2000',prn:'Retur Pembelian',grc:'2-1120',grn:'GRNI Clearing',_sev:'hard',_bad:['name'],_issueKey:'product_name_mismatch'},
+      {sku:'SKU-005',name:'LED Modul (typo)',price:19000,val:2432000,invc:'1-1620',invn:'Persediaan Barang Jadi',salc:'4-1000',saln:'Pendapatan Penjualan Barang',srtc:'4-2000',srtn:'Retur Penjualan',sdc:'4-3000',sdn:'Diskon Penjualan',gitc:'1-1600',gitn:'Barang Dalam Perjalanan',cogc:'5-1000',cogn:'HPP Barang Dagangan',prc:'5-2000',prn:'Retur Pembelian',grc:'2-1120',grn:'GRNI Clearing',_sev:'hard',_bad:['name'],_issueKey:'product_name_mismatch'},
+      {sku:'SKU-001',name:'Smartphone X12',price:16000,val:1944000,invc:'1-1620',invn:'Persediaan Barang Jadi',salc:'4-1000',saln:'Pendapatan Penjualan Barang',srtc:'4-2000',srtn:'Retur Penjualan',sdc:'4-3000',sdn:'Diskon Penjualan',gitc:'1-1600',gitn:'Barang Dalam Perjalanan',cogc:'5-1000',cogn:'HPP Barang Dagangan',prc:'5-2000',prn:'Retur Pembelian',grc:'2-1120',grn:'GRNI Clearing'},
+      {sku:'SKU-002',name:'USB-C Cable 2m',price:17000,val:2388000,invc:'1-1620',invn:'Persediaan Barang Jadi',salc:'4-1000',saln:'Pendapatan Penjualan Barang',srtc:'4-2000',srtn:'Retur Penjualan',sdc:'4-3000',sdn:'Diskon Penjualan',gitc:'1-1600',gitn:'Barang Dalam Perjalanan',cogc:'5-1000',cogn:'HPP Barang Dagangan',prc:'5-2000',prn:'Retur Pembelian',grc:'2-1120',grn:'GRNI Clearing'},
+      {sku:'SKU-003',name:'Carton Box L',price:18000,val:2832000,invc:'1-1620',invn:'Persediaan Barang Jadi',salc:'4-1000',saln:'Pendapatan Penjualan Barang',srtc:'4-2000',srtn:'Retur Penjualan',sdc:'4-3000',sdn:'Diskon Penjualan',gitc:'1-1600',gitn:'Barang Dalam Perjalanan',cogc:'5-1000',cogn:'HPP Barang Dagangan',prc:'5-2000',prn:'Retur Pembelian',grc:'2-1120',grn:'GRNI Clearing'},
+      {sku:'SKU-004',name:'Resistor Pack',price:19000,val:3276000,invc:'1-1620',invn:'Persediaan Barang Jadi',salc:'4-1000',saln:'Pendapatan Penjualan Barang',srtc:'4-2000',srtn:'Retur Penjualan',sdc:'4-3000',sdn:'Diskon Penjualan',gitc:'1-1600',gitn:'Barang Dalam Perjalanan',cogc:'5-1000',cogn:'HPP Barang Dagangan',prc:'5-2000',prn:'Retur Pembelian',grc:'2-1120',grn:'GRNI Clearing'},
+      {sku:'SKU-005',name:'LED Module',price:20000,val:3720000,invc:'1-1620',invn:'Persediaan Barang Jadi',salc:'4-1000',saln:'Pendapatan Penjualan Barang',srtc:'4-2000',srtn:'Retur Penjualan',sdc:'4-3000',sdn:'Diskon Penjualan',gitc:'1-1600',gitn:'Barang Dalam Perjalanan',cogc:'5-1000',cogn:'HPP Barang Dagangan',prc:'5-2000',prn:'Retur Pembelian',grc:'2-1120',grn:'GRNI Clearing'},
+      {sku:'SKU-006',name:'Power Adapter',price:21000,val:4164000,invc:'1-1620',invn:'Persediaan Barang Jadi',salc:'4-1000',saln:'Pendapatan Penjualan Barang',srtc:'4-2000',srtn:'Retur Penjualan',sdc:'4-3000',sdn:'Diskon Penjualan',gitc:'1-1600',gitn:'Barang Dalam Perjalanan',cogc:'5-1000',cogn:'HPP Barang Dagangan',prc:'5-2000',prn:'Retur Pembelian',grc:'2-1120',grn:'GRNI Clearing'},
+      {sku:'SKU-007',name:'Steel Bracket',price:22000,val:4608000,invc:'1-1620',invn:'Persediaan Barang Jadi',salc:'4-1000',saln:'Pendapatan Penjualan Barang',srtc:'4-2000',srtn:'Retur Penjualan',sdc:'4-3000',sdn:'Diskon Penjualan',gitc:'1-1600',gitn:'Barang Dalam Perjalanan',cogc:'5-1000',cogn:'HPP Barang Dagangan',prc:'5-2000',prn:'Retur Pembelian',grc:'2-1120',grn:'GRNI Clearing'},
+      {sku:'SKU-008',name:'Foam Insert',price:23000,val:5052000,invc:'1-1620',invn:'Persediaan Barang Jadi',salc:'4-1000',saln:'Pendapatan Penjualan Barang',srtc:'4-2000',srtn:'Retur Penjualan',sdc:'4-3000',sdn:'Diskon Penjualan',gitc:'1-1600',gitn:'Barang Dalam Perjalanan',cogc:'5-1000',cogn:'HPP Barang Dagangan',prc:'5-2000',prn:'Retur Pembelian',grc:'2-1120',grn:'GRNI Clearing'},
+      {sku:'SKU-009',name:'Smartphone X12',price:24000,val:5496000,invc:'1-1620',invn:'Persediaan Barang Jadi',salc:'4-1000',saln:'Pendapatan Penjualan Barang',srtc:'4-2000',srtn:'Retur Penjualan',sdc:'4-3000',sdn:'Diskon Penjualan',gitc:'1-1600',gitn:'Barang Dalam Perjalanan',cogc:'5-1000',cogn:'HPP Barang Dagangan',prc:'5-2000',prn:'Retur Pembelian',grc:'2-1120',grn:'GRNI Clearing'},
+      {sku:'SKU-010',name:'USB-C Cable 2m',price:25000,val:5940000,invc:'1-1620',invn:'Persediaan Barang Jadi',salc:'4-1000',saln:'Pendapatan Penjualan Barang',srtc:'4-2000',srtn:'Retur Penjualan',sdc:'4-3000',sdn:'Diskon Penjualan',gitc:'1-1600',gitn:'Barang Dalam Perjalanan',cogc:'5-1000',cogn:'HPP Barang Dagangan',prc:'5-2000',prn:'Retur Pembelian',grc:'2-1120',grn:'GRNI Clearing'},
+      {sku:'SKU-011',name:'Carton Box L',price:26000,val:6384000,invc:'1-1620',invn:'Persediaan Barang Jadi',salc:'4-1000',saln:'Pendapatan Penjualan Barang',srtc:'4-2000',srtn:'Retur Penjualan',sdc:'4-3000',sdn:'Diskon Penjualan',gitc:'1-1600',gitn:'Barang Dalam Perjalanan',cogc:'5-1000',cogn:'HPP Barang Dagangan',prc:'5-2000',prn:'Retur Pembelian',grc:'2-1120',grn:'GRNI Clearing'},
+      {sku:'SKU-012',name:'Resistor Pack',price:27000,val:6828000,invc:'1-1620',invn:'Persediaan Barang Jadi',salc:'4-1000',saln:'Pendapatan Penjualan Barang',srtc:'4-2000',srtn:'Retur Penjualan',sdc:'4-3000',sdn:'Diskon Penjualan',gitc:'1-1600',gitn:'Barang Dalam Perjalanan',cogc:'5-1000',cogn:'HPP Barang Dagangan',prc:'5-2000',prn:'Retur Pembelian',grc:'2-1120',grn:'GRNI Clearing'},
+      {sku:'SKU-013',name:'LED Module',price:28000,val:7272000,invc:'1-1620',invn:'Persediaan Barang Jadi',salc:'4-1000',saln:'Pendapatan Penjualan Barang',srtc:'4-2000',srtn:'Retur Penjualan',sdc:'4-3000',sdn:'Diskon Penjualan',gitc:'1-1600',gitn:'Barang Dalam Perjalanan',cogc:'5-1000',cogn:'HPP Barang Dagangan',prc:'5-2000',prn:'Retur Pembelian',grc:'2-1120',grn:'GRNI Clearing'},
+      {sku:'SKU-014',name:'Power Adapter',price:29000,val:7716000,invc:'1-1620',invn:'Persediaan Barang Jadi',salc:'4-1000',saln:'Pendapatan Penjualan Barang',srtc:'4-2000',srtn:'Retur Penjualan',sdc:'4-3000',sdn:'Diskon Penjualan',gitc:'1-1600',gitn:'Barang Dalam Perjalanan',cogc:'5-1000',cogn:'HPP Barang Dagangan',prc:'5-2000',prn:'Retur Pembelian',grc:'2-1120',grn:'GRNI Clearing'},
+      {sku:'SKU-015',name:'Steel Bracket',price:30000,val:8160000,invc:'1-1620',invn:'Persediaan Barang Jadi',salc:'4-1000',saln:'Pendapatan Penjualan Barang',srtc:'4-2000',srtn:'Retur Penjualan',sdc:'4-3000',sdn:'Diskon Penjualan',gitc:'1-1600',gitn:'Barang Dalam Perjalanan',cogc:'5-1000',cogn:'HPP Barang Dagangan',prc:'5-2000',prn:'Retur Pembelian',grc:'2-1120',grn:'GRNI Clearing'},
+      {sku:'SKU-016',name:'Foam Insert',price:31000,val:8604000,invc:'1-1620',invn:'Persediaan Barang Jadi',salc:'4-1000',saln:'Pendapatan Penjualan Barang',srtc:'4-2000',srtn:'Retur Penjualan',sdc:'4-3000',sdn:'Diskon Penjualan',gitc:'1-1600',gitn:'Barang Dalam Perjalanan',cogc:'5-1000',cogn:'HPP Barang Dagangan',prc:'5-2000',prn:'Retur Pembelian',grc:'2-1120',grn:'GRNI Clearing'},
+      {sku:'SKU-017',name:'Smartphone X12',price:32000,val:9048000,invc:'1-1620',invn:'Persediaan Barang Jadi',salc:'4-1000',saln:'Pendapatan Penjualan Barang',srtc:'4-2000',srtn:'Retur Penjualan',sdc:'4-3000',sdn:'Diskon Penjualan',gitc:'1-1600',gitn:'Barang Dalam Perjalanan',cogc:'5-1000',cogn:'HPP Barang Dagangan',prc:'5-2000',prn:'Retur Pembelian',grc:'2-1120',grn:'GRNI Clearing'},
+      {sku:'SKU-018',name:'USB-C Cable 2m',price:33000,val:9492000,invc:'1-1620',invn:'Persediaan Barang Jadi',salc:'4-1000',saln:'Pendapatan Penjualan Barang',srtc:'4-2000',srtn:'Retur Penjualan',sdc:'4-3000',sdn:'Diskon Penjualan',gitc:'1-1600',gitn:'Barang Dalam Perjalanan',cogc:'5-1000',cogn:'HPP Barang Dagangan',prc:'5-2000',prn:'Retur Pembelian',grc:'2-1120',grn:'GRNI Clearing'},
+      {sku:'SKU-019',name:'Carton Box L',price:34000,val:9936000,invc:'1-1620',invn:'Persediaan Barang Jadi',salc:'4-1000',saln:'Pendapatan Penjualan Barang',srtc:'4-2000',srtn:'Retur Penjualan',sdc:'4-3000',sdn:'Diskon Penjualan',gitc:'1-1600',gitn:'Barang Dalam Perjalanan',cogc:'5-1000',cogn:'HPP Barang Dagangan',prc:'5-2000',prn:'Retur Pembelian',grc:'2-1120',grn:'GRNI Clearing'},
+      {sku:'SKU-020',name:'Resistor Pack',price:35000,val:10380000,invc:'1-1620',invn:'Persediaan Barang Jadi',salc:'4-1000',saln:'Pendapatan Penjualan Barang',srtc:'4-2000',srtn:'Retur Penjualan',sdc:'4-3000',sdn:'Diskon Penjualan',gitc:'1-1600',gitn:'Barang Dalam Perjalanan',cogc:'5-1000',cogn:'HPP Barang Dagangan',prc:'5-2000',prn:'Retur Pembelian',grc:'2-1120',grn:'GRNI Clearing'},
+      {sku:'SKU-021',name:'LED Module',price:36000,val:10824000,invc:'1-1620',invn:'Persediaan Barang Jadi',salc:'4-1000',saln:'Pendapatan Penjualan Barang',srtc:'4-2000',srtn:'Retur Penjualan',sdc:'4-3000',sdn:'Diskon Penjualan',gitc:'1-1600',gitn:'Barang Dalam Perjalanan',cogc:'5-1000',cogn:'HPP Barang Dagangan',prc:'5-2000',prn:'Retur Pembelian',grc:'2-1120',grn:'GRNI Clearing'},
+      {sku:'SKU-022',name:'Power Adapter',price:37000,val:11268000,invc:'1-1620',invn:'Persediaan Barang Jadi',salc:'4-1000',saln:'Pendapatan Penjualan Barang',srtc:'4-2000',srtn:'Retur Penjualan',sdc:'4-3000',sdn:'Diskon Penjualan',gitc:'1-1600',gitn:'Barang Dalam Perjalanan',cogc:'5-1000',cogn:'HPP Barang Dagangan',prc:'5-2000',prn:'Retur Pembelian',grc:'2-1120',grn:'GRNI Clearing'},
+      {sku:'SKU-023',name:'Steel Bracket',price:38000,val:11712000,invc:'1-1620',invn:'Persediaan Barang Jadi',salc:'4-1000',saln:'Pendapatan Penjualan Barang',srtc:'4-2000',srtn:'Retur Penjualan',sdc:'4-3000',sdn:'Diskon Penjualan',gitc:'1-1600',gitn:'Barang Dalam Perjalanan',cogc:'5-1000',cogn:'HPP Barang Dagangan',prc:'5-2000',prn:'Retur Pembelian',grc:'2-1120',grn:'GRNI Clearing'},
+      {sku:'SKU-024',name:'Foam Insert',price:39000,val:12156000,invc:'1-1620',invn:'Persediaan Barang Jadi',salc:'4-1000',saln:'Pendapatan Penjualan Barang',srtc:'4-2000',srtn:'Retur Penjualan',sdc:'4-3000',sdn:'Diskon Penjualan',gitc:'1-1600',gitn:'Barang Dalam Perjalanan',cogc:'5-1000',cogn:'HPP Barang Dagangan',prc:'5-2000',prn:'Retur Pembelian',grc:'2-1120',grn:'GRNI Clearing'},
+      {sku:'SKU-025',name:'Smartphone X12',price:40000,val:12600000,invc:'1-1620',invn:'Persediaan Barang Jadi',salc:'4-1000',saln:'Pendapatan Penjualan Barang',srtc:'4-2000',srtn:'Retur Penjualan',sdc:'4-3000',sdn:'Diskon Penjualan',gitc:'1-1600',gitn:'Barang Dalam Perjalanan',cogc:'5-1000',cogn:'HPP Barang Dagangan',prc:'5-2000',prn:'Retur Pembelian',grc:'2-1120',grn:'GRNI Clearing'},
+      {sku:'SKU-026',name:'USB-C Cable 2m',price:41000,val:13044000,invc:'1-1620',invn:'Persediaan Barang Jadi',salc:'4-1000',saln:'Pendapatan Penjualan Barang',srtc:'4-2000',srtn:'Retur Penjualan',sdc:'4-3000',sdn:'Diskon Penjualan',gitc:'1-1600',gitn:'Barang Dalam Perjalanan',cogc:'5-1000',cogn:'HPP Barang Dagangan',prc:'5-2000',prn:'Retur Pembelian',grc:'2-1120',grn:'GRNI Clearing'},
+      {sku:'SKU-027',name:'Carton Box L',price:42000,val:13488000,invc:'1-1620',invn:'Persediaan Barang Jadi',salc:'4-1000',saln:'Pendapatan Penjualan Barang',srtc:'4-2000',srtn:'Retur Penjualan',sdc:'4-3000',sdn:'Diskon Penjualan',gitc:'1-1600',gitn:'Barang Dalam Perjalanan',cogc:'5-1000',cogn:'HPP Barang Dagangan',prc:'5-2000',prn:'Retur Pembelian',grc:'2-1120',grn:'GRNI Clearing'},
+      {sku:'SKU-028',name:'Resistor Pack',price:43000,val:13932000,invc:'1-1620',invn:'Persediaan Barang Jadi',salc:'4-1000',saln:'Pendapatan Penjualan Barang',srtc:'4-2000',srtn:'Retur Penjualan',sdc:'4-3000',sdn:'Diskon Penjualan',gitc:'1-1600',gitn:'Barang Dalam Perjalanan',cogc:'5-1000',cogn:'HPP Barang Dagangan',prc:'5-2000',prn:'Retur Pembelian',grc:'2-1120',grn:'GRNI Clearing'},
+      {sku:'SKU-029',name:'LED Module',price:44000,val:14376000,invc:'1-1620',invn:'Persediaan Barang Jadi',salc:'4-1000',saln:'Pendapatan Penjualan Barang',srtc:'4-2000',srtn:'Retur Penjualan',sdc:'4-3000',sdn:'Diskon Penjualan',gitc:'1-1600',gitn:'Barang Dalam Perjalanan',cogc:'5-1000',cogn:'HPP Barang Dagangan',prc:'5-2000',prn:'Retur Pembelian',grc:'2-1120',grn:'GRNI Clearing'},
+      {sku:'SKU-030',name:'Power Adapter',price:45000,val:14820000,invc:'1-1620',invn:'Persediaan Barang Jadi',salc:'4-1000',saln:'Pendapatan Penjualan Barang',srtc:'4-2000',srtn:'Retur Penjualan',sdc:'4-3000',sdn:'Diskon Penjualan',gitc:'1-1600',gitn:'Barang Dalam Perjalanan',cogc:'5-1000',cogn:'HPP Barang Dagangan',prc:'5-2000',prn:'Retur Pembelian',grc:'2-1120',grn:'GRNI Clearing'},
+      {sku:'SKU-031',name:'Steel Bracket',price:46000,val:15264000,invc:'1-1620',invn:'Persediaan Barang Jadi',salc:'4-1000',saln:'Pendapatan Penjualan Barang',srtc:'4-2000',srtn:'Retur Penjualan',sdc:'4-3000',sdn:'Diskon Penjualan',gitc:'1-1600',gitn:'Barang Dalam Perjalanan',cogc:'5-1000',cogn:'HPP Barang Dagangan',prc:'5-2000',prn:'Retur Pembelian',grc:'2-1120',grn:'GRNI Clearing'},
+      {sku:'SKU-032',name:'Foam Insert',price:47000,val:15708000,invc:'1-1620',invn:'Persediaan Barang Jadi',salc:'4-1000',saln:'Pendapatan Penjualan Barang',srtc:'4-2000',srtn:'Retur Penjualan',sdc:'4-3000',sdn:'Diskon Penjualan',gitc:'1-1600',gitn:'Barang Dalam Perjalanan',cogc:'5-1000',cogn:'HPP Barang Dagangan',prc:'5-2000',prn:'Retur Pembelian',grc:'2-1120',grn:'GRNI Clearing'},
+      {sku:'SKU-033',name:'Smartphone X12',price:48000,val:16152000,invc:'1-1620',invn:'Persediaan Barang Jadi',salc:'4-1000',saln:'Pendapatan Penjualan Barang',srtc:'4-2000',srtn:'Retur Penjualan',sdc:'4-3000',sdn:'Diskon Penjualan',gitc:'1-1600',gitn:'Barang Dalam Perjalanan',cogc:'5-1000',cogn:'HPP Barang Dagangan',prc:'5-2000',prn:'Retur Pembelian',grc:'2-1120',grn:'GRNI Clearing'},
+      {sku:'SKU-034',name:'USB-C Cable 2m',price:49000,val:16596000,invc:'1-1620',invn:'Persediaan Barang Jadi',salc:'4-1000',saln:'Pendapatan Penjualan Barang',srtc:'4-2000',srtn:'Retur Penjualan',sdc:'4-3000',sdn:'Diskon Penjualan',gitc:'1-1600',gitn:'Barang Dalam Perjalanan',cogc:'5-1000',cogn:'HPP Barang Dagangan',prc:'5-2000',prn:'Retur Pembelian',grc:'2-1120',grn:'GRNI Clearing'},
+      {sku:'SKU-035',name:'Carton Box L',price:50000,val:17040000,invc:'1-1620',invn:'Persediaan Barang Jadi',salc:'4-1000',saln:'Pendapatan Penjualan Barang',srtc:'4-2000',srtn:'Retur Penjualan',sdc:'4-3000',sdn:'Diskon Penjualan',gitc:'1-1600',gitn:'Barang Dalam Perjalanan',cogc:'5-1000',cogn:'HPP Barang Dagangan',prc:'5-2000',prn:'Retur Pembelian',grc:'2-1120',grn:'GRNI Clearing'},
+      {sku:'SKU-036',name:'Resistor Pack',price:51000,val:17484000,invc:'1-1620',invn:'Persediaan Barang Jadi',salc:'4-1000',saln:'Pendapatan Penjualan Barang',srtc:'4-2000',srtn:'Retur Penjualan',sdc:'4-3000',sdn:'Diskon Penjualan',gitc:'1-1600',gitn:'Barang Dalam Perjalanan',cogc:'5-1000',cogn:'HPP Barang Dagangan',prc:'5-2000',prn:'Retur Pembelian',grc:'2-1120',grn:'GRNI Clearing'},
+      {sku:'SKU-037',name:'LED Module',price:52000,val:17928000,invc:'1-1620',invn:'Persediaan Barang Jadi',salc:'4-1000',saln:'Pendapatan Penjualan Barang',srtc:'4-2000',srtn:'Retur Penjualan',sdc:'4-3000',sdn:'Diskon Penjualan',gitc:'1-1600',gitn:'Barang Dalam Perjalanan',cogc:'5-1000',cogn:'HPP Barang Dagangan',prc:'5-2000',prn:'Retur Pembelian',grc:'2-1120',grn:'GRNI Clearing'},
+      {sku:'SKU-038',name:'Power Adapter',price:53000,val:18372000,invc:'1-1620',invn:'Persediaan Barang Jadi',salc:'4-1000',saln:'Pendapatan Penjualan Barang',srtc:'4-2000',srtn:'Retur Penjualan',sdc:'4-3000',sdn:'Diskon Penjualan',gitc:'1-1600',gitn:'Barang Dalam Perjalanan',cogc:'5-1000',cogn:'HPP Barang Dagangan',prc:'5-2000',prn:'Retur Pembelian',grc:'2-1120',grn:'GRNI Clearing'},
+      {sku:'SKU-039',name:'Steel Bracket',price:54000,val:18816000,invc:'1-1620',invn:'Persediaan Barang Jadi',salc:'4-1000',saln:'Pendapatan Penjualan Barang',srtc:'4-2000',srtn:'Retur Penjualan',sdc:'4-3000',sdn:'Diskon Penjualan',gitc:'1-1600',gitn:'Barang Dalam Perjalanan',cogc:'5-1000',cogn:'HPP Barang Dagangan',prc:'5-2000',prn:'Retur Pembelian',grc:'2-1120',grn:'GRNI Clearing'},
+      {sku:'SKU-040',name:'Foam Insert',price:55000,val:19260000,invc:'1-1620',invn:'Persediaan Barang Jadi',salc:'4-1000',saln:'Pendapatan Penjualan Barang',srtc:'4-2000',srtn:'Retur Penjualan',sdc:'4-3000',sdn:'Diskon Penjualan',gitc:'1-1600',gitn:'Barang Dalam Perjalanan',cogc:'5-1000',cogn:'HPP Barang Dagangan',prc:'5-2000',prn:'Retur Pembelian',grc:'2-1120',grn:'GRNI Clearing'},
+      {sku:'SKU-041',name:'Smartphone X12',price:56000,val:19704000,invc:'1-1620',invn:'Persediaan Barang Jadi',salc:'4-1000',saln:'Pendapatan Penjualan Barang',srtc:'4-2000',srtn:'Retur Penjualan',sdc:'4-3000',sdn:'Diskon Penjualan',gitc:'1-1600',gitn:'Barang Dalam Perjalanan',cogc:'5-1000',cogn:'HPP Barang Dagangan',prc:'5-2000',prn:'Retur Pembelian',grc:'2-1120',grn:'GRNI Clearing'},
+      {sku:'SKU-042',name:'USB-C Cable 2m',price:57000,val:20148000,invc:'1-1620',invn:'Persediaan Barang Jadi',salc:'4-1000',saln:'Pendapatan Penjualan Barang',srtc:'4-2000',srtn:'Retur Penjualan',sdc:'4-3000',sdn:'Diskon Penjualan',gitc:'1-1600',gitn:'Barang Dalam Perjalanan',cogc:'5-1000',cogn:'HPP Barang Dagangan',prc:'5-2000',prn:'Retur Pembelian',grc:'2-1120',grn:'GRNI Clearing'},
+      {sku:'SKU-043',name:'Carton Box L',price:58000,val:20592000,invc:'1-1620',invn:'Persediaan Barang Jadi',salc:'4-1000',saln:'Pendapatan Penjualan Barang',srtc:'4-2000',srtn:'Retur Penjualan',sdc:'4-3000',sdn:'Diskon Penjualan',gitc:'1-1600',gitn:'Barang Dalam Perjalanan',cogc:'5-1000',cogn:'HPP Barang Dagangan',prc:'5-2000',prn:'Retur Pembelian',grc:'2-1120',grn:'GRNI Clearing'},
+      {sku:'SKU-044',name:'Resistor Pack',price:59000,val:21036000,invc:'1-1620',invn:'Persediaan Barang Jadi',salc:'4-1000',saln:'Pendapatan Penjualan Barang',srtc:'4-2000',srtn:'Retur Penjualan',sdc:'4-3000',sdn:'Diskon Penjualan',gitc:'1-1600',gitn:'Barang Dalam Perjalanan',cogc:'5-1000',cogn:'HPP Barang Dagangan',prc:'5-2000',prn:'Retur Pembelian',grc:'2-1120',grn:'GRNI Clearing'},
+      {sku:'SKU-045',name:'LED Module',price:60000,val:21480000,invc:'1-1620',invn:'Persediaan Barang Jadi',salc:'4-1000',saln:'Pendapatan Penjualan Barang',srtc:'4-2000',srtn:'Retur Penjualan',sdc:'4-3000',sdn:'Diskon Penjualan',gitc:'1-1600',gitn:'Barang Dalam Perjalanan',cogc:'5-1000',cogn:'HPP Barang Dagangan',prc:'5-2000',prn:'Retur Pembelian',grc:'2-1120',grn:'GRNI Clearing'},
+      {sku:'SKU-046',name:'Power Adapter',price:61000,val:21924000,invc:'1-1620',invn:'Persediaan Barang Jadi',salc:'4-1000',saln:'Pendapatan Penjualan Barang',srtc:'4-2000',srtn:'Retur Penjualan',sdc:'4-3000',sdn:'Diskon Penjualan',gitc:'1-1600',gitn:'Barang Dalam Perjalanan',cogc:'5-1000',cogn:'HPP Barang Dagangan',prc:'5-2000',prn:'Retur Pembelian',grc:'2-1120',grn:'GRNI Clearing'}
     ]},
   fixed:{ minw:2600, cols:[{h:'Asset Account',k:'aacct'},{h:'Asset Code',k:'code',mono:true},{h:'Asset Name',k:'name'},{h:'Asset Category',k:'cat'},{h:'Acquisition/Usage Date',k:'acq',mono:true},{h:'Acquisition Cost',k:'cost',num:true,money:true},{h:'Useful Life (Year)',k:'uly',num:true},{h:'Useful Life (Month)',k:'ulm',num:true},{h:'Useful Life (Days)',k:'uld',num:true},{h:'Useful Add',k:'uadd',num:true},{h:'Depreciation Account',k:'dacct'},{h:'Monthly Depreciation',k:'mdep',num:true,money:true},{h:'Depreciation Expense',k:'dexp',num:true,money:true},{h:'Accumulated Depreciation',k:'accum',num:true,money:true},{h:'Net Book Value',k:'nbv',num:true,money:true},{h:'Depreciation Method',k:'method'},{h:'Depreciation Rate',k:'rate',num:true},{h:'Organization ID',k:'org',mono:true},{h:'Assets Account Code',k:'aac',mono:true},{h:'Assets Account Name',k:'aan'},{h:'Depreciation Account Code',k:'dac',mono:true},{h:'Depreciation Account Name',k:'dan'},{h:'Depr. Expense Account Code',k:'deac',mono:true},{h:'Depr. Expense Account Name',k:'dean'}],
     rows:[
@@ -1212,7 +1269,8 @@ function uploadItems(){
     {id:'coa', name:'Chart of Accounts', group:'Foundational', desc:'Full account list. Must upload first.', status:'pending', dep:null, first:true, detected:0},
     {id:'opening', name:'Opening Balance', group:'Foundational', desc:'Opening balance of all accounts.', status:'pending', dep:'coa', detected:0},
     {id:'bank', name:'Bank Account', group:'Master', desc:'List of all bank accounts.', status:'pending', dep:'coa', detected:0},
-    {id:'inventory', name:'Inventory Balances', group:'Master', desc:'List of all inventory balances.', status:'pending', dep:'coa', detected:0},
+    {id:'product', name:'Product Master Data', group:'Master', desc:'All products with UoM and account mapping.', status:'pending', dep:'coa', detected:0},
+    {id:'inventory', name:'Inventory Balances', group:'Master', desc:'Inventory balances per product. Upload after Product Master is locked.', status:'pending', dep:'product', detected:0},
     {id:'fixed', name:'Fixed Assets', group:'Master', desc:'Fixed asset register as of cut-off date.', status:'pending', dep:'coa', detected:0},
     {id:'vendor', name:'Vendor List', group:'Master', desc:'All vendors list and details.', status:'pending', dep:'coa', detected:0},
     {id:'customer', name:'Customer List', group:'Master', desc:'All customers list and details.', status:'pending', dep:'coa', detected:0},
@@ -1224,23 +1282,56 @@ function uploadItems(){
 /* Build the Stage-2 mapping rows from legacy CoA, attaching AI auto-map + issues.
    mapStatus: unmapped | auto | manual | confirmed | later | deactivated
    issue: {sev, label}  sev: hard|soft|warn|note|null */
+/* Master-data dependency model.
+   Returns {products,vendors,customers} counts for legacy accounts that master data references,
+   or null when the account has no master-data attachments. Deterministic dummy figures. */
+function masterDataDepFor(r){
+  var t=r.type, n=r.name||'';
+  // Inventory / COGS / revenue-side accounts are referenced by the Product master (per the inventory account block)
+  if(t==='Inventory' || n.indexOf('Finished goods')>=0 || n.indexOf('Inventory')>=0) return {products:50,vendors:0,customers:0};
+  if(t==='COGS') return {products:50,vendors:0,customers:0};
+  if(t==='Revenue') return {products:50,vendors:0,customers:0};
+  if(t==='Contra Revenue') return {products:50,vendors:0,customers:0}; // sales return/discount
+  // Payable control accounts are referenced by the Vendor master
+  if(t==='Payable' || n.indexOf('Utang Usaha')>=0 || n.indexOf('Payable')>=0) return {products:0,vendors:64,customers:0};
+  // Receivable control accounts are referenced by the Customer master
+  if(t==='Receivable' || n.indexOf('Piutang')>=0 || n.indexOf('Receivable')>=0) return {products:0,vendors:0,customers:38};
+  return null;
+}
+function depTotal(dep){ if(!dep) return 0; return (dep.products||0)+(dep.vendors||0)+(dep.customers||0); }
+function depParts(dep){
+  if(!dep) return [];
+  var p=[];
+  if(dep.products) p.push(dep.products+' product'+(dep.products>1?'s':''));
+  if(dep.vendors)  p.push(dep.vendors+' vendor'+(dep.vendors>1?'s':''));
+  if(dep.customers)p.push(dep.customers+' customer'+(dep.customers>1?'s':''));
+  return p;
+}
+function depPhrase(dep){ var p=depParts(dep); if(!p.length) return ''; if(p.length===1) return p[0]; if(p.length===2) return p[0]+' and '+p[1]; return p.slice(0,-1).join(', ')+' and '+p[p.length-1]; }
+// Which master-data types reference this account, e.g. ['vendor'] or ['product','customer']
+function depTypes(dep){ if(!dep) return []; var t=[]; if(dep.products)t.push('product'); if(dep.vendors)t.push('vendor'); if(dep.customers)t.push('customer'); return t; }
+function depTypesLabel(dep){ var t=depTypes(dep); return t.map(function(x){return x.charAt(0).toUpperCase()+x.slice(1);}).join(', '); }
+
 function buildMappingRows(){
   // AI suggested klay target per legacy type
   var suggest = {
-    'Cash':'11100','Bank':'11110','Receivable':'11200','Inventory':'11620','Tax Asset':'11400',
-    'Prepaid':'11500','Fixed Asset':'12130','Contra Asset':'12200','Payable':'21000','Tax Payable':'22000',
-    'Accrual':'21100','Loan':'21300','Equity':'31000','Revenue':'41000','Contra Revenue':'42000',
-    'COGS':'51000','Expense':'65700','Other Income':'71000','Other Expense':'72000'
+    'Cash':'1110000','Bank':'1111000','Receivable':'1120000','Inventory':'1162000','Tax Asset':'1140000',
+    'Prepaid':'1150000','Fixed Asset':'1213000','Contra Asset':'1220000','Payable':'2100000','Tax Payable':'2200000',
+    'Accrual':'2110000','Loan':'2130000','Equity':'3100000','Revenue':'4100000','Contra Revenue':'4200000',
+    'COGS':'5100000','Expense':'6570000','Other Income':'7100000','Other Expense':'7200000'
   };
   // currency-aware tweaks
   var rows = LEG_COA.map(function(r){
     var target = suggest[r.type] || '';
-    if(r.type==='Bank' && r.cur!=='IDR') target='11120';
-    if(r.name.indexOf('Finished goods')>=0) target='11620';
-    if(r.name==='Goods in transit') target='11600';
-    if(r.name==='Inventory') target='11600';
+    if(r.type==='Bank' && r.cur!=='IDR') target='1112000';
+    if(r.name.indexOf('Finished goods')>=0) target='1162000';
+    if(r.name==='Goods in transit') target='1160000';
+    if(r.name==='Inventory') target='1160000';
+    // Master-data dependency: which legacy accounts are referenced by product/vendor/customer master data.
+    // Dependency conceptually lives on the Klay account; while mapping it travels with the legacy row.
+    var dep=masterDataDepFor(r);
     return {code:r.code,name:r.name,cat:r.cat,ltype:r.type,cur:r.cur,target:target,
-            mapStatus: target? 'auto':'unmapped', issue:null};
+            mapStatus: target? 'auto':'unmapped', issue:null, dep:dep};
   });
   // Inject issues to reproduce the screenshots' issue mix
   function find(code){return rows.filter(function(x){return x.code===code;})[0];}
@@ -1354,8 +1445,8 @@ function confirmStage(stage){
     var p=uploadProgress();
     var totalDetected=APP.uploads.reduce(function(s,u){return s+(u.status==='locked'?(u.detected||0):0);},0);
     cfg={ title:'Confirm uploaded data', icon:'upload', next:'account mapping',
-      rows:[['Files uploaded & locked',p.locked+' of 9'],['Records detected',totalDetected],['Health-check issues','Resolved']],
-      body:'Lock in your 9 source files as the basis for migration. You can still re-open a file to re-upload it afterward.' };
+      rows:[['Files uploaded & locked',p.locked+' of '+APP.uploads.length],['Records detected',totalDetected],['Health-check issues','Resolved']],
+      body:'Lock in your '+APP.uploads.length+' source files as the basis for migration. You can still re-open a file to re-upload it afterward.' };
   } else if(stage==='map'){
     var c=mapCounts();
     cfg={ title:'Confirm account mapping', icon:'replace', next:'tax config',
@@ -1470,7 +1561,7 @@ function activeStageInfo(){
 function renderHome(){
   // stage 1 status
   var lockedCount=APP.uploads.filter(function(u){return u.status==='locked';}).length;
-  var s1done = lockedCount===9;
+  var s1done = lockedCount===APP.uploads.length;
   var mapConfirmed = APP.mapRows ? APP.mapRows.filter(function(r){return r.mapStatus==='mapped';}).length : 0;
   var mapTotal = APP.mapRows ? APP.mapRows.length : LEG_COA.length;
   var stageDone = stageCompletion();
@@ -1496,7 +1587,7 @@ function renderHome(){
       var numCircle = isDone
         ? '<div style="width:34px;height:34px;border-radius:50%;background:var(--color-brand);color:#fff;display:flex;align-items:center;justify-content:center">'+svg('check')+'</div>'
         : '<div style="width:34px;height:34px;border-radius:50%;border:2px solid var(--color-brand);color:var(--color-brand);display:flex;align-items:center;justify-content:center;font-weight:700">'+st.n+'</div>';
-      var sub = st.n===1 ? 'Upload foundational data (Chart of Accounts and Opening Balance) and master data (Bank, Inventory, Fixed Assets, Vendor, Customer, Open AP and AR).'
+      var sub = st.n===1 ? 'Upload foundational data (Chart of Accounts and Opening Balance) and master data (Bank, Product, Inventory, Fixed Assets, Vendor, Customer, Open AP and AR).'
         : st.n===2 ? "Map your existing accounts to Klay's Chart of Accounts. Ensure every account code is correctly matched before proceeding."
         : st.sub;
       var meta = st.n===1 ? '<span class="badge b-neutral">Export from your system</span> <span class="badge b-neutral">Excel (.xlsx) or CSV (.csv)</span>'
@@ -1698,7 +1789,7 @@ function statusBadge(s){
 function renderUpload(){
   var p=uploadProgress();
   var pct = Math.round(p.locked/9*100);
-  var allLocked=p.locked===9;
+  var allLocked=p.locked===APP.uploads.length;
   function tile(item){
     var unlocked = depMet(item);
     var st=item.status;
@@ -1749,7 +1840,7 @@ function renderUpload(){
         + '<span style="width:'+(p.review/9*100)+'%;background:var(--warn-300)"></span>'
         + '<span style="width:'+(p.uploading/9*100)+'%;background:var(--color-action)"></span>'
         + '<span style="width:'+(p.pending/9*100)+'%;background:transparent"></span></div>'
-        + '<div class="fs13 muted" style="margin-left:18px"><b class="num" style="color:var(--color-text-primary);font-size:16px">'+p.locked+'</b> of 9 items confirmed &amp; locked</div></div>'
+        + '<div class="fs13 muted" style="margin-left:18px"><b class="num" style="color:var(--color-text-primary);font-size:16px">'+p.locked+'</b> of '+APP.uploads.length+' items confirmed &amp; locked</div></div>'
       + '<div class="legend">'
         + '<span class="legend-item"><span class="dot" style="background:var(--success-text)"></span>Confirmed &amp; Locked ('+p.locked+')</span>'
         + '<span class="legend-item"><span class="dot" style="background:var(--warn-300)"></span>Review ('+p.review+')</span>'
@@ -1771,11 +1862,11 @@ function renderUpload(){
     + '</div>'
     + '<style>.spin{animation:spin 1s linear infinite;display:flex}@keyframes spin{to{transform:rotate(360deg)}}</style>';
 }
-function detUnit(id){ return id==='coa'?'accounts':id==='opening'?'accounts':id==='bank'?'bank accounts':id==='inventory'?'inventories':id==='fixed'?'assets':id==='vendor'?'vendors':id==='customer'?'customers':id==='openap'?'bills':'invoices'; }
+function detUnit(id){ return id==='coa'?'accounts':id==='opening'?'accounts':id==='bank'?'bank accounts':id==='product'?'products':id==='inventory'?'inventory balances':id==='fixed'?'assets':id==='vendor'?'vendors':id==='customer'?'customers':id==='openap'?'bills':'invoices'; }
 function countReviewItems(id){ return (HC[id]||[]).reduce(function(a,h){return a+(h.sev==='attention'||h.sev==='note'?1:0);},0)+(HC[id]||[]).filter(function(h){return h.sev==='hard';}).length; }
 
 /* ---- detected counts when a file is uploaded ---- */
-var DETECTED={coa:224,opening:224,bank:12,inventory:326,fixed:48,vendor:64,customer:38,openap:120,openar:96};
+var DETECTED={coa:224,opening:224,bank:12,product:50,inventory:326,fixed:48,vendor:64,customer:38,openap:120,openar:96};
 
 /* ---- open an upload item detail ---- */
 function openUpload(id){ APP.uploadDetail=id; APP.view='upload-detail'; render(); }
@@ -1826,7 +1917,7 @@ function renderUploadDetail(){
   } else {
     // review/locked — file summary + health check + data preview
     var fileName = (id==='coa'?'CoA':id==='opening'?'OpeningBalance':id).toUpperCase().slice(0,1)+ (id==='coa'?'oA':id) ;
-    fileName = ({coa:'CoA',opening:'OpeningBalance',bank:'BankAccounts',inventory:'InventoryBalances',fixed:'FixedAssets',vendor:'VendorList',customer:'CustomerList',openap:'OpenAP',openar:'OpenAR'})[id]+'.xlsx';
+    fileName = ({coa:'CoA',opening:'OpeningBalance',bank:'BankAccounts',product:'ProductMasterData',inventory:'InventoryBalances',fixed:'FixedAssets',vendor:'VendorList',customer:'CustomerList',openap:'OpenAP',openar:'OpenAR'})[id]+'.xlsx';
     var clean = item.detected - hcList.reduce(function(a,h){return a+h.rows;},0);
     if(clean<0) clean=Math.round(item.detected*0.88);
 
@@ -2179,18 +2270,32 @@ function rowSortKey(r){
 }
 function aiMappingSummary(c){
   if(!c.auto) return ''; // nothing AI-suggested left
+  // how many AI suggestions re-point master data
+  var depAi=APP.mapRows.filter(function(r){
+    var isAi=r.mapStatus==='auto'||(r.issue&&r.issue.sev==='note');
+    return isAi && r.target && !(r.issue&&(r.issue.sev==='hard'||r.issue.sev==='soft')) && depTotal(r.dep)>0;
+  }).length;
+  var body = 'These are AI suggestions based on your legacy account types and names. Review them, then <b>confirm all at once</b> — or open any row to change the Klay account it maps to.'
+    + (depAi>0? ' <span style="background:var(--color-brand-wash);color:var(--color-brand-hover);font-weight:700;padding:1px 6px;border-radius:var(--radius-sm)">'+depAi+' affect master data</span> — these accounts can\u2019t be deactivated; they must be mapped, and the mapping you choose will be applied to the master data that references them.':'');
+  var actions=''
+    + (depAi>0?'<button class="btn btn-ghost btn-sm" onclick="filterDepSuggestions()">'+svg('link')+'Review '+depAi+' affecting master data</button>':'<button class="btn btn-ghost btn-sm" onclick="setMapFilter(\'auto\')">'+svg('filter')+'Review suggestions</button>')
+    + '<button class="btn btn-primary btn-sm" onclick="bulkConfirmAuto()">'+svg('check')+'Confirm all '+c.auto+'</button>';
   return '<div class="card ai-card mb5">'
     + '<div class="flex jb ac" style="padding:16px 20px;gap:16px;flex-wrap:wrap">'
       + '<div class="flex g3 ac" style="align-items:flex-start;flex:1;min-width:280px">'
         + '<span class="ai-ico">'+svg('spark')+'</span>'
         + '<div><div class="ai-title fs15">Klay mapped '+c.auto+' account'+(c.auto>1?'s':'')+' for you</div>'
-          + '<div class="ai-body fs12.5" style="margin-top:3px;max-width:560px">These are AI suggestions based on your legacy account types and names. Review them, then <b>confirm all at once</b> — or open any row to change the Klay account it maps to.</div></div>'
+          + '<div class="ai-body fs12.5" style="margin-top:3px;max-width:580px">'+body+'</div></div>'
       + '</div>'
-      + '<div class="flex g2 ac" style="flex-shrink:0">'
-        + '<button class="btn btn-ghost btn-sm" onclick="setMapFilter(\'auto\')">'+svg('filter')+'Review suggestions</button>'
-        + '<button class="btn btn-primary btn-sm" onclick="bulkConfirmAuto()">'+svg('check')+'Confirm all '+c.auto+'</button>'
-      + '</div>'
-    + '</div></div>';
+      + '<div class="flex g2 ac" style="flex-shrink:0">'+actions+'</div>'
+    + '</div>'
+  + '</div>';
+}
+// Filter the table to AI-suggested rows that affect master data
+function filterDepSuggestions(){
+  APP.mapFilter='auto';
+  APP.mapDepFilter=['products','vendors','customers'];
+  APP.mapPage=1; renderPage();
 }
 function mappingFilterBar(c){
   var sv=APP.mapSearch||'';
@@ -2206,7 +2311,7 @@ function mappingFilterBar(c){
   }
   // one combined multi-select Filter (issue tier + dimensions)
   function multiDd(id,label,icon){
-    var n=((APP.mapTierFilter||[]).length)+((APP.mapDimFilter||[]).length);
+    var n=((APP.mapTierFilter||[]).length)+((APP.mapDimFilter||[]).length)+((APP.mapDepFilter||[]).length);
     var disp = n? label+' · '+n : label;
     return '<button class="map-dd'+(n?' on':'')+'" onclick="openMapFilterMenu(event,\''+id+'\')">'+svg(icon)+'<span>'+disp+'</span>'+svg('chevDown')+'</button>';
   }
@@ -2235,7 +2340,9 @@ function openMapFilterMenu(e,kind){
   if(kind==='filter'){
     var tiers=[['hard','Blocking'],['soft','Need attention'],['note','Note']];
     var selT=APP.mapTierFilter||[]; var selD=APP.mapDimFilter||[];
-    var totalSel=selT.length+selD.length;
+    var totalSel=selT.length+selD.length+((APP.mapDepFilter||[]).length);
+    var selDep=APP.mapDepFilter||[];
+    var depTypeOpts=[['products','Products'],['vendors','Vendors'],['customers','Customers']];
     var menu='<div class="rowmenu-h">Issue tier</div>'
       + tiers.map(function(t){ var on=selT.indexOf(t[0])>=0;
         return '<label class="reqdim-opt"><input type="checkbox" '+(on?'checked':'')+' onchange="toggleMapMultiFilter(\'tier\',\''+t[0]+'\',this.checked)"><span class="reqdim-opt-name">'+t[1]+'</span></label>';
@@ -2244,6 +2351,11 @@ function openMapFilterMenu(e,kind){
       + '<div class="rowmenu-h">Dimensions</div>'
       + DIMS.map(function(d){ var on=selD.indexOf(d.id)>=0;
         return '<label class="reqdim-opt"><input type="checkbox" '+(on?'checked':'')+' onchange="toggleMapMultiFilter(\'dim\',\''+d.id+'\',this.checked)"><span class="dot" style="background:'+d.color+';width:9px;height:9px;border-radius:50%;display:inline-block;flex-shrink:0"></span><span class="reqdim-opt-name">'+d.name+'</span></label>';
+      }).join('')
+      + '<div class="rowmenu-sep"></div>'
+      + '<div class="rowmenu-h">Used by master data</div>'
+      + depTypeOpts.map(function(o){ var on=selDep.indexOf(o[0])>=0;
+        return '<label class="reqdim-opt"><input type="checkbox" '+(on?'checked':'')+' onchange="toggleMapDepFilter(\''+o[0]+'\',this.checked)"><span style="display:inline-flex;color:var(--color-text-tertiary)">'+svg('link')+'</span><span class="reqdim-opt-name">'+o[1]+'</span></label>';
       }).join('')
       + (totalSel? '<div class="rowmenu-sep"></div><div class="rowmenu-item" onclick="clearMapMultiFilter(\'all\')"><span class="muted" style="margin-right:8px;display:inline-flex">'+svg('x')+'</span>Clear all filters</div>':'');
     openAnchoredMenu(e.currentTarget,menu,true);
@@ -2277,8 +2389,15 @@ function toggleMapMultiFilter(kind,val,on){
   if(on){ if(i<0) APP[key].push(val); } else { if(i>=0) APP[key].splice(i,1); }
   APP.mapPage=1; renderPage();
 }
+function toggleMapDepFilter(val,on){
+  APP.mapDepFilter=APP.mapDepFilter||[];
+  var i=APP.mapDepFilter.indexOf(val);
+  if(on){ if(i<0) APP.mapDepFilter.push(val); } else { if(i>=0) APP.mapDepFilter.splice(i,1); }
+  APP.mapPage=1; renderPage();
+}
 function clearMapMultiFilter(kind){
-  if(kind==='all'){ APP.mapTierFilter=[]; APP.mapDimFilter=[]; }
+  if(kind==='all'){ APP.mapTierFilter=[]; APP.mapDimFilter=[]; APP.mapDepFilter=[]; }
+  else if(kind==='dep'){ APP.mapDepFilter=[]; }
   else APP[(kind==='tier'?'mapTierFilter':'mapDimFilter')]=[];
   APP.mapPage=1; closeAnchoredMenu(); renderPage();
 }
@@ -2350,6 +2469,14 @@ function renderWorkspace(){
       return APP.mapDimFilter.some(function(did){ return req.indexOf(did)>=0; });
     });
   }
+  // master-data dependency filter
+  // master-data dependency filter — show accounts referenced by ANY of the selected types
+  if(APP.mapDepFilter && APP.mapDepFilter.length){
+    shown=shown.filter(function(r){
+      if(!r.dep) return false;
+      return APP.mapDepFilter.some(function(k){ return (r.dep[k]||0)>0; });
+    });
+  }
   var pct=Math.round((c.mapped+c.deactivated)/c.all*100);
   var autoPending=c.auto;
   var allConfirmed = c.mapped+c.deactivated===c.all;
@@ -2377,6 +2504,11 @@ function renderWorkspace(){
   var activePill = iss
     ? '<button class="btn btn-sm activefilter-pill" style="border-radius:var(--radius-full)" onclick="clearIssueFilter()">'
       + svg('filter')+'Issue: '+iss.label+' <span class="afp-x">'+svg('x')+'</span></button>'
+    : '';
+  // active master-data dependency pill (set via "Review N affecting master data")
+  var depPill = (APP.mapDepFilter && APP.mapDepFilter.length)
+    ? '<button class="btn btn-sm activefilter-pill" style="border-radius:var(--radius-full)" onclick="clearMapMultiFilter(\'dep\')">'
+      + svg('link')+'Affecting master data <span style="opacity:.8">'+shown.filter(function(r){return depTotal(r.dep)>0;}).length+'</span> <span class="afp-x">'+svg('x')+'</span></button>'
     : '';
 
   // pagination
@@ -2434,6 +2566,7 @@ function renderWorkspace(){
         + filterTab('deactivated','Deactivated',c.deactivated)
         + filterTab('unmapped','Unmapped',c.unmappedTotal)
         + activePill
+        + depPill
       + '</div>'
     + '</div>'
     // bulk action bar (when rows selected)
@@ -2559,6 +2692,7 @@ function mapRowHTML(r){
     + '<div class="fw6 fs13" style="color:var(--color-text-primary);margin:1px 0 3px">'+r.name+'</div>'
     + '<div class="flex g2 ac" style="flex-wrap:wrap">'+mapStatusLabel(r)
     + (r.issue?'<span class="badge '+(r.issue.sev==='hard'?'b-danger':r.issue.sev==='note'||r.issue.sev==='warn'?'b-info':'b-warning')+'" style="font-size:9.5px">'+r.issue.label+'</span>':'')
+    + (depTotal(r.dep)?'<span class="dep-chip" title="'+depPhrase(r.dep)+' reference this account">'+svg('link')+'used by master data: '+depTypesLabel(r.dep)+'</span>':'')
     + (r.issue && r.issue.sev==='note' ? '<button class="btn btn-ghost btn-xs" style="padding:2px 8px;font-size:11px" onclick="acknowledgeIssue('+idx+')">'+svg('check')+'Got it</button>':'')
     + '</div>';
   // klay target cell — dropdown with AI sparkle when auto
@@ -2658,7 +2792,9 @@ function openKlayPicker(idx){
   }).join('');
   openDrawer('<div class="drawer-head"><div><div class="section-label mb2">Map to Klay account</div><div class="fw7 fs17" style="font-family:var(--font-display);font-weight:500">'+r.name+'</div><div class="mono fs12 muted mt1">'+r.code+' · '+r.ltype+'</div></div><button class="x-btn" onclick="closeDrawer()">'+svg('x')+'</button></div>'
     + '<div style="padding:14px 20px 0"><div class="flex ac g2" style="border:1px solid var(--color-border-default);border-radius:var(--radius-md);padding:8px 12px"><span style="color:var(--color-text-tertiary)">'+svg('search')+'</span><input id="klaySearch" placeholder="Search code or name…" oninput="filterPicker()" style="border:none;outline:none;flex:1;font-size:13px;background:transparent"></div></div>'
-    + '<div class="drawer-body" id="pickerBody" style="padding-top:12px">'+groups+'</div>'
+    + '<div class="drawer-body" id="pickerBody" style="padding-top:12px">'
+      + (depTotal(r.dep)>0? '<div class="flex g2 ac mb3" style="align-items:flex-start;background:var(--color-action-wash);border:1px solid var(--color-action-subtle);border-radius:var(--radius-md);padding:10px 13px;font-size:12px;color:var(--color-action);line-height:1.5">'+svg('link')+'<span>This account is used by <b>'+depPhrase(r.dep)+'</b>. Choosing a Klay account will re-point all of them — you\u2019ll be asked to confirm.</span></div>':'')
+      + groups+'</div>'
     + '<style>.picker-group-h{font-size:10.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--color-text-tertiary);padding:10px 0 4px;position:sticky;top:0;background:#fff}.picker-item{display:flex;align-items:center;gap:8px;padding:9px 10px;border-radius:var(--radius-sm);cursor:pointer}.picker-item:hover{background:var(--color-action-wash)}</style>');
 }
 function filterPicker(){
@@ -2672,12 +2808,24 @@ function filterPicker(){
 }
 function setKlayTarget(idx,code){
   var r=APP.mapRows[idx];
+  var changed = r.target!==code;
+  if(changed && code && depTotal(r.dep)>0){
+    closeDrawer();
+    var target=klayByCode(code);
+    openModal('<div class="modal-card"><div class="modal-icon" style="background:var(--color-action-wash)"><svg viewBox="0 0 24 24" style="stroke:var(--color-action)">'+IC.link+'</svg></div>'
+      + '<div class="modal-title">Re-point master data?</div>'
+      + '<div class="modal-text">This account is used by <b>'+depPhrase(r.dep)+'</b>. Mapping it to <b class="mono">'+code+'</b> '+(target?'\u00b7 '+shortName(target.n):'')+' will re-point all of them to the new Klay account.</div>'
+      + '<div class="modal-foot"><button class="btn btn-ghost" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="closeModal();doSetKlayTarget('+idx+',\''+code+'\')">'+svg('check')+'Map anyway</button></div></div>');
+    return;
+  }
+  doSetKlayTarget(idx,code);
+}
+function doSetKlayTarget(idx,code){
+  var r=APP.mapRows[idx];
   var hadIssue=!!r.issue;
   var changed = r.target!==code;
-  r.target=code; r.issue=null; // editing resolves any issue
-  if(r.mapStatus!=='deactivated') r.mapStatus='mapped'; // editing the target maps it directly (no separate confirm)
-  // required dimensions live on the Klay account (single source of truth, shared with Configure CoA).
-  // Seed the account's required-dim set from defaults if it hasn't been configured yet.
+  r.target=code; r.issue=null;
+  if(r.mapStatus!=='deactivated') r.mapStatus='mapped';
   if(changed && code){
     APP.acctReqDims=APP.acctReqDims||{};
     if(!APP.acctReqDims[code]){ APP.acctReqDims[code]=defaultReqDims(klayByCode(code)||{atype:'',group:''}).slice(); }
@@ -2772,9 +2920,26 @@ function acknowledgeIssue(idx){
 }
 function markLater(idx){ closeRowMenu(); APP.mapRows[idx].mapStatus='later'; renderPage(); toast('Marked for later','Moved to the bottom of the list.','info'); }
 function unmarkLater(idx){ closeRowMenu(); var r=APP.mapRows[idx]; r.mapStatus=r.target?'manual':'unmapped'; renderPage(); }
-function deactivateRow(idx){ closeRowMenu(); APP.mapRows[idx].mapStatus='deactivated'; renderPage(); toast('Account deactivated','It will not be migrated.','info'); }
+function deactivateRow(idx){
+  closeRowMenu();
+  var r=APP.mapRows[idx];
+  if(depTotal(r.dep)>0){
+    openModal('<div class="modal-card"><div class="modal-icon" style="background:var(--danger-surface)"><svg viewBox="0 0 24 24" style="stroke:var(--danger-text)">'+IC.alert+'</svg></div>'
+      + '<div class="modal-title">Can\u2019t deactivate this account</div>'
+      + '<div class="modal-text"><b>'+depPhrase(r.dep)+'</b> still use this account. Reassign them to another account first, otherwise their transactions would have nowhere to post at go-live.</div>'
+      + '<div class="modal-foot"><button class="btn btn-primary" onclick="closeModal()">Got it</button></div></div>');
+    return;
+  }
+  r.mapStatus='deactivated'; renderPage(); toast('Account deactivated','It will not be migrated.','info');
+}
 function reactivateRow(idx){ var r=APP.mapRows[idx]; r.mapStatus=r.target?'mapped':'unmapped'; renderPage(); }
-function setMapFilter(f){ APP.mapFilter=f; APP.mapIssueFilter=null; APP.mapPage=1; renderPage(); }
+function setMapFilter(f){
+  APP.mapFilter=f;
+  // a status pill is a clean primary filter — clear refinements so combinations are never invisible
+  APP.mapIssueFilter=null;
+  APP.mapTierFilter=[]; APP.mapDimFilter=[]; APP.mapDepFilter=[];
+  APP.mapPage=1; renderPage();
+}
 function bulkBar(){
   var sel=selectedRows();
   if(!sel.length) return '';
@@ -2813,8 +2978,15 @@ function bulkMarkLater(){
   APP.mapSelected=[]; renderPage(); toast(n+' accounts marked for later','','info');
 }
 function bulkDeactivate(){
-  var n=0; selectedRows().forEach(function(r){ if(r.mapStatus!=='deactivated'){ r.mapStatus='deactivated'; n++; } });
-  APP.mapSelected=[]; renderPage(); toast(n+' accounts deactivated','They will not be migrated.','info');
+  var n=0, blocked=0;
+  selectedRows().forEach(function(r){
+    if(r.mapStatus==='deactivated') return;
+    if(depTotal(r.dep)>0){ blocked++; return; }
+    r.mapStatus='deactivated'; n++;
+  });
+  APP.mapSelected=[]; renderPage();
+  if(blocked){ toast(n+' deactivated · '+blocked+' skipped', blocked+' account'+(blocked>1?'s are':' is')+' used by master data and can\u2019t be deactivated until reassigned.', n?'info':'err'); }
+  else { toast(n+' accounts deactivated','They will not be migrated.','info'); }
 }
 function bulkConfirmAuto(){
   var n=0;
@@ -2822,12 +2994,12 @@ function bulkConfirmAuto(){
     var isAiSuggested = r.mapStatus==='auto' || (r.issue && r.issue.sev==='note');
     if(isAiSuggested && r.target && !(r.issue && (r.issue.sev==='hard'||r.issue.sev==='soft'))){
       r.mapStatus='mapped';
-      if(r.issue && r.issue.sev==='note') r.issue=null; // accepting the AI suggestion clears the note
+      if(r.issue && r.issue.sev==='note') r.issue=null;
       n++;
     }
   });
   renderPage();
-  toast(n+' accounts mapped', n? 'AI suggestions accepted in bulk.':'No AI-suggested rows ready — some have blocking issues.', n?'success':'info');
+  toast(n+' accounts mapped','AI suggestions accepted, including those that re-point master data.', n?'success':'info');
 }
 function legDot(color,label,n){ return '<span class="legend-item"><span class="dot" style="background:'+color+'"></span>'+label+' ('+n+')</span>'; }
 function exitWorkspace(){ APP.ws=false; render(); }
@@ -2848,6 +3020,8 @@ function finishMapping(){ toast('Mapping complete','Great — moving on to tax c
 .rowmenu-hint{display:flex;align-items:flex-start;gap:7px;margin:6px 6px 2px;padding:8px 10px;background:var(--color-action-wash);border:1px solid var(--color-action-subtle);border-radius:var(--radius-sm);font-size:11px;color:var(--color-action);line-height:1.45}
 .rowmenu-hint svg{width:13px;height:13px;flex-shrink:0;margin-top:1px}
 .reqdim-chip{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:600;padding:3px 7px 3px 8px;border-radius:var(--radius-full);white-space:nowrap}
+.dep-chip{display:inline-flex;align-items:center;gap:4px;font-size:9.5px;font-weight:600;padding:2px 8px;border-radius:var(--radius-full);background:var(--color-surface-sunken);color:var(--color-text-tertiary);border:1px solid var(--color-border-default);white-space:nowrap;cursor:default}
+.dep-chip svg{width:11px;height:11px}
 .reqdim-chip .reqdim-x{display:inline-flex;align-items:center;justify-content:center;width:14px;height:14px;border-radius:50%;opacity:.55;margin-left:1px}
 .reqdim-chip .reqdim-x:hover{opacity:1;background:rgba(0,0,0,.08)}
 .reqdim-chip .reqdim-x svg{width:10px;height:10px}
@@ -2932,7 +3106,7 @@ function renderConfigCoa(){
       var tierBadge = it.tier==='HARD'?'<span class="badge b-danger" style="font-size:10px">'+svg('lock')+'Hard-locked</span>'
         : it.tier==='SOFT'?'<span class="badge b-warning" style="font-size:10px">'+svg('lock')+'Soft-locked</span>'
         : '<span class="badge b-success" style="font-size:10px">'+svg('edit')+'Editable</span>';
-      var prefix=it.c.slice(0,3), suffix=it.c.slice(3);
+      var prefix=it.c.slice(0,5), suffix=it.c.slice(5);
       var nameCell = locked
         ? '<span class="fs13">'+it.n+'</span>'
         : '<div class="cfg-edit"><input class="cfg-input" value="'+it.n.replace(/"/g,'&quot;')+'" onchange="editKlayName(\''+it.c+'\',this.value)">'+svg('edit')+'</div>';
@@ -2945,7 +3119,7 @@ function renderConfigCoa(){
       return '<tr><td>'+codeCell+'</td><td>'+nameCell+'</td><td>'+tierBadge+'</td><td>'+reqCell+'</td></tr>';
     }).join('');
     return '<div class="mb5"><div class="flex jb ac mb2"><div class="flex ac g2"><span class="disp" style="font-size:17px">'+grp.g+'</span><span class="badge b-neutral" style="font-size:10px">'+KLAY_TYPE_PREFIX[grp.type]+'xxxx · '+grp.type+'</span></div>'
-      + '<button class="btn btn-ghost btn-xs" onclick="addChildAccount(\''+grp.g+'\',\''+grp.items[0].c.slice(0,3)+'\')">'+svg('plus')+'Add account</button></div>'
+      + '<button class="btn btn-ghost btn-xs" onclick="addChildAccount(\''+grp.g+'\',\''+grp.items[0].c.slice(0,5)+'\')">'+svg('plus')+'Add account</button></div>'
       + '<div class="card" style="overflow:hidden"><table class="tbl"><thead><tr><th style="width:120px">Code</th><th>Account name</th><th style="width:130px">Lock tier</th><th>Required dimensions</th></tr></thead><tbody>'+rows+'</tbody></table></div></div>';
   }).join('');
 
@@ -3026,7 +3200,7 @@ function lockTierCard(badge,icon,title,desc){
 function addChildAccount(groupName,prefix){
   openModal('<div class="modal-card"><div class="modal-icon" style="background:var(--color-action-wash)"><svg viewBox="0 0 24 24" style="stroke:var(--color-action)">'+IC.plus+'</svg></div>'
     + '<div class="modal-title">Add account to '+groupName+'</div>'
-    + '<div class="modal-text">The new account sits under the <b class="mono">'+prefix+'xx</b> group. The first 3 digits are fixed; choose the last 2 and a name.</div>'
+    + '<div class="modal-text">The new account sits under the <b class="mono">'+prefix+'xx</b> group. The first 5 digits are fixed; choose the last 2 and a name.</div>'
     + '<div style="display:grid;grid-template-columns:140px 1fr;gap:16px;margin-bottom:8px">'
       + '<div><div class="section-label mb2">Code</div>'
         + '<div class="addacct-code"><span class="addacct-prefix mono">'+prefix+'</span><input id="newCode" class="addacct-suffix mono" maxlength="2" placeholder="90"></div></div>'
@@ -3125,28 +3299,28 @@ function ensurePosting(){
   // No AI, no auto-post, no confidence, no trigger/category — these are reusable journal templates.
   APP.rules = [
     {id:'ap_inv', name:'Vendor Bill (AP Invoice)', status:'active', ai:false, recommend:'strong', saved:false,
-     lines:[{dr:'Expense / Inventory (by item)',drc:'var'},{dr:'PPN Masukan',drc:'11400',tax:true},{cr:'Utang Usaha',crc:'21000',ctrl:true}],
+     lines:[{dr:'Expense / Inventory (by item)',drc:'var'},{dr:'PPN Masukan',drc:'1140000',tax:true},{cr:'Utang Usaha',crc:'2100000',ctrl:true}],
      note:'PPN Masukan accrues when the vendor is PKP. PPh 23 (2%) is withheld on services to the matching tax-payable account.'},
     {id:'ar_inv', name:'Customer Invoice (AR Invoice)', status:'active', ai:false, recommend:'strong', saved:false,
-     lines:[{dr:'Piutang Usaha',drc:'11200',ctrl:true},{cr:'Pendapatan Penjualan',crc:'41000'},{cr:'PPN Keluaran',crc:'22000',tax:true}],
+     lines:[{dr:'Piutang Usaha',drc:'1120000',ctrl:true},{cr:'Pendapatan Penjualan',crc:'4100000'},{cr:'PPN Keluaran',crc:'2200000',tax:true}],
      note:'COGS recognition posts a paired entry when the item is tracked inventory.'},
     {id:'ap_pay', name:'Vendor Payment', status:'active', ai:false, recommend:'strong', saved:false,
-     lines:[{dr:'Utang Usaha',drc:'21000',ctrl:true},{cr:'Bank',crc:'11110'}],
+     lines:[{dr:'Utang Usaha',drc:'2100000',ctrl:true},{cr:'Bank',crc:'1111000'}],
      note:'Realized FX gain/loss posts for foreign-currency settlement.'},
     {id:'ar_rcpt', name:'Customer Receipt', status:'active', ai:false, recommend:'strong', saved:false,
-     lines:[{dr:'Bank',drc:'11110'},{cr:'Piutang Usaha',crc:'11200',ctrl:true}],
+     lines:[{dr:'Bank',drc:'1111000'},{cr:'Piutang Usaha',crc:'1120000',ctrl:true}],
      note:'Matches to the open invoice; partial receipts supported.'},
     {id:'payroll', name:'Payroll Run', status:'active', ai:false, recommend:'normal', saved:false,
-     lines:[{dr:'Gaji & Upah',drc:'61000'},{cr:'Utang PPh 21',crc:'22100',tax:true},{cr:'Utang BPJS',crc:'22200',tax:true},{cr:'Bank / Accrued Salaries',crc:'21110'}],
+     lines:[{dr:'Gaji & Upah',drc:'6100000'},{cr:'Utang PPh 21',crc:'2210000',tax:true},{cr:'Utang BPJS',crc:'2220000',tax:true},{cr:'Bank / Accrued Salaries',crc:'2111000'}],
      note:'PPh 21 and BPJS employee contributions are withheld to their payable accounts.'},
     {id:'expense', name:'Cash / Petty Expense', status:'active', ai:false, recommend:'normal', saved:false,
-     lines:[{dr:'Operating Expense (by category)',drc:'var'},{cr:'Kas / Bank',crc:'11100'}],
+     lines:[{dr:'Operating Expense (by category)',drc:'var'},{cr:'Kas / Bank',crc:'1110000'}],
      note:'PPN Masukan accrues if a valid faktur is attached.'},
     {id:'inv_adj', name:'Inventory Adjustment', status:'active', ai:false, recommend:'normal', saved:false,
-     lines:[{dr:'COGS / Loss',drc:'51000'},{cr:'Persediaan',crc:'11620'}],
+     lines:[{dr:'COGS / Loss',drc:'5100000'},{cr:'Persediaan',crc:'1162000'}],
      note:'Used for stock-count differences and write-offs.'},
     {id:'depr', name:'Depreciation', status:'active', ai:false, recommend:'normal', saved:false,
-     lines:[{dr:'Beban Penyusutan',drc:'63000'},{cr:'Akumulasi Penyusutan',crc:'12200',contra:true}],
+     lines:[{dr:'Beban Penyusutan',drc:'6300000'},{cr:'Akumulasi Penyusutan',crc:'1220000',contra:true}],
      note:'Straight-line schedule generated from the Fixed Asset register.'}
   ];
 }
@@ -3249,7 +3423,7 @@ function postingCard(r){
       + '<span class="fs11 '+(saved?'':'muted')+'" style="'+(saved?'color:var(--success-text)':'')+'">'+(saved?'Will be created in your live ERP':'Not saved \u2014 won\u2019t go to the ERP yet')+'</span>'
       + '<div class="flex g2 ac">'
         + (saved
-            ? '<button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();unsavePostingRule('+idx+')">'+svg('check')+'Saved</button>'
+            ? ''
             : '<button class="btn btn-primary btn-sm" onclick="event.stopPropagation();savePostingRule('+idx+')">'+svg('check')+'Save</button>')
         + '<button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();openPostingRule('+idx+')">'+svg('edit')+'Edit</button>'
         + '<button class="btn btn-ghost btn-sm" style="color:var(--danger-text)" onclick="event.stopPropagation();deletePostingRule('+idx+')">'+svg('trash')+'</button></div>'
@@ -3434,31 +3608,31 @@ function ensureTax(){
   if(APP.taxCfg) return;
   APP.taxCfg={
     pkp:true, npwp:'', efaktur:true,
-    ppnMode:'percent', ppnRate:11, ppnFixed:0, ppnOut:'22000', ppnIn:'11400',
+    ppnMode:'percent', ppnRate:11, ppnFixed:0, ppnOut:'2200000', ppnIn:'1140000',
     faktur:{prefix:'010', serial:'0000001', period:'Monthly', basis:'Accrual'},
     pph:[
-      {code:'PPh 21', desc:'Employee income tax (payroll)', rateType:'special', rateLabel:'Progressive brackets', rateNote:'5% – 35% by income band (PTKP-based)', acct:'22100', on:true},
-      {code:'PPh 22', desc:'Goods purchases from collectors / import', rateType:'pct', rate:1.5, acct:'22110', on:true},
-      {code:'PPh 23', desc:'Services, rent of movable goods, royalties', rateType:'pct', rate:2, acct:'22120', on:true},
-      {code:'PPh 4(2)', desc:'Final tax — rent of land/building, construction', rateType:'pct', rate:10, acct:'22130', on:true},
-      {code:'PPh 26', desc:'Payments to non-resident entities', rateType:'pct', rate:20, acct:'22140', on:false},
-      {code:'PPh 25', desc:'Monthly corporate income-tax installment', rateType:'special', rateLabel:'Monthly installment', rateNote:'Computed from prior-year corporate tax', acct:'11420', on:true}
+      {code:'PPh 21', desc:'Employee income tax (payroll)', rateType:'special', rateLabel:'Progressive brackets', rateNote:'5% – 35% by income band (PTKP-based)', acct:'2210000', on:true},
+      {code:'PPh 22', desc:'Goods purchases from collectors / import', rateType:'pct', rate:1.5, acct:'2211000', on:true},
+      {code:'PPh 23', desc:'Services, rent of movable goods, royalties', rateType:'pct', rate:2, acct:'2212000', on:true},
+      {code:'PPh 4(2)', desc:'Final tax — rent of land/building, construction', rateType:'pct', rate:10, acct:'2213000', on:true},
+      {code:'PPh 26', desc:'Payments to non-resident entities', rateType:'pct', rate:20, acct:'2214000', on:false},
+      {code:'PPh 25', desc:'Monthly corporate income-tax installment', rateType:'special', rateLabel:'Monthly installment', rateNote:'Computed from prior-year corporate tax', acct:'1142000', on:true}
     ],
-    rounding:'91100',
+    rounding:'9110000',
     taxCodes:[
-      {code:'PPN11_OUT', name:'PPN 11% Output', cat:'Output VAT', applies:'Sales Invoice', rateType:'pct', rate:11, base:'DPP', recov:false, account:'22000', notes:'Domestic sales', active:true, builtin:true},
-      {code:'PPN11_IN', name:'PPN 11% Input', cat:'Input VAT', applies:'Purchase Invoice', rateType:'pct', rate:11, base:'DPP', recov:true, account:'11400', notes:'Creditable VAT', active:true, builtin:true},
-      {code:'PPN0', name:'PPN 0%', cat:'Output VAT', applies:'Sales Invoice', rateType:'pct', rate:0, base:'DPP', recov:false, account:'22000', notes:'Export', active:true, builtin:true},
+      {code:'PPN11_OUT', name:'PPN 11% Output', cat:'Output VAT', applies:'Sales Invoice', rateType:'pct', rate:11, base:'DPP', recov:false, account:'2200000', notes:'Domestic sales', active:true, builtin:true},
+      {code:'PPN11_IN', name:'PPN 11% Input', cat:'Input VAT', applies:'Purchase Invoice', rateType:'pct', rate:11, base:'DPP', recov:true, account:'1140000', notes:'Creditable VAT', active:true, builtin:true},
+      {code:'PPN0', name:'PPN 0%', cat:'Output VAT', applies:'Sales Invoice', rateType:'pct', rate:0, base:'DPP', recov:false, account:'2200000', notes:'Export', active:true, builtin:true},
       {code:'PPN_EXEMPT', name:'PPN Dibebaskan', cat:'Non VAT', applies:'Sales/Purchase', rateType:'pct', rate:0, base:'DPP', recov:false, account:'', notes:'Non-taxable transaction', active:false, builtin:true},
-      {code:'PPNBM', name:'PPN Barang Mewah', cat:'Luxury VAT', applies:'Sales Invoice', rateType:'variable', base:'DPP', recov:false, account:'22300', notes:'Luxury goods only', active:true, builtin:true},
-      {code:'PPH21', name:'PPh 21', cat:'Payroll Tax', applies:'Payroll', rateType:'variable', base:'Gross Salary', recov:false, account:'22100', notes:'Employee withholding', active:true, builtin:true},
-      {code:'PPH23', name:'PPh 23 Jasa', cat:'Withholding Tax', applies:'Vendor Payment', rateType:'pct', rate:2, base:'DPP', recov:false, account:'22120', notes:'Non-final withholding', active:true, builtin:true},
-      {code:'PPH4_2', name:'PPh 4(2) Final', cat:'Final Withholding Tax', applies:'Vendor Payment', rateType:'pct', rate:10, base:'DPP', recov:false, account:'22130', notes:'Final tax (sewa/konstruksi)', active:true, builtin:true},
-      {code:'PPH26', name:'PPh 26', cat:'Foreign Withholding', applies:'Vendor Payment', rateType:'pct', rate:20, base:'Gross', recov:false, account:'22140', notes:'Foreign entity payment', active:true, builtin:true},
-      {code:'PPH22_IMPORT', name:'PPh 22 Impor', cat:'Prepaid Income Tax', applies:'Import / Purchase', rateType:'variable', base:'CIF/DPP', recov:true, account:'11410', notes:'Creditable income tax', active:true, builtin:true},
-      {code:'PPH22_SALES', name:'PPh 22 Sales', cat:'Collected Income Tax', applies:'Sales Invoice', rateType:'variable', base:'DPP', recov:false, account:'22110', notes:'If company is collector', active:false, builtin:true},
-      {code:'PPH25', name:'PPh 25', cat:'Corporate Installment', applies:'Manual Journal', rateType:'variable', base:'N/A', recov:false, account:'11420', notes:'Monthly installment', active:true, builtin:true},
-      {code:'PPH29', name:'PPh 29', cat:'Corporate Underpayment', applies:'Year-End Journal', rateType:'calc', base:'N/A', recov:false, account:'22150', notes:'Annual tax payable', active:true, builtin:true}
+      {code:'PPNBM', name:'PPN Barang Mewah', cat:'Luxury VAT', applies:'Sales Invoice', rateType:'variable', base:'DPP', recov:false, account:'2230000', notes:'Luxury goods only', active:true, builtin:true},
+      {code:'PPH21', name:'PPh 21', cat:'Payroll Tax', applies:'Payroll', rateType:'variable', base:'Gross Salary', recov:false, account:'2210000', notes:'Employee withholding', active:true, builtin:true},
+      {code:'PPH23', name:'PPh 23 Jasa', cat:'Withholding Tax', applies:'Vendor Payment', rateType:'pct', rate:2, base:'DPP', recov:false, account:'2212000', notes:'Non-final withholding', active:true, builtin:true},
+      {code:'PPH4_2', name:'PPh 4(2) Final', cat:'Final Withholding Tax', applies:'Vendor Payment', rateType:'pct', rate:10, base:'DPP', recov:false, account:'2213000', notes:'Final tax (sewa/konstruksi)', active:true, builtin:true},
+      {code:'PPH26', name:'PPh 26', cat:'Foreign Withholding', applies:'Vendor Payment', rateType:'pct', rate:20, base:'Gross', recov:false, account:'2214000', notes:'Foreign entity payment', active:true, builtin:true},
+      {code:'PPH22_IMPORT', name:'PPh 22 Impor', cat:'Prepaid Income Tax', applies:'Import / Purchase', rateType:'variable', base:'CIF/DPP', recov:true, account:'1141000', notes:'Creditable income tax', active:true, builtin:true},
+      {code:'PPH22_SALES', name:'PPh 22 Sales', cat:'Collected Income Tax', applies:'Sales Invoice', rateType:'variable', base:'DPP', recov:false, account:'2211000', notes:'If company is collector', active:false, builtin:true},
+      {code:'PPH25', name:'PPh 25', cat:'Corporate Installment', applies:'Manual Journal', rateType:'variable', base:'N/A', recov:false, account:'1142000', notes:'Monthly installment', active:true, builtin:true},
+      {code:'PPH29', name:'PPh 29', cat:'Corporate Underpayment', applies:'Year-End Journal', rateType:'calc', base:'N/A', recov:false, account:'2215000', notes:'Annual tax payable', active:true, builtin:true}
     ]
   };
 }
@@ -3640,12 +3814,23 @@ function togglePph(i,v){ APP.taxCfg.pph[i].on=v; renderPage(); toast(APP.taxCfg.
    ============================================================ */
 function ensureUAT(){
   if(APP.uat) return;
+  if(!APP.uatPov) APP.uatPov='SS'; // current acting persona (prototype POV switch); default Finance Manager
   APP.uat={ tasks:[
-    {id:'je',   label:'Manual journal entry', desc:'Post a balanced manual journal in the live ERP, then open the Trial Balance and confirm debits equal credits.', icon:'book',    dest:'Journal Entry', mode:null, done:false},
-    {id:'bill', label:'Record a vendor bill', desc:'Create a vendor bill, post it to the GL, then check the Trial Balance reflects the AP and tax.',               icon:'truck',   dest:'Bills → New bill', mode:null, done:false},
-    {id:'inv',  label:'Record a customer invoice', desc:'Issue a sales invoice, post it to the GL, then check the Trial Balance reflects the AR and Output VAT.',        icon:'receipt', dest:'Invoices → New invoice',  mode:null, done:false}
+    {id:'je',   label:'Manual journal entry', role:'Finance Manager', allowed:['SS'], desc:'Post a balanced manual journal in the live ERP, then open the Trial Balance and confirm debits equal credits.', icon:'book',    dest:'Journal Entry', done:false,
+      guide:['Open Klay ERP and go to <b>Journal Entry</b>.','Click <b>New journal</b>. Enter today as the date and a short memo (e.g. \u201cUAT test\u201d).','Add two lines that balance \u2014 e.g. debit <span class="mono">Kas</span> 100.000 and credit <span class="mono">Pendapatan Lain</span> 100.000.','Check total debit = total credit, then <b>Post</b>.','Open <b>Trial Balance</b> and confirm the entry appears and the report still balances.']},
+    {id:'bill', label:'Record a vendor bill', role:'AP Staff', allowed:['HG','HP'], desc:'Create a vendor bill, post it to the GL, then check the Trial Balance reflects the AP and tax.',               icon:'truck',   dest:'Bills → New bill', done:false,
+      guide:['Open Klay ERP and go to <b>Bills → New bill</b>.','Pick a migrated vendor and enter a bill date and number.','Add a line item with a quantity and price; Klay fills the expense/PPN lines automatically.','Review the journal preview, then <b>Post</b> the bill.','Open <b>Trial Balance</b> and confirm Utang Usaha (AP) and PPN Masukan moved as expected.']},
+    {id:'inv',  label:'Record a customer invoice', role:'AR Staff', allowed:['HG','HP'], desc:'Issue a sales invoice, post it to the GL, then check the Trial Balance reflects the AR and Output VAT.',        icon:'receipt', dest:'Invoices → New invoice',  done:false,
+      guide:['Open Klay ERP and go to <b>Invoices → New invoice</b>.','Pick a migrated customer and enter the invoice date.','Add a product line; Klay fills Piutang, Pendapatan and PPN Keluaran.','Review the journal preview, then <b>Post</b> the invoice.','Open <b>Trial Balance</b> and confirm Piutang (AR) and PPN Keluaran moved as expected.']},
+    {id:'depr', label:'Depreciation entry', role:'Finance Manager', allowed:['SS'], desc:'Run a monthly depreciation entry from the Fixed Asset register, post it, then confirm the Trial Balance reflects the expense and accumulated depreciation.', icon:'scale', dest:'Journal Entry', done:false,
+      guide:['Open Klay ERP and go to <b>Journal Entry</b> (depreciation posts as a journal).','Create a depreciation entry: debit <span class="mono">Beban Penyusutan</span>, credit <span class="mono">Akumulasi Penyusutan</span>.','Use the monthly amount from your Fixed Asset register for one asset.','Review and <b>Post</b> the entry.','Open <b>Trial Balance</b> and confirm depreciation expense and accumulated depreciation updated.']},
+    {id:'recon', label:'Bank reconciliation', role:'Finance Manager', allowed:['SS'], desc:'Reconcile a bank account against its statement in the live ERP and confirm the cleared balance ties to the GL.', icon:'shield', dest:'Bank Reconciliation', done:false,
+      guide:['Open Klay ERP and go to <b>Bank Reconciliation</b>.','Select a migrated bank account and the statement period.','Match the opening balance to the migrated GL balance for that account.','Tick the transactions that have cleared, then confirm the reconciliation.','Confirm the cleared balance ties back to the bank GL account.']}
   ]};
 }
+function uatPovPerson(){ return TEAM.filter(function(p){return p.ini===APP.uatPov;})[0]||TEAM[0]; }
+function uatCanAct(t){ return (t.allowed||[]).indexOf(APP.uatPov)>=0; }
+function setUatPov(ini){ APP.uatPov=ini; if(APP.uat&&APP.uat.view==='run'&&APP.uat.activeTask){ var t=uatTaskById(APP.uat.activeTask); if(t&&!uatCanAct(t)){ APP.uat.view='summary'; APP.uat.activeTask=null; } } renderPage(); }
 // Base URL of the live (pre-go-live) Klay ERP environment.
 // NOTE: the ERP is a client-side SPA on GitHub Pages, so deep links (e.g. /journal-entry)
 // 404 on a hard load. We always open the app ROOT and tell the user which menu to click.
@@ -3661,29 +3846,64 @@ function renderUAT(){
   return uatSummary();
 }
 function uatGoto(v){ APP.uat.view=v; renderPage(); }
-function uatOpenTask(id){ APP.uat.view='run'; APP.uat.activeTask=id; renderPage(); }
+function uatOpenTask(id){ var t=uatTaskById(id); if(t&&!uatCanAct(t)){ toast('View only','Only '+(t.role)+' can run this scenario. Switch POV to act on it.','info'); return; } APP.uat.view='run'; APP.uat.activeTask=id; renderPage(); }
 function uatBackToSummary(){ APP.uat.view='summary'; APP.uat.activeTask=null; renderPage(); }
 
 function uatSummary(){
   var u=APP.uat; var done=uatDone(); var allDone=done===u.tasks.length;
+  var me=uatPovPerson();
   var cards=u.tasks.map(function(t,i){
-    var modeTag = t.mode? '<span class="badge '+(t.mode==='real'?'b-info':'b-neutral')+'" style="font-size:9.5px">'+(t.mode==='real'?'Go-live data':'Simulation')+'</span>' : '';
     var jv = (APP.uatJustVerified===t.id)?' just-locked':'';
-    return '<div id="uat-card-'+t.id+'" class="card clickable'+jv+'" style="padding:18px 20px" onclick="uatOpenTask(\''+t.id+'\')" onmouseover="this.style.boxShadow=\'var(--shadow-md)\'" onmouseout="this.style.boxShadow=\'var(--shadow-sm)\'">'
+    var canAct=uatCanAct(t);
+    var allowedNames=(t.allowed||[]).map(function(ini){var p=TEAM.filter(function(x){return x.ini===ini;})[0];return p?p.name.split(' ')[0]:ini;}).join(', ');
+    var clickable = canAct? ' clickable':'';
+    var onclick = canAct? ' onclick="uatOpenTask(\''+t.id+'\')"':'';
+    var hover = canAct? ' onmouseover="this.style.boxShadow=\'var(--shadow-md)\'" onmouseout="this.style.boxShadow=\'var(--shadow-sm)\'"':'';
+    var footer = canAct
+      ? '<span class="fs12 fw6" style="color:var(--color-action)">'+(t.done?'Run again':'Start scenario')+' '+svg('arrowRight')+'</span>'
+      : '<span class="fs12 muted flex ac g1">'+svg(t.done?'checkCircle':'lock')+(t.done?'Verified':'View only')+'</span>';
+    return '<div id="uat-card-'+t.id+'" class="card'+clickable+jv+'" style="padding:18px 20px'+(canAct?'':';opacity:.92')+'"'+onclick+hover+'>'
       + '<div class="flex jb ac mb2"><div style="width:42px;height:42px;border-radius:var(--radius-md);background:'+(t.done?'var(--success-surface)':'var(--color-brand-wash)')+';display:flex;align-items:center;justify-content:center;color:'+(t.done?'var(--success-text)':'var(--color-brand)')+'">'+svg(t.done?'checkCircle':t.icon)+'</div>'
       + (t.done?'<span class="badge b-success" style="font-size:10px">'+svg('check')+'Verified</span>':'<span class="badge b-neutral" style="font-size:10px">To try</span>')+'</div>'
-      + '<div class="flex ac g2 mb1" style="flex-wrap:wrap"><span class="fs11 muted mono">Scenario '+(i+1)+'</span>'+modeTag+'</div>'
-      + '<div class="fw7 fs15 mb1">'+t.label+'</div><div class="fs12 muted" style="line-height:1.5;margin-bottom:10px">'+t.desc+'</div>'
-      + '<div class="fs12 fw6" style="color:var(--color-action)">'+(t.done?'Run again':'Start scenario')+' '+svg('arrowRight')+'</div>'
+      + '<div class="flex ac g2 mb1" style="flex-wrap:wrap"><span class="fs11 muted mono">Scenario '+(i+1)+'</span></div>'
+      + '<div class="fw7 fs15 mb1">'+t.label+'</div>'
+      + '<div class="flex ac g1 mb2" style="flex-wrap:wrap"><span class="badge '+(canAct?'b-info':'b-neutral')+'" style="font-size:9.5px">'+svg('users')+t.role+'</span>'
+        + (canAct?'<span class="badge b-success" style="font-size:9px">You can do this</span>':'')+'</div>'
+      + '<div class="fs12 muted" style="line-height:1.5;margin-bottom:6px">'+t.desc+'</div>'
+      + '<div class="fs11 muted" style="margin-bottom:10px">Assigned to: '+allowedNames+'</div>'
+      + '<div class="flex jb ac">'+footer
+        + '<button class="btn btn-ghost btn-xs" onclick="event.stopPropagation();openUatGuide(\''+t.id+'\')" title="Step-by-step guide">'+svg('book')+'Guide</button></div>'
     + '</div>';
   }).join('');
+
+  // POV switcher (prototype) — pick which staff member you're acting as
+  var povBtns=TEAM.map(function(p){
+    var on=p.ini===APP.uatPov;
+    return '<button class="uat-pov'+(on?' on':'')+'" onclick="setUatPov(\''+p.ini+'\')" title="'+p.name+' · '+p.role+'">'
+      + '<span class="uat-pov-av" style="background:'+p.color+'">'+p.ini+'</span>'
+      + '<span class="uat-pov-meta"><span class="uat-pov-name">'+p.name.split(' ')[0]+(p.you?' (You)':'')+'</span><span class="uat-pov-role">'+p.role+'</span></span></button>';
+  }).join('');
+  var povCard=''
+    + '<div class="card card-pad mb5">'
+      + '<div class="flex jb ac mb1" style="flex-wrap:wrap;gap:8px"><div class="flex ac g2 fw7 fs14">'+svg('users')+'Acting as</div>'
+        + '<span class="fs12 muted">Prototype POV — switch to see what each staff member can do</span></div>'
+      + '<div class="fs12 muted mb3" style="line-height:1.5">You are <b style="color:var(--color-text-primary)">'+me.name+'</b> ('+me.role+'). Only scenarios assigned to your role are actionable; the rest are view-only.</div>'
+      + '<div class="uat-pov-row">'+povBtns+'</div>'
+    + '</div>'
+    + '<style>.uat-pov-row{display:flex;gap:8px;flex-wrap:wrap}'
+      + '.uat-pov{display:flex;align-items:center;gap:9px;border:1px solid var(--color-border-default);background:var(--color-surface-raised);border-radius:var(--radius-md);padding:7px 12px 7px 8px;cursor:pointer;transition:border-color var(--tf),background var(--tf)}'
+      + '.uat-pov:hover{border-color:var(--color-text-tertiary)}.uat-pov.on{border-color:var(--color-action);background:var(--color-action-wash);box-shadow:0 0 0 1px var(--color-action)}'
+      + '.uat-pov-av{width:30px;height:30px;border-radius:50%;color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:var(--font-mono)}'
+      + '.uat-pov-meta{display:flex;flex-direction:column;line-height:1.15;text-align:left}'
+      + '.uat-pov-name{font-size:12.5px;font-weight:700;color:var(--color-text-primary)}.uat-pov-role{font-size:10.5px;color:var(--color-text-tertiary)}</style>';
 
   var workspace = ''
     + '<div class="card card-pad mb5" style="background:linear-gradient(160deg,var(--color-brand-wash),#fff)">'
       + '<div class="flex jb ac mb3"><div class="flex ac g2" style="color:var(--color-brand-hover);font-weight:700">'+svg('rocket')+'UAT scenarios</div><span class="fs13 muted"><b class="num" style="color:var(--color-text-primary);font-size:16px">'+done+'</b> of '+u.tasks.length+' verified</span></div>'
       + '<div class="pbar"><span style="width:'+(done/u.tasks.length*100)+'%;background:var(--color-brand)"></span><span style="width:'+((u.tasks.length-done)/u.tasks.length*100)+'%;background:transparent"></span></div>'
     + '</div>'
-    + '<div class="flex g2 ac mb5" style="align-items:flex-start;background:var(--color-action-wash);border:1px solid var(--color-action-subtle);border-radius:var(--radius-md);padding:12px 15px;font-size:12.5px;color:var(--color-action);line-height:1.55">'+svg('info')+'<span>Each scenario opens your <b>live Klay ERP</b> in a new tab — already loaded with your migrated data, but <b>not yet go-live</b>. Try the flow there, come back here, and mark it verified. You\'ll still do a final sign off before going live.</span></div>'
+    + povCard
+    + '<div class="flex g2 ac mb5" style="align-items:flex-start;background:var(--color-action-wash);border:1px solid var(--color-action-subtle);border-radius:var(--radius-md);padding:12px 15px;font-size:12.5px;color:var(--color-action);line-height:1.55">'+svg('info')+'<span>Each scenario opens your <b>live Klay ERP</b> in a new tab — already loaded with your migrated data, but <b>not yet go-live</b>. The assigned staff runs the flow there, comes back here, and marks it verified. You\'ll still do a final sign off before going live.</span></div>'
     + uatHowAccordion()
     + '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:8px">'+cards+'</div>';
 
@@ -3701,25 +3921,19 @@ function uatSummary(){
 
 function uatRunPage(id){
   var t=uatTaskById(id); if(!t) return uatSummary();
-  var modeChosen=!!t.mode;
-  var modeCard = ''
-    + '<div class="card card-pad mb5">'
-      + '<div class="section-label mb3">Step 1 \u00b7 What are you entering?</div>'
-      + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">'
-        + uatModeOption(id,'sim','Simulation','Throwaway test data \u2014 just to see the flow work. Won\'t be kept at go-live.', t.mode==='sim')
-        + uatModeOption(id,'real','Real go-live data','An actual opening transaction you want carried into production once you go live.', t.mode==='real')
-      + '</div>'
-    + '</div>';
+  if(!uatCanAct(t)){ APP.uat.view='summary'; APP.uat.activeTask=null; return uatSummary(); }
 
   var root=erpUrl();
   var tbRoot=erpUrl(); // ERP root; TB reached via menu (SPA — deep links 404 on GH Pages)
-  var lockStyle = modeChosen?'':'opacity:.5;pointer-events:none';
-  var noun = (id==='je'?'journal entry':(id==='bill'?'vendor bill':'customer invoice'));
-  var shortNoun = (id==='je'?'journal':(id==='bill'?'bill':'invoice'));
+  var lockStyle = '';
+  var nounMap={je:'journal entry',bill:'vendor bill',inv:'customer invoice',depr:'depreciation entry',recon:'bank reconciliation'};
+  var shortMap={je:'journal',bill:'bill',inv:'invoice',depr:'depreciation entry',recon:'reconciliation'};
+  var noun = nounMap[id]||'entry';
+  var shortNoun = shortMap[id]||'entry';
   var opened = !!t.opened;
   var launchCard = ''
     + '<div class="card card-pad mb5" style="'+lockStyle+'">'
-      + '<div class="section-label mb3">Step 2 \u00b7 Record it in the ERP</div>'
+      + '<div class="section-label mb3">Step 1 \u00b7 Record it in the ERP</div>'
       + '<div class="flex jb ac" style="gap:16px;flex-wrap:wrap">'
         + '<div class="flex g3 ac" style="align-items:flex-start;flex:1;min-width:260px"><div style="width:38px;height:38px;border-radius:var(--radius-md);background:var(--color-action-wash);color:var(--color-action);display:flex;align-items:center;justify-content:center;flex-shrink:0">'+svg(t.icon)+'</div>'
           + '<div><div class="fw6 fs14">Open Klay ERP, then go to <b>'+t.dest+'</b></div><div class="fs12 muted" style="margin-top:2px">Record the '+noun+' and post it to the General Ledger.</div></div></div>'
@@ -3733,13 +3947,13 @@ function uatRunPage(id){
       + (opened? '<div class="flex g2 ac mt4" style="align-items:flex-start;background:var(--success-surface);border:1px solid var(--success-border);border-radius:var(--radius-md);padding:11px 14px;font-size:12.5px;color:var(--success-text);line-height:1.5">'+svg('checkCircle')+'<span><b>Recorded in the ERP sandbox.</b> We detected your '+shortNoun+' posted to the General Ledger and the Trial Balance is back in balance. Review it in the ERP tab, then confirm below.</span></div>':'')
     + '</div>';
 
-  // Step 3 only "unlocks" once the ERP was opened — keeps the flow seamless on return
-  var verifyLock = (modeChosen && opened)?'':'opacity:.5;pointer-events:none';
+  // Step 2 only "unlocks" once the ERP was opened — keeps the flow seamless on return
+  var verifyLock = opened?'':'opacity:.5;pointer-events:none';
   var verifyCard = ''
     + '<div class="card card-pad" style="'+verifyLock+'">'
-      + '<div class="section-label mb3">Step 3 \u00b7 Confirm the result</div>'
+      + '<div class="section-label mb3">Step 2 \u00b7 Confirm the result</div>'
       + (t.done
-          ? '<div class="flex jb ac"><div class="flex g2 ac" style="color:var(--success-text)">'+svg('checkCircle')+'<span class="fw6 fs14">Scenario verified'+(t.mode?' \u00b7 '+(t.mode==='real'?'go-live data':'simulation'):'')+'</span></div>'
+          ? '<div class="flex jb ac"><div class="flex g2 ac" style="color:var(--success-text)">'+svg('checkCircle')+'<span class="fw6 fs14">Scenario verified</span></div>'
             + '<button class="btn btn-ghost btn-sm" onclick="unverifyTask(\''+id+'\')">Undo</button></div>'
           : '<div class="flex jb ac" style="gap:12px;flex-wrap:wrap"><div class="fs13 muted" style="flex:1;min-width:220px;line-height:1.5">'+(opened?'Looks good? Mark this scenario verified and move on to the next one.':'Open the ERP above and record the '+shortNoun+' first.')+'</div>'
             + '<button class="btn btn-primary" onclick="verifyTask(\''+id+'\')"'+(opened?'':' disabled')+'>'+svg('check')+'Mark verified</button></div>')
@@ -3750,17 +3964,17 @@ function uatRunPage(id){
     + '<div class="page-head-row"><div><div class="page-title" style="font-size:28px">'+t.label+(t.done?' <span class="badge b-success" style="font-size:11px;vertical-align:middle">'+svg('check')+'Verified</span>':'')+'</div>'
       + '<div class="page-sub mt2">'+t.desc+'</div></div>'
       + '<button class="btn btn-ghost" onclick="uatBackToSummary()">'+svg('arrowLeft')+'Back</button></div>'
-    + modeCard
+    + '<div class="flex g2 ac mb5" style="flex-wrap:wrap"><span class="badge b-info" style="font-size:10px">'+svg('users')+'For: '+t.role+'</span>'
+      + '<span class="badge b-success" style="font-size:10px">Acting as '+uatPovPerson().name.split(' ')[0]+'</span>'
+      + '<button class="btn btn-ghost btn-sm" onclick="openUatGuide(\''+id+'\')">'+svg('book')+'View step-by-step guide</button></div>'
     + launchCard
     + verifyCard
-    + '<style>.mode-opt{border:1.5px solid var(--color-border-default);border-radius:var(--radius-md);padding:14px;cursor:pointer;transition:border-color var(--tf),background var(--tf)}.mode-opt:hover{border-color:var(--color-text-tertiary)}.mode-opt.sel{border-color:var(--color-action);background:var(--color-action-wash)}'
-      + '.mode-opt .mo-h{display:flex;align-items:center;gap:8px;font-weight:700;font-size:13.5px;margin-bottom:4px}.mode-opt .mo-radio{width:16px;height:16px;border-radius:50%;border:2px solid var(--color-border-strong);flex-shrink:0}.mode-opt.sel .mo-radio{border-color:var(--color-action);background:var(--color-action);box-shadow:inset 0 0 0 3px #fff}</style>'
     + '</div>';
 }
 function uatHowAccordion(){
   var open=APP.uat.howOpen===true;
   var steps=[
-    {n:'1', title:'Choose what you\'ll enter', body:'Simulation, or the real opening transaction you\'ll keep at go-live.'},
+    {n:'1', title:'Act as the assigned staff', body:'Switch POV to the staff member assigned to a scenario.'},
     {n:'2', title:'Open the ERP & record it', body:'Open Klay ERP, go to the right screen, and post the entry to the GL.'},
     {n:'3', title:'Check the Trial Balance', body:'Confirm your entry landed and debits equal credits.'},
     {n:'4', title:'Mark it verified', body:'Come back here and mark the scenario verified.'}
@@ -3784,13 +3998,30 @@ function uatModeOption(id,mode,title,body,sel){
   + '</div>';
 }
 function setUatMode(id,mode){ var t=uatTaskById(id); if(t)t.mode=mode; renderPage(); }
+function openUatGuide(id){
+  var t=uatTaskById(id); if(!t) return;
+  var steps=(t.guide||[]).map(function(s,i){
+    return '<div class="flex g3" style="align-items:flex-start;padding:11px 0;border-bottom:1px solid var(--color-border-subtle)">'
+      + '<span style="flex-shrink:0;width:24px;height:24px;border-radius:50%;background:var(--color-brand-wash);color:var(--color-brand-hover);font-weight:700;font-size:12px;display:flex;align-items:center;justify-content:center">'+(i+1)+'</span>'
+      + '<span class="fs13" style="line-height:1.55;color:var(--color-text-secondary)">'+s+'</span></div>';
+  }).join('');
+  openDrawer('<div class="drawer-head"><div><div class="section-label mb2 flex ac g2">'+svg('book')+'Step-by-step guide</div><div class="fw7 fs17" style="font-family:var(--font-display);font-weight:500">'+t.label+'</div>'
+      + '<div class="flex g1 ac mt1"><span class="badge b-neutral" style="font-size:10px">'+svg('users')+(t.role||'Staff')+'</span></div></div>'
+      + '<button class="x-btn" onclick="closeDrawer()">'+svg('x')+'</button></div>'
+    + '<div class="drawer-body">'
+      + '<div class="flex g2 ac mb4" style="align-items:flex-start;background:var(--color-action-wash);border:1px solid var(--color-action-subtle);border-radius:var(--radius-md);padding:11px 13px;font-size:12px;color:var(--color-action);line-height:1.5">'+svg('info')+'<span>Follow these steps inside the live Klay ERP. Come back to this tab when you\u2019re done to mark the scenario verified.</span></div>'
+      + steps
+    + '</div>'
+    + '<div class="drawer-foot"><button class="btn btn-primary btn-block" onclick="closeDrawer()">Got it</button></div>');
+}
 function markErpOpened(id){
   var t=uatTaskById(id); if(!t) return;
   t.opened=true;
   // simulate the round-trip: by the time the user comes back, the page already reflects
   // that the entry posted and the TB rebalanced — they just confirm.
   setTimeout(function(){ renderPage(); }, 50);
-  toast('Recorded in ERP sandbox', 'Your '+(id==='je'?'journal entry':(id==='bill'?'bill':'invoice'))+' posted to the GL. Come back to this tab to confirm.', 'success');
+  var nm={je:'journal entry',bill:'bill',inv:'invoice',depr:'depreciation entry',recon:'reconciliation'}[id]||'entry';
+  toast('Recorded in ERP sandbox', 'Your '+nm+' posted to the GL. Come back to this tab to confirm.', 'success');
 }
 function verifyTask(id){
   markTask(id); var t=uatTaskById(id);
@@ -3818,12 +4049,14 @@ function openingBalanceTotals(){
 function ensureSignoff(){
   if(APP.checklist) return;
   APP.checklist=[
-    {id:'data', label:'All 9 data files uploaded, validated and locked', auto:function(){return APP.uploads.every(function(u){return u.status==='locked';});}, done:false},
+    {id:'data', label:'All source data files uploaded, validated and locked', auto:function(){return APP.uploads.every(function(u){return u.status==='locked';});}, done:false},
     {id:'map', label:'Every legacy account mapped and confirmed (or deactivated)', auto:function(){if(!APP.mapRows)return false;var c=mapCounts();return c.mapped+c.deactivated===c.all;}, done:false},
     {id:'tax', label:'Tax codes, rates and posting accounts confirmed', auto:function(){return !!(APP.confirmed&&APP.confirmed.tax);}, done:false},
     {id:'rules', label:'Posting templates reviewed', auto:function(){return true;}, done:false},
     {id:'balanced', label:function(){var b=openingBalanceTotals();return b.diff===0?'Opening trial balance is balanced — total debit equals total credit':'Opening trial balance is OUT of balance — difference '+rupiahID(b.diff);}, auto:function(){return openingBalanceTotals().diff===0;}, done:false},
     {id:'subledger', label:'AR, AP and Inventory subledgers reconciled to their GL control accounts', done:false},
+    {id:'masterdata', label:'All master data confirmed with no anomalies', done:false},
+    {id:'training', label:'Our users have demonstrated they understand how to use Klay', done:false},
     {id:'open', label:'Opening balances per account agree with the legacy system', done:false},
     {id:'cutoff', label:'Cut-off date confirmed — no transactions dated before go-live will be entered afterward', done:false},
     {id:'uat', label:function(){var n=APP.uat?uatDone():0,t=APP.uat?APP.uat.tasks.length:3;return 'UAT passed — all '+t+' scenarios run in the ERP and verified ('+n+'/'+t+')';}, auto:function(){return APP.uat&&uatDone()===APP.uat.tasks.length;}, done:false},
