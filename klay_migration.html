@@ -2195,20 +2195,26 @@ function aiMappingSummary(c){
 function mappingFilterBar(c){
   var sv=APP.mapSearch||'';
   function dd(id,label,icon){
-    var raw=(id==='legacy'?APP.mapLegacyFilter:id==='klay'?APP.mapKlayFilter:APP.mapTypeFilter);
+    var raw=(id==='legacy'?APP.mapLegacyFilter:APP.mapKlayFilter);
     var disp=label;
     if(raw){
       if(id==='legacy'){ var lr=LEG_COA.filter(function(x){return x.code===raw;})[0]; disp=lr?(lr.code+' · '+shortName(lr.name)):raw; }
-      else if(id==='klay'){ var kk=klayByCode(raw); disp=kk?(kk.c+' · '+shortName(kk.n)):raw; }
-      else disp=raw;
+      else { var kk=klayByCode(raw); disp=kk?(kk.c+' · '+shortName(kk.n)):raw; }
     }
     if(disp.length>26) disp=disp.slice(0,25)+'…';
     return '<button class="map-dd'+(raw?' on':'')+'" onclick="openMapFilterMenu(event,\''+id+'\')">'+svg(icon)+'<span>'+disp+'</span>'+svg('chevDown')+'</button>';
   }
+  // multi-select dropdowns (issue tier + dimensions)
+  function multiDd(id,label,icon,selArr){
+    var n=(selArr||[]).length;
+    var disp = n? label+' · '+n : label;
+    return '<button class="map-dd'+(n?' on':'')+'" onclick="openMapFilterMenu(event,\''+id+'\')">'+svg(icon)+'<span>'+disp+'</span>'+svg('chevDown')+'</button>';
+  }
   return '<div class="map-filterbar mb4">'
     + dd('legacy','Legacy Account','layers')
     + dd('klay','Klay Account','layers')
-    + dd('type','Filter','filter')
+    + multiDd('tier','Issue tier','flag',APP.mapTierFilter)
+    + multiDd('dim','Dimensions','layers',APP.mapDimFilter)
     + '<div class="map-search"><span class="map-search-ic">'+svg('search')+'</span>'
       + '<input class="map-search-in" placeholder="Search legacy account name or code" value="'+sv.replace(/"/g,'&quot;')+'" oninput="APP.mapSearch=this.value;APP.mapPage=1;renderPage()">'
       + (sv?'<button class="map-search-x" onclick="APP.mapSearch=\'\';renderPage()">'+svg('x')+'</button>':'')
@@ -2217,7 +2223,7 @@ function mappingFilterBar(c){
       + '.map-dd{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--color-border-default);background:var(--color-surface-raised);border-radius:var(--radius-md);padding:8px 12px;font-size:13px;font-weight:600;color:var(--color-text-secondary);cursor:pointer;white-space:nowrap;transition:border-color var(--tf)}'
       + '.map-dd:hover{border-color:var(--color-text-tertiary)}.map-dd.on{border-color:var(--color-action);color:var(--color-action);background:var(--color-action-wash)}'
       + '.map-dd svg{width:15px;height:15px;opacity:.8}'
-      + '.map-search{flex:1;min-width:220px;display:flex;align-items:center;gap:8px;background:var(--color-surface-sunken);border:1px solid transparent;border-radius:var(--radius-md);padding:8px 12px}'
+      + '.map-search{flex:1;min-width:200px;display:flex;align-items:center;gap:8px;background:var(--color-surface-sunken);border:1px solid transparent;border-radius:var(--radius-md);padding:8px 12px}'
       + '.map-search:focus-within{background:#fff;border-color:var(--color-action)}'
       + '.map-search-ic{display:inline-flex;color:var(--color-text-tertiary)}.map-search-ic svg{width:16px;height:16px}'
       + '.map-search-in{flex:1;border:none;background:transparent;outline:none;font-size:13px;font-family:var(--font-sans);color:var(--color-text-primary)}'
@@ -2226,17 +2232,35 @@ function mappingFilterBar(c){
 }
 function openMapFilterMenu(e,kind){
   e.stopPropagation();
-  var cur=(kind==='legacy'?APP.mapLegacyFilter:kind==='klay'?APP.mapKlayFilter:APP.mapTypeFilter);
-  var menu;
-  if(kind==='type'){
-    var opts=['All','Has issue','No dimensions','Has dimensions'];
-    menu=opts.map(function(o){
-      var on=(o==='All'?!cur:cur===o);
-      return '<div class="menu-item'+(on?' menu-item-on':'')+'" onclick="setMapDdFilter(\'type\',\''+o+'\')">'+(on?svg('check'):'<span style="width:14px;display:inline-block"></span>')+o+'</div>';
-    }).join('');
-    openAnchoredMenu(e.currentTarget,menu,false);
+  // multi-select: issue tier
+  if(kind==='tier'){
+    var tiers=[['hard','Blocking'],['soft','Need attention'],['note','Note']];
+    var sel=APP.mapTierFilter||[];
+    var menu='<div class="rowmenu-h">Issue tier</div>'
+      + '<div class="rowmenu-note">Pick one or more to filter the table.</div>'
+      + tiers.map(function(t){ var on=sel.indexOf(t[0])>=0;
+        return '<label class="reqdim-opt"><input type="checkbox" '+(on?'checked':'')+' onchange="toggleMapMultiFilter(\'tier\',\''+t[0]+'\',this.checked)"><span class="reqdim-opt-name">'+t[1]+'</span></label>';
+      }).join('')
+      + '<div class="rowmenu-sep"></div>'
+      + '<div class="rowmenu-item" onclick="clearMapMultiFilter(\'tier\')"><span class="muted" style="margin-right:8px;display:inline-flex">'+svg('x')+'</span>Clear</div>';
+    openAnchoredMenu(e.currentTarget,menu,true);
     return;
   }
+  // multi-select: dimensions
+  if(kind==='dim'){
+    var sel2=APP.mapDimFilter||[];
+    var menu2='<div class="rowmenu-h">Required dimensions</div>'
+      + '<div class="rowmenu-note">Show accounts that require any of these.</div>'
+      + DIMS.map(function(d){ var on=sel2.indexOf(d.id)>=0;
+        return '<label class="reqdim-opt"><input type="checkbox" '+(on?'checked':'')+' onchange="toggleMapMultiFilter(\'dim\',\''+d.id+'\',this.checked)"><span class="dot" style="background:'+d.color+';width:9px;height:9px;border-radius:50%;display:inline-block;flex-shrink:0"></span><span class="reqdim-opt-name">'+d.name+'</span></label>';
+      }).join('')
+      + '<div class="rowmenu-sep"></div>'
+      + '<div class="rowmenu-item" onclick="clearMapMultiFilter(\'dim\')"><span class="muted" style="margin-right:8px;display:inline-flex">'+svg('x')+'</span>Clear</div>';
+    openAnchoredMenu(e.currentTarget,menu2,true);
+    return;
+  }
+  var cur=(kind==='legacy'?APP.mapLegacyFilter:APP.mapKlayFilter);
+  var menu;
   // legacy / klay = per-account searchable list
   var allItem='<div class="menu-item'+(!cur?' menu-item-on':'')+'" onclick="setMapDdFilter(\''+kind+'\',\'__all__\')">'+(!cur?svg('check'):'<span style="width:14px;display:inline-block"></span>')+(kind==='legacy'?'All legacy accounts':'All Klay accounts')+'</div>';
   var items;
@@ -2256,6 +2280,17 @@ function openMapFilterMenu(e,kind){
     + '<div class="acctf-list" style="max-height:280px;overflow-y:auto">'+items+'</div>';
   openAnchoredMenu(e.currentTarget,menu,true);
 }
+function toggleMapMultiFilter(kind,val,on){
+  var key=(kind==='tier'?'mapTierFilter':'mapDimFilter');
+  APP[key]=APP[key]||[];
+  var i=APP[key].indexOf(val);
+  if(on){ if(i<0) APP[key].push(val); } else { if(i>=0) APP[key].splice(i,1); }
+  APP.mapPage=1; renderPage();
+}
+function clearMapMultiFilter(kind){
+  APP[(kind==='tier'?'mapTierFilter':'mapDimFilter')]=[];
+  APP.mapPage=1; closeAnchoredMenu(); renderPage();
+}
 function filterAcctMenu(q){
   q=(q||'').toLowerCase().trim();
   var list=document.querySelectorAll('#anchmenu .filter-acct');
@@ -2268,19 +2303,21 @@ function setMapDdFilter(kind,val){
   var isAll=(val==='__all__'||val==='All');
   if(kind==='legacy') APP.mapLegacyFilter=isAll?null:val;
   else if(kind==='klay') APP.mapKlayFilter=isAll?null:val;
-  else APP.mapTypeFilter=isAll?null:val;
   APP.mapPage=1; closeAnchoredMenu(); renderPage();
 }
 function mapCounts(){
   var rows=APP.mapRows;
+  var noteRows=rows.filter(function(r){return r.issue && r.issue.sev==='note';}).length;
   return {
     all:rows.length,
     mapped:rows.filter(function(r){return r.mapStatus==='mapped';}).length,
-    auto:rows.filter(function(r){return r.mapStatus==='auto';}).length,
+    auto:rows.filter(function(r){return r.mapStatus==='auto'||(r.issue&&r.issue.sev==='note');}).length,
     later:rows.filter(function(r){return r.mapStatus==='later';}).length,
     deactivated:rows.filter(function(r){return r.mapStatus==='deactivated';}).length,
     unmapped:rows.filter(function(r){return r.mapStatus==='unmapped';}).length,
-    issues:rows.filter(function(r){return r.issue;}).length
+    issues:rows.filter(function(r){return r.issue && r.issue.sev!=='note';}).length,
+    unmappedTotal:rows.filter(function(r){return r.mapStatus==='unmapped' || (r.issue && r.issue.sev!=='note');}).length,
+    noteIssues:noteRows
   };
 }
 
@@ -2295,10 +2332,10 @@ function renderWorkspace(){
   var shown=rows.filter(function(r){
     if(f==='all') return true;
     if(f==='mapped') return r.mapStatus==='mapped';
-    if(f==='auto') return r.mapStatus==='auto';
+    if(f==='auto') return r.mapStatus==='auto' || (r.issue && r.issue.sev==='note');
     if(f==='later') return r.mapStatus==='later';
     if(f==='deactivated') return r.mapStatus==='deactivated';
-    if(f==='unmapped') return r.mapStatus==='unmapped'||r.issue;
+    if(f==='unmapped') return r.mapStatus==='unmapped' || (r.issue && r.issue.sev!=='note');
     return true;
   });
   // additional issue filter (from clicking an issue card)
@@ -2310,13 +2347,16 @@ function renderWorkspace(){
   if(APP.mapLegacyFilter){ shown=shown.filter(function(r){return r.code===APP.mapLegacyFilter;}); }
   // klay account dropdown (specific target account code)
   if(APP.mapKlayFilter){ shown=shown.filter(function(r){return r.target===APP.mapKlayFilter;}); }
-  // type filter dropdown
-  if(APP.mapTypeFilter){
+  // issue tier multi-select (Blocking / Need attention / Note)
+  if(APP.mapTierFilter && APP.mapTierFilter.length){
+    shown=shown.filter(function(r){ return r.issue && APP.mapTierFilter.indexOf(r.issue.sev)>=0; });
+  }
+  // dimensions multi-select — show accounts that require ANY of the chosen dimensions
+  if(APP.mapDimFilter && APP.mapDimFilter.length){
     shown=shown.filter(function(r){
-      if(APP.mapTypeFilter==='Has issue') return !!r.issue;
-      if(APP.mapTypeFilter==='No dimensions') return !r.target || getAcctReqDims(r.target).length===0;
-      if(APP.mapTypeFilter==='Has dimensions') return r.target && getAcctReqDims(r.target).length>0;
-      return true;
+      if(!r.target) return false;
+      var req=getAcctReqDims(r.target);
+      return APP.mapDimFilter.some(function(did){ return req.indexOf(did)>=0; });
     });
   }
   var pct=Math.round((c.mapped+c.deactivated)/c.all*100);
@@ -2328,7 +2368,7 @@ function renderWorkspace(){
   APP.mapRows.filter(function(r){return r.issue;}).forEach(function(r){
     var k=r.issue.sev+'|'+r.issue.label; (issueGroups[k]=issueGroups[k]||{sev:r.issue.sev,label:r.issue.label,n:0}).n++;
   });
-  var sevCard={hard:{b:'b-danger',ic:'alert',t:'Hard block'},soft:{b:'b-warning',ic:'alert',t:'Soft block'},warn:{b:'b-info',ic:'info',t:'Warning'},note:{b:'b-info',ic:'info',t:'Note'}};
+  var sevCard={hard:{b:'b-danger',ic:'alert',t:'Blocking'},soft:{b:'b-warning',ic:'alert',t:'Need attention'},warn:{b:'b-info',ic:'info',t:'Warning'},note:{b:'b-info',ic:'info',t:'Note'}};
   var issueCards=Object.keys(issueGroups).sort(function(a,b){return SEV_ORDER[issueGroups[a].sev]-SEV_ORDER[issueGroups[b].sev];}).map(function(k){
     var g=issueGroups[k];var m=sevCard[g.sev];
     var active = iss && iss.sev===g.sev && iss.label===g.label;
@@ -2396,10 +2436,12 @@ function renderWorkspace(){
     // status filter pills
     + '<div class="flex jb ac mb4" style="flex-wrap:wrap;gap:12px">'
       + '<div class="flex g2 ac" style="flex-wrap:wrap">'
-        + filterTab('all','All',c.all)+filterTab('unmapped','Needs attention',c.unmapped+c.issues)
-        + filterTab('auto','AI suggested',c.auto)+filterTab('mapped','Mapped',c.mapped)
+        + filterTab('all','All',c.all)
+        + filterTab('mapped','Mapped',c.mapped)
+        + filterTab('auto','AI suggested',c.auto)
         + filterTab('later','Marked for later',c.later)
         + filterTab('deactivated','Deactivated',c.deactivated)
+        + filterTab('unmapped','Unmapped',c.unmappedTotal)
         + activePill
       + '</div>'
     + '</div>'
@@ -2512,9 +2554,8 @@ function mapStatusLabel(r){
   if(r.mapStatus==='deactivated') return '<span class="map-stat" style="color:var(--color-text-tertiary)">Deactivated</span>';
   if(r.mapStatus==='later') return '<span class="map-stat" style="color:var(--warning-text)">Marked for later</span>';
   if(r.mapStatus==='mapped') return '<span class="map-stat" style="color:var(--success-text)">'+svg('check')+'Mapped</span>';
-  if(r.issue && r.issue.sev==='hard') return '<span class="map-stat" style="color:var(--danger-text)">Hard block — needs fix</span>';
-  if(r.issue && r.issue.sev==='soft') return '<span class="map-stat" style="color:var(--warning-text)">Soft block</span>';
-  if(r.issue && r.issue.sev==='note') return '<span class="map-stat" style="color:var(--color-action)">Note</span>';
+  if(r.issue && (r.issue.sev==='hard'||r.issue.sev==='soft')) return '<span class="map-stat" style="color:var(--color-text-tertiary)">Unmapped</span>';
+  if(r.issue && r.issue.sev==='note') return '<span class="map-stat" style="color:var(--warning-text)">'+svg('spark')+'AI suggested</span>';
   if(r.mapStatus==='auto') return '<span class="map-stat" style="color:var(--warning-text)">'+svg('spark')+'AI suggested</span>';
   return '<span class="map-stat" style="color:var(--color-text-tertiary)">Unmapped</span>';
 }
@@ -2787,7 +2828,12 @@ function bulkDeactivate(){
 function bulkConfirmAuto(){
   var n=0;
   APP.mapRows.forEach(function(r){
-    if(r.mapStatus==='auto' && canConfirmRow(r)){ r.mapStatus='mapped'; n++; }
+    var isAiSuggested = r.mapStatus==='auto' || (r.issue && r.issue.sev==='note');
+    if(isAiSuggested && r.target && !(r.issue && (r.issue.sev==='hard'||r.issue.sev==='soft'))){
+      r.mapStatus='mapped';
+      if(r.issue && r.issue.sev==='note') r.issue=null; // accepting the AI suggestion clears the note
+      n++;
+    }
   });
   renderPage();
   toast(n+' accounts mapped', n? 'AI suggestions accepted in bulk.':'No AI-suggested rows ready — some have blocking issues.', n?'success':'info');
