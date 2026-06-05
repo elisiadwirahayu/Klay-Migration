@@ -3851,7 +3851,21 @@ function ensureUAT(){
     {id:'depr', label:'Depreciation entry', role:'Finance Manager', allowed:['SS'], desc:'Run a monthly depreciation entry from the Fixed Asset register, post it, then confirm the Trial Balance reflects the expense and accumulated depreciation.', icon:'scale', dest:'Journal Entry', done:false,
       guide:['Open Klay ERP and go to <b>Journal Entry</b> (depreciation posts as a journal).','Create a depreciation entry: debit <span class="mono">Beban Penyusutan</span>, credit <span class="mono">Akumulasi Penyusutan</span>.','Use the monthly amount from your Fixed Asset register for one asset.','Review and <b>Post</b> the entry.','Open <b>Trial Balance</b> and confirm depreciation expense and accumulated depreciation updated.']},
     {id:'recon', label:'Bank reconciliation', role:'Finance Manager', allowed:['SS'], desc:'Reconcile a bank account against its statement in the live ERP and confirm the cleared balance ties to the GL.', icon:'shield', dest:'Bank Reconciliation', done:false,
-      guide:['Open Klay ERP and go to <b>Bank Reconciliation</b>.','Select a migrated bank account and the statement period.','Match the opening balance to the migrated GL balance for that account.','Tick the transactions that have cleared, then confirm the reconciliation.','Confirm the cleared balance ties back to the bank GL account.']}
+      guide:['Open Klay ERP and go to <b>Bank Reconciliation</b>.','Select a migrated bank account and the statement period.','Match the opening balance to the migrated GL balance for that account.','Tick the transactions that have cleared, then confirm the reconciliation.','Confirm the cleared balance ties back to the bank GL account.']},
+    {id:'master', label:'Input master data', role:'Admin', allowed:['RW'], kind:'master', icon:'layers', dest:'Master Data', done:false,
+      desc:'Create one new record in each master data screen and confirm it saves correctly in the live ERP.',
+      subs:[
+        {id:'product', label:'Add a product', dest:'Product Master \u2192 New product', icon:'layers',
+          guide:['Open Klay ERP and go to <b>Product Master</b>.','Click <b>New product</b>.','Fill <b>Product Code/SKU</b> and <b>Product Name</b>.','Set <b>Category</b>, <b>Primary UoM</b> and (if used) <b>Secondary UoM</b> + conversion ratio.','Enter <b>Sales Price</b>, <b>Cost Price</b> and <b>Costing Method</b>.','Click <b>Save</b>, then reopen the product and confirm every field saved correctly.']},
+        {id:'vendor', label:'Add a vendor', dest:'Vendors \u2192 New vendor', icon:'truck',
+          guide:['Open Klay ERP and go to <b>Vendors</b>.','Click <b>New vendor</b>.','Fill <b>Vendor Code</b> and <b>Vendor Name</b>.','Enter contact details and <b>Payment Terms</b> (e.g. NET 30).','Set the default <b>Accounts Payable</b> account for this vendor.','Click <b>Save</b>, then reopen the vendor and confirm every field saved correctly.']},
+        {id:'customer', label:'Add a customer', dest:'Customers \u2192 New customer', icon:'receipt',
+          guide:['Open Klay ERP and go to <b>Customers</b>.','Click <b>New customer</b>.','Fill <b>Customer Code</b> and <b>Customer Name</b>.','Enter contact details and <b>Payment Terms</b> (e.g. NET 45).','Set the default <b>Accounts Receivable</b> account for this customer.','Click <b>Save</b>, then reopen the customer and confirm every field saved correctly.']},
+        {id:'bank', label:'Add a bank account', dest:'Bank Accounts \u2192 New bank account', icon:'book',
+          guide:['Open Klay ERP and go to <b>Bank Accounts</b>.','Click <b>New bank account</b>.','Fill <b>Bank Name</b> and <b>Account Number</b>.','Set the <b>Currency</b> (e.g. IDR).','Link it to the matching <b>Kas &amp; Bank</b> GL account.','Click <b>Save</b>, then reopen the bank account and confirm every field saved correctly.']},
+        {id:'asset', label:'Add a fixed asset', dest:'Fixed Assets \u2192 New asset', icon:'scale',
+          guide:['Open Klay ERP and go to <b>Fixed Assets</b>.','Click <b>New asset</b>.','Fill <b>Asset Name</b> and <b>Acquisition Date</b>.','Enter <b>Acquisition Cost</b> and <b>Useful Life</b>.','Set the <b>asset</b>, <b>accumulated depreciation</b> and <b>depreciation expense</b> accounts.','Click <b>Save</b>, then reopen the asset and confirm every field saved correctly.']}
+      ]}
   ]};
 }
 function uatPovPerson(){ return TEAM.filter(function(p){return p.ini===APP.uatPov;})[0]||TEAM[0]; }
@@ -3898,7 +3912,7 @@ function uatSummary(){
       + '<div class="fs12 muted" style="line-height:1.5;margin-bottom:6px">'+t.desc+'</div>'
       + '<div class="fs11 muted" style="margin-bottom:10px">Assigned to: '+allowedNames+'</div>'
       + '<div class="flex jb ac">'+footer
-        + '<button class="btn btn-ghost btn-xs" onclick="event.stopPropagation();openUatGuide(\''+t.id+'\')" title="Step-by-step guide">'+svg('book')+'Guide</button></div>'
+        + (t.kind==='master'?'':'<button class="btn btn-ghost btn-xs" onclick="event.stopPropagation();openUatGuide(\''+t.id+'\')" title="Step-by-step guide">'+svg('book')+'Guide</button>')+'</div>'
     + '</div>';
   }).join('');
 
@@ -3910,7 +3924,7 @@ function uatSummary(){
       + '<span class="uat-pov-meta"><span class="uat-pov-name">'+p.name.split(' ')[0]+(p.you?' (You)':'')+'</span><span class="uat-pov-role">'+p.role+'</span></span></button>';
   }).join('');
   var povCard=''
-    + '<div class="card card-pad mb5">'
+    + '<div class="card card-pad mb5" style="border:1px dashed var(--color-border-strong);background:transparent;box-shadow:none">'
       + '<div class="flex jb ac mb1" style="flex-wrap:wrap;gap:8px"><div class="flex ac g2 fw7 fs14">'+svg('users')+'Acting as</div>'
         + '<span class="fs12 muted">Prototype POV — switch to see what each staff member can do</span></div>'
       + '<div class="fs12 muted mb3" style="line-height:1.5">You are <b style="color:var(--color-text-primary)">'+me.name+'</b> ('+me.role+'). Only scenarios assigned to your role are actionable; the rest are view-only.</div>'
@@ -3952,25 +3966,27 @@ function uatRunPage(id){
   var root=erpUrl();
   var tbRoot=erpUrl(); // ERP root; TB reached via menu (SPA — deep links 404 on GH Pages)
   var lockStyle = '';
-  var nounMap={je:'journal entry',bill:'vendor bill',inv:'customer invoice',depr:'depreciation entry',recon:'bank reconciliation'};
-  var shortMap={je:'journal',bill:'bill',inv:'invoice',depr:'depreciation entry',recon:'reconciliation'};
+  var nounMap={je:'journal entry',bill:'vendor bill',inv:'customer invoice',depr:'depreciation entry',recon:'bank reconciliation',mdProduct:'product',mdVendor:'vendor',mdCustomer:'customer',mdBank:'bank account',mdAsset:'fixed asset'};
+  var shortMap={je:'journal',bill:'bill',inv:'invoice',depr:'depreciation entry',recon:'reconciliation',mdProduct:'product',mdVendor:'vendor',mdCustomer:'customer',mdBank:'bank account',mdAsset:'fixed asset'};
   var noun = nounMap[id]||'entry';
   var shortNoun = shortMap[id]||'entry';
   var opened = !!t.opened;
+  var isMaster = t.kind==='master';
   var launchCard = ''
     + '<div class="card card-pad mb5" style="'+lockStyle+'">'
-      + '<div class="section-label mb3">Step 1 \u00b7 Record it in the ERP</div>'
+      + '<div class="section-label mb3">Step 1 \u00b7 '+(isMaster?'Create it in the ERP':'Record it in the ERP')+'</div>'
       + '<div class="flex jb ac" style="gap:16px;flex-wrap:wrap">'
         + '<div class="flex g3 ac" style="align-items:flex-start;flex:1;min-width:260px"><div style="width:38px;height:38px;border-radius:var(--radius-md);background:var(--color-action-wash);color:var(--color-action);display:flex;align-items:center;justify-content:center;flex-shrink:0">'+svg(t.icon)+'</div>'
-          + '<div><div class="fw6 fs14">Open Klay ERP, then go to <b>'+t.dest+'</b></div><div class="fs12 muted" style="margin-top:2px">Record the '+noun+' and post it to the General Ledger.</div></div></div>'
+          + '<div><div class="fw6 fs14">Open Klay ERP, then go to <b>'+t.dest+'</b></div><div class="fs12 muted" style="margin-top:2px">'+(isMaster?'Create the record and save it.':'Record the '+noun+' and post it to the General Ledger.')+'</div></div></div>'
         + '<a class="btn '+(opened?'btn-ghost':'btn-primary')+'" href="'+root+'" target="_blank" rel="noopener" onclick="markErpOpened(\''+id+'\')" style="flex-shrink:0;text-decoration:none">'+svg('external')+(opened?'Re-open ERP':'Open ERP')+'</a>'
       + '</div>'
-      + '<div class="flex jb ac" style="gap:16px;flex-wrap:wrap;border-top:1px solid var(--color-border-subtle);padding-top:14px;margin-top:14px">'
+      + (isMaster ? '' :
+        '<div class="flex jb ac" style="gap:16px;flex-wrap:wrap;border-top:1px solid var(--color-border-subtle);padding-top:14px;margin-top:14px">'
         + '<div class="flex g3 ac" style="align-items:flex-start;flex:1;min-width:260px"><div style="width:38px;height:38px;border-radius:var(--radius-md);background:var(--color-action-wash);color:var(--color-action);display:flex;align-items:center;justify-content:center;flex-shrink:0">'+svg('scale')+'</div>'
           + '<div><div class="fw6 fs14">Then open <b>Trial Balance</b></div><div class="fs12 muted" style="margin-top:2px">Confirm your '+shortNoun+' posted and total debits equal total credits.</div></div></div>'
         + '<a class="btn btn-ghost" href="'+tbRoot+'" target="_blank" rel="noopener" style="flex-shrink:0;text-decoration:none">'+svg('external')+'Open Trial Balance</a>'
-      + '</div>'
-      + (opened? '<div class="flex g2 ac mt4" style="align-items:flex-start;background:var(--success-surface);border:1px solid var(--success-border);border-radius:var(--radius-md);padding:11px 14px;font-size:12.5px;color:var(--success-text);line-height:1.5">'+svg('checkCircle')+'<span><b>Recorded in the ERP sandbox.</b> We detected your '+shortNoun+' posted to the General Ledger and the Trial Balance is back in balance. Review it in the ERP tab, then confirm below.</span></div>':'')
+      + '</div>')
+      + (opened? '<div class="flex g2 ac mt4" style="align-items:flex-start;background:var(--success-surface);border:1px solid var(--success-border);border-radius:var(--radius-md);padding:11px 14px;font-size:12.5px;color:var(--success-text);line-height:1.5">'+svg('checkCircle')+'<span>'+(isMaster?'<b>Saved in the ERP sandbox.</b> We detected your new record. Reopen it to confirm the fields saved, then confirm below.':'<b>Recorded in the ERP sandbox.</b> We detected your '+shortNoun+' posted to the General Ledger and the Trial Balance is back in balance. Review it in the ERP tab, then confirm below.')+'</span></div>':'')
     + '</div>';
 
   // Step 2 only "unlocks" once the ERP was opened — keeps the flow seamless on return
@@ -3985,6 +4001,46 @@ function uatRunPage(id){
             + '<button class="btn btn-primary" onclick="verifyTask(\''+id+'\')"'+(opened?'':' disabled')+'>'+svg('check')+'Mark verified</button></div>')
     + '</div>';
 
+  // Master-data scenario: one card with several sub-scenarios (one per master-data type)
+  var masterBody='';
+  if(isMaster && t.subs){
+    t.subsDone = t.subsDone || {};
+    var doneN = t.subs.filter(function(sub){ return t.subsDone[sub.id]; }).length;
+    var allSubs = doneN===t.subs.length;
+    var subCards = t.subs.map(function(sub){
+      var sdone = !!t.subsDone[sub.id];
+      return '<div class="card" style="padding:14px 16px;'+(sdone?'border-color:var(--success-border);background:var(--success-surface)':'')+'">'
+        + '<div class="flex jb ac" style="gap:12px;flex-wrap:wrap">'
+          + '<div class="flex g3 ac" style="align-items:flex-start;flex:1;min-width:220px">'
+            + '<div style="width:34px;height:34px;border-radius:var(--radius-md);background:'+(sdone?'var(--success-surface)':'var(--color-action-wash)')+';color:'+(sdone?'var(--success-text)':'var(--color-action)')+';display:flex;align-items:center;justify-content:center;flex-shrink:0">'+svg(sdone?'checkCircle':sub.icon)+'</div>'
+            + '<div><div class="fw6 fs14">'+sub.label+'</div><div class="fs12 muted" style="margin-top:1px">'+sub.dest+'</div></div>'
+          + '</div>'
+          + '<div class="flex g2 ac" style="flex-shrink:0">'
+            + '<button class="btn btn-ghost btn-xs" onclick="openUatSubGuide(\''+id+'\',\''+sub.id+'\')">'+svg('book')+'Guide</button>'
+            + '<a class="btn btn-ghost btn-xs" href="'+root+'" target="_blank" rel="noopener" style="text-decoration:none">'+svg('external')+'Open ERP</a>'
+            + (sdone
+                ? '<button class="btn btn-ghost btn-xs" onclick="toggleUatSub(\''+id+'\',\''+sub.id+'\',false)">'+svg('check')+'Done</button>'
+                : '<button class="btn btn-primary btn-xs" onclick="toggleUatSub(\''+id+'\',\''+sub.id+'\',true)">Mark done</button>')
+          + '</div>'
+        + '</div></div>';
+    }).join('');
+    masterBody = ''
+      + '<div class="card card-pad mb5">'
+        + '<div class="flex jb ac mb1" style="flex-wrap:wrap;gap:8px"><div class="section-label">Create one of each in the ERP</div>'
+          + '<span class="fs12 muted"><b class="num" style="color:var(--color-text-primary)">'+doneN+'</b> of '+t.subs.length+' done</span></div>'
+        + '<div class="fs12 muted mb3" style="line-height:1.5">Work through each master data type below. Open the ERP, create one record, then mark it done. No Trial Balance needed — master data doesn\u2019t post to the GL.</div>'
+        + '<div style="display:flex;flex-direction:column;gap:10px">'+subCards+'</div>'
+      + '</div>'
+      + '<div class="card card-pad" style="'+(allSubs?'':'opacity:.5;pointer-events:none')+'">'
+        + '<div class="section-label mb3">Confirm the scenario</div>'
+        + (t.done
+            ? '<div class="flex jb ac"><div class="flex g2 ac" style="color:var(--success-text)">'+svg('checkCircle')+'<span class="fw6 fs14">Scenario verified</span></div>'
+              + '<button class="btn btn-ghost btn-sm" onclick="unverifyTask(\''+id+'\')">Undo</button></div>'
+            : '<div class="flex jb ac" style="gap:12px;flex-wrap:wrap"><div class="fs13 muted" style="flex:1;min-width:220px;line-height:1.5">'+(allSubs?'All master data types created. Mark the scenario verified.':'Create one record of each type above first.')+'</div>'
+              + '<button class="btn btn-primary" onclick="verifyTask(\''+id+'\')"'+(allSubs?'':' disabled')+'>'+svg('check')+'Mark verified</button></div>')
+      + '</div>';
+  }
+
   return '<div class="canvas narrow">'
     + '<div class="flex ac g2 fs13 mb4"><span class="clickable" style="color:var(--color-action);font-weight:600" onclick="uatBackToSummary()">UAT scenarios</span><span class="muted">/</span><span class="muted">'+t.label+'</span></div>'
     + '<div class="page-head-row"><div><div class="page-title" style="font-size:28px">'+t.label+(t.done?' <span class="badge b-success" style="font-size:11px;vertical-align:middle">'+svg('check')+'Verified</span>':'')+'</div>'
@@ -3992,15 +4048,14 @@ function uatRunPage(id){
       + '<button class="btn btn-ghost" onclick="uatBackToSummary()">'+svg('arrowLeft')+'Back</button></div>'
     + '<div class="flex g2 ac mb5" style="flex-wrap:wrap"><span class="badge b-info" style="font-size:10px">'+svg('users')+'For: '+t.role+'</span>'
       + '<span class="badge b-success" style="font-size:10px">Acting as '+uatPovPerson().name.split(' ')[0]+'</span>'
-      + '<button class="btn btn-ghost btn-sm" onclick="openUatGuide(\''+id+'\')">'+svg('book')+'View step-by-step guide</button></div>'
-    + launchCard
-    + verifyCard
+      + (isMaster?'':'<button class="btn btn-ghost btn-sm" onclick="openUatGuide(\''+id+'\')">'+svg('book')+'View step-by-step guide</button>')+'</div>'
+    + (isMaster ? masterBody : (launchCard + verifyCard))
     + '</div>';
 }
 function uatHowAccordion(){
   var open=APP.uat.howOpen===true;
   var steps=[
-    {n:'1', title:'Act as the assigned staff', body:'Switch POV to the staff member assigned to a scenario.'},
+    {n:'1', title:'Try the scenarios for your role', body:'There are several UAT scenarios here — try the ones assigned to your role.'},
     {n:'2', title:'Open the ERP & record it', body:'Open Klay ERP, go to the right screen, and post the entry to the GL.'},
     {n:'3', title:'Check the Trial Balance', body:'Confirm your entry landed and debits equal credits.'},
     {n:'4', title:'Mark it verified', body:'Come back here and mark the scenario verified.'}
@@ -4024,6 +4079,29 @@ function uatModeOption(id,mode,title,body,sel){
   + '</div>';
 }
 function setUatMode(id,mode){ var t=uatTaskById(id); if(t)t.mode=mode; renderPage(); }
+function toggleUatSub(taskId,subId,on){
+  var t=uatTaskById(taskId); if(!t) return;
+  t.subsDone=t.subsDone||{};
+  if(on) t.subsDone[subId]=true; else delete t.subsDone[subId];
+  renderPage();
+}
+function openUatSubGuide(taskId,subId){
+  var t=uatTaskById(taskId); if(!t||!t.subs) return;
+  var sub=t.subs.filter(function(s){return s.id===subId;})[0]; if(!sub) return;
+  var steps=(sub.guide||[]).map(function(s,i){
+    return '<div class="flex g3" style="align-items:flex-start;padding:11px 0;border-bottom:1px solid var(--color-border-subtle)">'
+      + '<span style="flex-shrink:0;width:24px;height:24px;border-radius:50%;background:var(--color-brand-wash);color:var(--color-brand-hover);font-weight:700;font-size:12px;display:flex;align-items:center;justify-content:center">'+(i+1)+'</span>'
+      + '<span class="fs13" style="line-height:1.55;color:var(--color-text-secondary)">'+s+'</span></div>';
+  }).join('');
+  openDrawer('<div class="drawer-head"><div><div class="section-label mb2 flex ac g2">'+svg('book')+'Step-by-step guide</div><div class="fw7 fs17" style="font-family:var(--font-display);font-weight:500">'+sub.label+'</div>'
+      + '<div class="flex g1 ac mt1"><span class="badge b-neutral" style="font-size:10px">'+svg('users')+t.role+'</span></div></div>'
+      + '<button class="x-btn" onclick="closeDrawer()">'+svg('x')+'</button></div>'
+    + '<div class="drawer-body">'
+      + '<div class="flex g2 ac mb4" style="align-items:flex-start;background:var(--color-action-wash);border:1px solid var(--color-action-subtle);border-radius:var(--radius-md);padding:11px 13px;font-size:12px;color:var(--color-action);line-height:1.5">'+svg('info')+'<span>Do this inside the live Klay ERP, then come back and mark it done.</span></div>'
+      + steps
+    + '</div>'
+    + '<div class="drawer-foot"><button class="btn btn-primary btn-block" onclick="closeDrawer()">Got it</button></div>');
+}
 function openUatGuide(id){
   var t=uatTaskById(id); if(!t) return;
   var steps=(t.guide||[]).map(function(s,i){
@@ -4046,8 +4124,9 @@ function markErpOpened(id){
   // simulate the round-trip: by the time the user comes back, the page already reflects
   // that the entry posted and the TB rebalanced — they just confirm.
   setTimeout(function(){ renderPage(); }, 50);
-  var nm={je:'journal entry',bill:'bill',inv:'invoice',depr:'depreciation entry',recon:'reconciliation'}[id]||'entry';
-  toast('Recorded in ERP sandbox', 'Your '+nm+' posted to the GL. Come back to this tab to confirm.', 'success');
+  var nm={je:'journal entry',bill:'bill',inv:'invoice',depr:'depreciation entry',recon:'reconciliation',mdProduct:'product',mdVendor:'vendor',mdCustomer:'customer',mdBank:'bank account',mdAsset:'fixed asset'}[id]||'record';
+  if(t.kind==='master'){ toast('Saved in ERP sandbox', 'Your '+nm+' was created. Come back to this tab to confirm.', 'success'); }
+  else { toast('Recorded in ERP sandbox', 'Your '+nm+' posted to the GL. Come back to this tab to confirm.', 'success'); }
 }
 function verifyTask(id){
   markTask(id); var t=uatTaskById(id);
