@@ -1299,6 +1299,16 @@ function masterDataDepFor(r){
   return null;
 }
 function depTotal(dep){ if(!dep) return 0; return (dep.products||0)+(dep.vendors||0)+(dep.customers||0); }
+// Migrated balance carried by a legacy account at the cut-off.
+// Returns {bal, openItems, openSum} | null. AR/AP accounts also carry open subledger items.
+function migratedBalanceFor(r){
+  var t=r.type, n=r.name||'';
+  if(t==='Receivable' || n.indexOf('Piutang')>=0) return {bal:712000000, openItems:96, openSum:712000000, kind:'AR'};
+  if(t==='Payable' || n.indexOf('Utang Usaha')>=0) return {bal:534000000, openItems:120, openSum:534000000, kind:'AP'};
+  if(t==='Bank' || n.indexOf('Kas')>=0 || n.indexOf('Bank')>=0) return {bal:286000000, openItems:0, openSum:0, kind:'cash'};
+  if(t==='Inventory' || n.indexOf('Persediaan')>=0 || n.indexOf('Inventory')>=0 || n.indexOf('Finished goods')>=0) return {bal:314500000, openItems:0, openSum:0, kind:'inventory'};
+  return null;
+}
 function depParts(dep){
   if(!dep) return [];
   var p=[];
@@ -1330,8 +1340,9 @@ function buildMappingRows(){
     // Master-data dependency: which legacy accounts are referenced by product/vendor/customer master data.
     // Dependency conceptually lives on the Klay account; while mapping it travels with the legacy row.
     var dep=masterDataDepFor(r);
+    var bal=migratedBalanceFor(r);
     return {code:r.code,name:r.name,cat:r.cat,ltype:r.type,cur:r.cur,target:target,
-            mapStatus: target? 'auto':'unmapped', issue:null, dep:dep};
+            mapStatus: target? 'auto':'unmapped', issue:null, dep:dep, bal:bal};
   });
   // Inject issues to reproduce the screenshots' issue mix
   function find(code){return rows.filter(function(x){return x.code===code;})[0];}
@@ -2271,39 +2282,18 @@ function rowSortKey(r){
   return 3; // mapped, auto, unmapped — original order preserved via ord tiebreaker
 }
 function aiMappingSummary(c){
-  // Accounts that affect master data is a FIXED property — count all of them, regardless of map status.
-  var depAll=APP.mapRows.filter(function(r){ return depTotal(r.dep)>0; }).length;
-  var depBlocked=APP.mapRows.filter(function(r){ return depTotal(r.dep)>0 && r.issue && (r.issue.sev==='hard'||r.issue.sev==='soft'); }).length;
-  // Card persists while there are AI suggestions to confirm OR any accounts that affect master data.
-  if(!c.auto && !depAll) return '';
-
-  // Block 1 — AI suggested mapping (only while suggestions remain)
-  var b1 = c.auto>0 ? '<div class="flex g3" style="align-items:flex-start">'
-    + '<span class="ai-sub-ico" style="background:var(--warning-surface);color:var(--warning-text);border-color:var(--warning-border)">'+svg('spark')+'</span>'
-    + '<div style="flex:1;min-width:0">'
-      + '<div class="flex jb ac" style="gap:12px;flex-wrap:wrap"><div class="fw7 fs14">Klay suggested mapping for '+c.auto+' account'+(c.auto>1?'s':'')+'</div>'
-        + '<div class="flex g2 ac" style="flex-shrink:0"><button class="btn btn-ghost btn-xs" onclick="setMapFilter(\'auto\')">'+svg('filter')+'Review</button>'
-          + '<button class="btn btn-primary btn-xs" onclick="bulkConfirmAuto()">'+svg('check')+'Confirm all '+c.auto+'</button></div></div>'
-      + '<div class="fs12 muted" style="margin-top:3px;line-height:1.5;max-width:600px">Based on your legacy account types and names. Confirm all at once, or open any row to change the Klay account it maps to.</div>'
-    + '</div></div>'
-    : '';
-
-  // Block 2 — Affecting master data (persists until all dependent accounts are resolved)
-  var b2 = depAll>0 ? (b1?'<div class="ai-sub-sep"></div>':'')
-    + '<div class="flex g3" style="align-items:flex-start">'
-      + '<span class="ai-sub-ico" style="background:var(--color-surface-sunken);color:var(--color-text-secondary);border-color:var(--color-border-default)">'+svg('link')+'</span>'
-      + '<div style="flex:1;min-width:0">'
-        + '<div class="flex jb ac" style="gap:12px;flex-wrap:wrap"><div class="fw7 fs14">'+depAll+' account'+(depAll>1?'s':'')+' affect master data</div>'
-          + '<button class="btn btn-ghost btn-xs" style="flex-shrink:0" onclick="filterDepSuggestions()">'+svg('link')+'See '+depAll+' account'+(depAll>1?'s':'')+'</button></div>'
-        + '<div class="fs12 muted" style="margin-top:3px;line-height:1.5;max-width:600px">These can\u2019t be deactivated and must be mapped — the mapping you choose is applied to the products, vendors or customers that reference them. Some may not be AI-mapped yet.'
-          + (depBlocked>0? ' <span style="color:var(--warning-text);font-weight:600">'+depBlocked+' ha'+(depBlocked>1?'ve':'s')+' a blocking issue to fix first.</span>':'')+'</div>'
-      + '</div></div>'
-    : '';
-
+  if(!c.auto) return ''; // nothing AI-suggested left
   return '<div class="card ai-card mb5">'
     + '<div style="padding:14px 20px 16px">'
       + '<div class="flex g2 ac mb3" style="color:var(--color-brand-hover)"><span class="ai-ico" style="width:30px;height:30px">'+svg('spark')+'</span><span class="fw7 fs13" style="letter-spacing:.01em">Klay reviewed your accounts</span></div>'
-      + b1 + b2
+      + '<div class="flex g3" style="align-items:flex-start">'
+        + '<span class="ai-sub-ico" style="background:var(--warning-surface);color:var(--warning-text);border-color:var(--warning-border)">'+svg('spark')+'</span>'
+        + '<div style="flex:1;min-width:0">'
+          + '<div class="flex jb ac" style="gap:12px;flex-wrap:wrap"><div class="fw7 fs14">Klay suggested mapping for '+c.auto+' account'+(c.auto>1?'s':'')+'</div>'
+            + '<div class="flex g2 ac" style="flex-shrink:0"><button class="btn btn-ghost btn-xs" onclick="setMapFilter(\'auto\')">'+svg('filter')+'Review</button>'
+              + '<button class="btn btn-primary btn-xs" onclick="bulkConfirmAuto()">'+svg('check')+'Confirm all '+c.auto+'</button></div></div>'
+          + '<div class="fs12 muted" style="margin-top:3px;line-height:1.5;max-width:600px">Based on your legacy account types and names. Confirm all at once, or open any row to change the Klay account it maps to.</div>'
+        + '</div></div>'
     + '</div>'
   + '</div>';
 }
@@ -2573,6 +2563,8 @@ function renderWorkspace(){
       + '<button class="btn btn-ghost" onclick="openConfigDims()">'+svg('layers')+'Dimensions</button>'
       + '<button class="btn btn-primary" '+(allConfirmed?'onclick="confirmStage(\'map\')"':'disabled')+'>'+svg('check')+'Confirm &amp; continue '+svg('arrowRight')+'</button></div>'
     + '</div>'
+    // running opening-balance imbalance warning (when balance-carrying accounts are deactivated)
+    + imbalanceBanner()
     // AI suggestions summary box (above issues — it's the higher-level entry point)
     + aiMappingSummary(c)
     + (issueCards? '<div class="flex ac jb mb3"><div class="disp" style="font-size:18px">Issues to resolve <span class="muted fs13" style="font-family:var(--font-sans);font-weight:400">— click a card to filter the table</span></div></div><div class="issue-grid mb5">'+issueCards+'</div>':'')
@@ -2713,7 +2705,6 @@ function mapRowHTML(r){
   var legCell='<div class="mono fs11 muted">'+r.code+'</div>'
     + '<div class="fw6 fs13" style="color:var(--color-text-primary);margin:1px 0 3px">'+r.name+'</div>'
     + '<div class="flex g2 ac" style="flex-wrap:wrap">'+mapStatusLabel(r)
-    + (depTotal(r.dep)?'<span class="dep-chip" title="'+depPhrase(r.dep)+' reference this account">'+svg('link')+'used by master data: '+depTypesLabel(r.dep)+'</span>':'')
     + (r.issue?'<span class="badge '+(r.issue.sev==='hard'?'b-danger':r.issue.sev==='note'||r.issue.sev==='warn'?'b-info':'b-warning')+'" style="font-size:9.5px">'+r.issue.label+'</span>':'')
     + (r.issue && r.issue.sev==='note' ? '<button class="btn btn-ghost btn-xs" style="padding:2px 8px;font-size:11px" onclick="acknowledgeIssue('+idx+')">'+svg('check')+'Got it</button>':'')
     + '</div>';
@@ -2815,7 +2806,6 @@ function openKlayPicker(idx){
   openDrawer('<div class="drawer-head"><div><div class="section-label mb2">Map to Klay account</div><div class="fw7 fs17" style="font-family:var(--font-display);font-weight:500">'+r.name+'</div><div class="mono fs12 muted mt1">'+r.code+' · '+r.ltype+'</div></div><button class="x-btn" onclick="closeDrawer()">'+svg('x')+'</button></div>'
     + '<div style="padding:14px 20px 0"><div class="flex ac g2" style="border:1px solid var(--color-border-default);border-radius:var(--radius-md);padding:8px 12px"><span style="color:var(--color-text-tertiary)">'+svg('search')+'</span><input id="klaySearch" placeholder="Search code or name…" oninput="filterPicker()" style="border:none;outline:none;flex:1;font-size:13px;background:transparent"></div></div>'
     + '<div class="drawer-body" id="pickerBody" style="padding-top:12px">'
-      + (depTotal(r.dep)>0? '<div class="flex g2 ac mb3" style="align-items:flex-start;background:var(--color-action-wash);border:1px solid var(--color-action-subtle);border-radius:var(--radius-md);padding:10px 13px;font-size:12px;color:var(--color-action);line-height:1.5">'+svg('link')+'<span>This account is used by <b>'+depPhrase(r.dep)+'</b>. Choosing a Klay account will re-point all of them — you\u2019ll be asked to confirm.</span></div>':'')
       + groups+'</div>'
     + '<style>.picker-group-h{font-size:10.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--color-text-tertiary);padding:10px 0 4px;position:sticky;top:0;background:#fff}.picker-item{display:flex;align-items:center;gap:8px;padding:9px 10px;border-radius:var(--radius-sm);cursor:pointer}.picker-item:hover{background:var(--color-action-wash)}</style>');
 }
@@ -2829,17 +2819,6 @@ function filterPicker(){
   });
 }
 function setKlayTarget(idx,code){
-  var r=APP.mapRows[idx];
-  var changed = r.target!==code;
-  if(changed && code && depTotal(r.dep)>0){
-    closeDrawer();
-    var target=klayByCode(code);
-    openModal('<div class="modal-card"><div class="modal-icon" style="background:var(--color-action-wash)"><svg viewBox="0 0 24 24" style="stroke:var(--color-action)">'+IC.link+'</svg></div>'
-      + '<div class="modal-title">Re-point master data?</div>'
-      + '<div class="modal-text">This account is used by <b>'+depPhrase(r.dep)+'</b>. Mapping it to <b class="mono">'+code+'</b> '+(target?'\u00b7 '+shortName(target.n):'')+' will re-point all of them to the new Klay account.</div>'
-      + '<div class="modal-foot"><button class="btn btn-ghost" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="closeModal();doSetKlayTarget('+idx+',\''+code+'\')">'+svg('check')+'Map anyway</button></div></div>');
-    return;
-  }
   doSetKlayTarget(idx,code);
 }
 function doSetKlayTarget(idx,code){
@@ -2945,14 +2924,59 @@ function unmarkLater(idx){ closeRowMenu(); var r=APP.mapRows[idx]; r.mapStatus=r
 function deactivateRow(idx){
   closeRowMenu();
   var r=APP.mapRows[idx];
-  if(depTotal(r.dep)>0){
-    openModal('<div class="modal-card"><div class="modal-icon" style="background:var(--danger-surface)"><svg viewBox="0 0 24 24" style="stroke:var(--danger-text)">'+IC.alert+'</svg></div>'
-      + '<div class="modal-title">Can\u2019t deactivate this account</div>'
-      + '<div class="modal-text"><b>'+depPhrase(r.dep)+'</b> still use this account. Reassign them to another account first, otherwise their transactions would have nowhere to post at go-live.</div>'
-      + '<div class="modal-foot"><button class="btn btn-primary" onclick="closeModal()">Got it</button></div></div>');
-    return;
+  var dep=depTotal(r.dep)>0;
+  var bal=r.bal && r.bal.bal>0;
+  var blocks='';
+  // Master-data dependency — allowed, but the consequence must be explicit
+  if(dep){
+    blocks += '<div class="deact-warn"><div class="deact-warn-h">'+svg('link')+'Used by master data</div>'
+      + '<div class="deact-warn-b"><b>'+depPhrase(r.dep)+'</b> point to this account. Deactivating it leaves them <b>without a posting account</b> — their transactions can’t post until you reassign them to another account before go-live.</div></div>';
   }
-  r.mapStatus='deactivated'; renderPage(); toast('Account deactivated','It will not be migrated.','info');
+  // Carries a migrated balance — warn about the resulting imbalance + that it won't be in the opening balance
+  if(bal){
+    var openLine = (r.bal.openItems>0) ? ' It also has <b>'+r.bal.openItems+' open '+r.bal.kind+' item'+(r.bal.openItems>1?'s':'')+'</b> totaling '+rupiahID(r.bal.openSum)+'.' : '';
+    blocks += '<div class="deact-warn"><div class="deact-warn-h">'+svg('scale')+'Carries an opening balance</div>'
+      + '<div class="deact-warn-b">This account holds an opening balance of <b class="mono">'+rupiahID(r.bal.bal)+'</b>.'+openLine
+      + ' If you deactivate it, the account <b>won’t be created in Klay</b> and this balance <b>won’t be included in the opening balance entry</b>.</div>'
+      + '<div class="deact-imbalance">'+svg('alert')+'<span>Your opening trial balance will be <b>out by '+rupiahID(r.bal.bal)+'</b> unless the other side of the entry is adjusted. Make sure it’s accounted for elsewhere, or your books won’t balance at go-live.</span></div></div>';
+  }
+  var icon = bal? 'alert' : (dep? 'link' : 'alert');
+  var iconBg = bal? 'var(--danger-surface)' : 'var(--warning-surface)';
+  var iconFg = bal? 'var(--danger-text)' : 'var(--warning-text)';
+  // Confirm button names the consequence so the action is never on autopilot
+  var btnLabel = dep
+    ? 'Deactivate & leave '+depTotal(r.dep)+' record'+(depTotal(r.dep)>1?'s':'')+' unassigned'
+    : (bal? 'Deactivate & drop '+rupiahID(r.bal.bal) : 'Deactivate account');
+  openModal('<div class="modal-card" style="max-width:480px"><div class="modal-icon" style="background:'+iconBg+'"><svg viewBox="0 0 24 24" style="stroke:'+iconFg+'">'+IC[icon]+'</svg></div>'
+    + '<div class="modal-title">Deactivate this account?</div>'
+    + '<div class="modal-text" style="margin-bottom:'+((dep||bal)?'14px':'0')+'"><b class="mono">'+r.code+'</b> · '+r.name+' will not be migrated to Klay. You can re-activate it later from the row menu.</div>'
+    + blocks
+    + '<div class="modal-foot"><button class="btn btn-ghost" onclick="closeModal()">Cancel</button><button class="btn '+(bal?'btn-danger':'btn-primary')+'" onclick="closeModal();doDeactivateRow('+idx+')">'+btnLabel+'</button></div></div>');
+}
+function doDeactivateRow(idx){
+  var r=APP.mapRows[idx];
+  r.mapStatus='deactivated'; renderPage();
+  var imb=deactivatedBalanceImbalance();
+  if(imb>0) toast('Account deactivated','Opening trial balance is now out by '+rupiahID(imb)+'. Adjust the other side before go-live.','warn');
+  else toast('Account deactivated','It will not be migrated.','info');
+}
+// Sum of opening balances on accounts the user has deactivated — these drop out of the opening balance entry.
+function deactivatedBalanceImbalance(){
+  if(!APP.mapRows) return 0;
+  return APP.mapRows.reduce(function(sum,r){
+    return sum + ((r.mapStatus==='deactivated' && r.bal && r.bal.bal>0) ? r.bal.bal : 0);
+  },0);
+}
+function imbalanceBanner(){
+  var imb=deactivatedBalanceImbalance();
+  if(imb<=0) return '';
+  var rows=APP.mapRows.filter(function(r){return r.mapStatus==='deactivated' && r.bal && r.bal.bal>0;});
+  var names=rows.map(function(r){return r.name;}).join(', ');
+  return '<div class="card mb5" style="border:1px solid var(--danger-border);background:var(--danger-surface);padding:13px 16px">'
+    + '<div class="flex g2" style="align-items:flex-start">'+svg('alert')
+    + '<div style="flex:1"><div class="fw7 fs13" style="color:var(--danger-text)">Opening trial balance is out by '+rupiahID(imb)+'</div>'
+    + '<div class="fs12" style="color:var(--danger-text);opacity:.9;line-height:1.5;margin-top:2px">You deactivated '+rows.length+' account'+(rows.length>1?'s':'')+' that carried a balance ('+names+'). '+rupiahID(imb)+' was dropped from the opening balance entry — adjust the other side, or your books won\u2019t balance at go-live.</div></div></div>'
+  + '</div>';
 }
 function reactivateRow(idx){ var r=APP.mapRows[idx]; r.mapStatus=r.target?'mapped':'unmapped'; renderPage(); }
 function setMapFilter(f){
@@ -3045,6 +3069,14 @@ function finishMapping(){ toast('Mapping complete','Great — moving on to tax c
 .dep-chip{display:inline-flex;align-items:center;gap:4px;font-size:9.5px;font-weight:600;padding:2px 8px;border-radius:var(--radius-full);background:var(--color-surface-sunken);color:var(--color-text-tertiary);border:1px solid var(--color-border-default);white-space:nowrap;cursor:default}
 .dep-chip svg{width:11px;height:11px}
 .dep-chip-warn{background:var(--warning-surface);color:var(--warning-text);border-color:var(--warning-border)}
+.btn-danger{background:var(--danger-text);color:#fff;border:1px solid var(--danger-text);font-weight:600}
+.btn-danger:hover{background:#8a1b1b;border-color:#8a1b1b}
+.deact-warn{text-align:left;background:var(--color-surface-sunken);border:1px solid var(--color-border-default);border-radius:var(--radius-md);padding:12px 14px;margin-bottom:10px}
+.deact-warn-h{display:flex;align-items:center;gap:7px;font-weight:700;font-size:12.5px;color:var(--color-text-primary);margin-bottom:5px}
+.deact-warn-h svg{width:15px;height:15px}
+.deact-warn-b{font-size:12px;line-height:1.55;color:var(--color-text-secondary)}
+.deact-imbalance{display:flex;align-items:flex-start;gap:7px;margin-top:9px;padding:9px 11px;background:var(--danger-surface);border:1px solid var(--danger-border);border-radius:var(--radius-sm);font-size:11.5px;line-height:1.5;color:var(--danger-text)}
+.deact-imbalance svg{width:14px;height:14px;flex-shrink:0;margin-top:1px}
 .reqdim-chip .reqdim-x{display:inline-flex;align-items:center;justify-content:center;width:14px;height:14px;border-radius:50%;opacity:.55;margin-left:1px}
 .reqdim-chip .reqdim-x:hover{opacity:1;background:rgba(0,0,0,.08)}
 .reqdim-chip .reqdim-x svg{width:10px;height:10px}
