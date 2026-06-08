@@ -1466,10 +1466,10 @@ function confirmStage(stage){
       rows:[['Mapped to Klay accounts',c.mapped],['Deactivated',c.deactivated],['Total legacy accounts',c.all]],
       body:'Lock in how your legacy accounts map to the Klay chart of accounts. You can still reopen and change a mapping afterward.' };
   } else if(stage==='tax'){
-    var t=APP.taxCfg; var active=t.taxCodes.filter(function(x){return x.active;}).length;
+    var t=APP.taxCfg; var saved=t.taxCodes.filter(function(x){return x.saved;}).length;
     cfg={ title:'Confirm tax setup', icon:'receipt', next:'posting rules',
-      rows:[['Active tax codes',active],['Inactive (off)',t.taxCodes.length-active],['All accounts assigned','Yes']],
-      body:'Lock in your tax codes, rates and posting accounts. You can still adjust them afterward.' };
+      rows:[['Tax codes saved',saved],['Not used (removed/unsaved)',t.taxCodes.length-saved],['All saved codes have an account','Yes']],
+      body:'Lock in the tax codes you saved, their rates and posting accounts. You can still adjust them afterward.' };
   } else { // posting
     var pc=postingCounts();
     cfg={ title:'Confirm posting templates', icon:'book', next:'UAT',
@@ -2611,7 +2611,7 @@ function aiSummaryCard(stage){
   var title, body, action;
   if(stage==='tax'){
     title='Klay set up your tax codes';
-    body='Your tax code list is pre-filled to Indonesian standards (PPN, PPh, PPN BM) with the correct rate and tax base. Each code\'s posting <b>Account</b> is AI-recommended from your chart of accounts. Standard codes keep their category and tax base locked; you edit the rate, account, recoverable flag, notes, and which codes are active.';
+    body='Your tax code list is pre-filled to Indonesian standards (PPN, PPh, PPN BM) with the correct rate and tax base. Each code\'s posting <b>Account</b> is AI-recommended from your chart of accounts. Standard codes keep their category and tax base locked; you edit the rate, account, recoverable flag and notes. <b>Save</b> the codes your entity uses and <b>remove</b> the ones it doesn\'t.';
   } else if(stage==='posting'){
     var n=APP.rules?APP.rules.length:0;
     title='Klay prepared '+n+' posting templates';
@@ -3678,24 +3678,31 @@ function ensureTax(){
     ],
     rounding:'9110000',
     taxCodes:[
-      {code:'PPN11_OUT', name:'PPN 11% Output', cat:'Output VAT', applies:'Sales Invoice', rateType:'pct', rate:11, base:'DPP', recov:false, account:'2200000', notes:'Domestic sales', active:true, builtin:true},
-      {code:'PPN11_IN', name:'PPN 11% Input', cat:'Input VAT', applies:'Purchase Invoice', rateType:'pct', rate:11, base:'DPP', recov:true, account:'1140000', notes:'Creditable VAT', active:true, builtin:true},
-      {code:'PPN0', name:'PPN 0%', cat:'Output VAT', applies:'Sales Invoice', rateType:'pct', rate:0, base:'DPP', recov:false, account:'2200000', notes:'Export', active:true, builtin:true},
-      {code:'PPN_EXEMPT', name:'PPN Dibebaskan', cat:'Non VAT', applies:'Sales/Purchase', rateType:'pct', rate:0, base:'DPP', recov:false, account:'', notes:'Non-taxable transaction', active:false, builtin:true},
-      {code:'PPNBM', name:'PPN Barang Mewah', cat:'Luxury VAT', applies:'Sales Invoice', rateType:'variable', base:'DPP', recov:false, account:'2230000', notes:'Luxury goods only', active:true, builtin:true},
-      {code:'PPH21', name:'PPh 21', cat:'Payroll Tax', applies:'Payroll', rateType:'variable', base:'Gross Salary', recov:false, account:'2210000', notes:'Employee withholding', active:true, builtin:true},
-      {code:'PPH23', name:'PPh 23 Jasa', cat:'Withholding Tax', applies:'Vendor Payment', rateType:'pct', rate:2, base:'DPP', recov:false, account:'2212000', notes:'Non-final withholding', active:true, builtin:true},
-      {code:'PPH4_2', name:'PPh 4(2) Final', cat:'Final Withholding Tax', applies:'Vendor Payment', rateType:'pct', rate:10, base:'DPP', recov:false, account:'2213000', notes:'Final tax (sewa/konstruksi)', active:true, builtin:true},
-      {code:'PPH26', name:'PPh 26', cat:'Foreign Withholding', applies:'Vendor Payment', rateType:'pct', rate:20, base:'Gross', recov:false, account:'2214000', notes:'Foreign entity payment', active:true, builtin:true},
-      {code:'PPH22_IMPORT', name:'PPh 22 Impor', cat:'Prepaid Income Tax', applies:'Import / Purchase', rateType:'variable', base:'CIF/DPP', recov:true, account:'1141000', notes:'Creditable income tax', active:true, builtin:true},
-      {code:'PPH22_SALES', name:'PPh 22 Sales', cat:'Collected Income Tax', applies:'Sales Invoice', rateType:'variable', base:'DPP', recov:false, account:'2211000', notes:'If company is collector', active:false, builtin:true},
-      {code:'PPH25', name:'PPh 25', cat:'Corporate Installment', applies:'Manual Journal', rateType:'variable', base:'N/A', recov:false, account:'1142000', notes:'Monthly installment', active:true, builtin:true},
-      {code:'PPH29', name:'PPh 29', cat:'Corporate Underpayment', applies:'Year-End Journal', rateType:'calc', base:'N/A', recov:false, account:'2215000', notes:'Annual tax payable', active:true, builtin:true}
+      {code:'PPN11_OUT', name:'PPN 11% Output', cat:'Output VAT', applies:'Sales Invoice', rateType:'pct', rate:11, base:'DPP', recov:false, account:'2200000', notes:'Domestic sales', saved:false, recommend:'strong', builtin:true},
+      {code:'PPN11_IN', name:'PPN 11% Input', cat:'Input VAT', applies:'Purchase Invoice', rateType:'pct', rate:11, base:'DPP', recov:true, account:'1140000', notes:'Creditable VAT', saved:false, recommend:'strong', builtin:true},
+      {code:'PPN0', name:'PPN 0%', cat:'Output VAT', applies:'Sales Invoice', rateType:'pct', rate:0, base:'DPP', recov:false, account:'2200000', notes:'Export', saved:false, recommend:'strong', builtin:true},
+      {code:'PPN_EXEMPT', name:'PPN Dibebaskan', cat:'Non VAT', applies:'Sales/Purchase', rateType:'pct', rate:0, base:'DPP', recov:false, account:'', notes:'Non-taxable transaction', saved:false, recommend:'normal', builtin:true},
+      {code:'PPNBM', name:'PPN Barang Mewah', cat:'Luxury VAT', applies:'Sales Invoice', rateType:'variable', base:'DPP', recov:false, account:'2230000', notes:'Luxury goods only', saved:false, recommend:'normal', builtin:true},
+      {code:'PPH21', name:'PPh 21', cat:'Payroll Tax', applies:'Payroll', rateType:'variable', base:'Gross Salary', recov:false, account:'2210000', notes:'Employee withholding', saved:false, recommend:'strong', builtin:true},
+      {code:'PPH23', name:'PPh 23 Jasa', cat:'Withholding Tax', applies:'Vendor Payment', rateType:'pct', rate:2, base:'DPP', recov:false, account:'2212000', notes:'Non-final withholding', saved:false, recommend:'strong', builtin:true},
+      {code:'PPH4_2', name:'PPh 4(2) Final', cat:'Final Withholding Tax', applies:'Vendor Payment', rateType:'pct', rate:10, base:'DPP', recov:false, account:'2213000', notes:'Final tax (sewa/konstruksi)', saved:false, recommend:'normal', builtin:true},
+      {code:'PPH26', name:'PPh 26', cat:'Foreign Withholding', applies:'Vendor Payment', rateType:'pct', rate:20, base:'Gross', recov:false, account:'2214000', notes:'Foreign entity payment', saved:false, recommend:'normal', builtin:true},
+      {code:'PPH22_IMPORT', name:'PPh 22 Impor', cat:'Prepaid Income Tax', applies:'Import / Purchase', rateType:'variable', base:'CIF/DPP', recov:true, account:'1141000', notes:'Creditable income tax', saved:false, recommend:'normal', builtin:true},
+      {code:'PPH22_SALES', name:'PPh 22 Sales', cat:'Collected Income Tax', applies:'Sales Invoice', rateType:'variable', base:'DPP', recov:false, account:'2211000', notes:'If company is collector', saved:false, recommend:null, builtin:true},
+      {code:'PPH25', name:'PPh 25', cat:'Corporate Installment', applies:'Manual Journal', rateType:'variable', base:'N/A', recov:false, account:'1142000', notes:'Monthly installment', saved:false, recommend:'normal', builtin:true},
+      {code:'PPH29', name:'PPh 29', cat:'Corporate Underpayment', applies:'Year-End Journal', rateType:'calc', base:'N/A', recov:false, account:'2215000', notes:'Annual tax payable', saved:false, recommend:'normal', builtin:true}
     ]
   };
 }
+function taxCounts(){
+  var t=APP.taxCfg; var codes=t.taxCodes;
+  return { total:codes.length,
+    saved:codes.filter(function(x){return x.saved;}).length,
+    recUnsaved:codes.filter(function(x){return x.recommend&&!x.saved;}).length };
+}
 function renderTax(){
   ensureTax(); var t=APP.taxCfg;
+  var c=taxCounts();
   function glPick(code,i,needs){
     var k=code?klayByCode(code):null;
     var miss = needs && !code;
@@ -3716,51 +3723,78 @@ function renderTax(){
   var rows = visibleCodes.map(function(tc){
     var i = t.taxCodes.indexOf(tc);
     var locked = !!tc.builtin; // structural fields locked for built-in codes
+    var saved = !!tc.saved;
     var codeCell = locked
       ? '<span class="mono fs12 fw7">'+tc.code+'</span>'
       : '<input class="tc-in mono" style="width:120px;font-weight:700" value="'+tc.code.replace(/"/g,'&quot;')+'" onchange="editTaxCode('+i+',\'code\',this.value)">';
     var nameCell = locked
       ? '<span class="fw6 fs13">'+tc.name+'</span>'
       : '<input class="tc-in" style="width:150px" value="'+tc.name.replace(/"/g,'&quot;')+'" onchange="editTaxCode('+i+',\'name\',this.value)">';
-    var offPill = tc.active ? '' : ' <span class="badge b-neutral" style="font-size:9px">Off</span>';
-    return '<tr style="'+(tc.active?'':'background:var(--color-surface-base)')+'">'
+    var recTag = saved
+      ? '<span class="badge b-success" style="font-size:9px">'+svg('check')+'Saved</span>'
+      : (tc.recommend==='strong'? '<span class="badge b-brand" style="font-size:9px">Strongly recommended</span>'
+        : (tc.recommend==='normal'? '<span class="badge b-info" style="font-size:9px">Recommended</span>':''));
+    // action: Save (if not saved) / Saved-state; Remove always available
+    var actionBtn = saved
+      ? '<button class="btn btn-ghost btn-xs" onclick="unsaveTaxCode('+i+')" title="Un-save">'+svg('check')+'Saved</button>'
+      : '<button class="btn btn-primary btn-xs" onclick="saveTaxCode('+i+')">'+svg('check')+'Save</button>';
+    var removeBtn = '<button class="x-btn" onclick="removeTaxCode('+i+')" title="Remove — we don\'t use this code">'+svg('trash')+'</button>';
+    return '<tr style="'+(saved?'background:var(--success-surface)':'')+'">'
       + '<td>'+codeCell+'</td>'
-      + '<td><span style="'+(tc.active?'':'opacity:.55')+'">'+nameCell+'</span>'+offPill+'</td>'
-      + '<td><span class="fs12 sec" style="'+(tc.active?'':'opacity:.55')+'">'+tc.cat+'</span></td>'
-      + '<td><span class="fs12 muted" style="'+(tc.active?'':'opacity:.55')+'">'+tc.applies+'</span></td>'
-      + '<td class="tr" style="'+(tc.active?'':'opacity:.55')+'">'+rateCell(tc,i)+'</td>'
-      + '<td><span class="fs12 muted" style="'+(tc.active?'':'opacity:.55')+'">'+tc.base+'</span></td>'
-      + '<td class="tc" style="'+(tc.active?'':'opacity:.55')+'"><label class="switch"><input type="checkbox" '+(tc.recov?'checked':'')+' onchange="editTaxCode('+i+',\'recov\',this.checked)"><span class="track"></span></label></td>'
-      + '<td>'+glPick(tc.account,i,(tc.active))+'</td>'
-      + '<td><input class="tc-in" style="width:150px;'+(tc.active?'':'opacity:.55')+'" value="'+(tc.notes||'').replace(/"/g,'&quot;')+'" onchange="editTaxCode('+i+',\'notes\',this.value)"></td>'
-      + '<td class="tc"><div class="flex ac g1" style="justify-content:center"><label class="switch"><input type="checkbox" '+(tc.active?'checked':'')+' onchange="editTaxCode('+i+',\'active\',this.checked)"><span class="track"></span></label></div></td>'
-      + '<td>'+(locked?'':'<button class="x-btn" onclick="deleteTaxCode('+i+')" title="Delete custom code">'+svg('trash')+'</button>')+'</td>'
+      + '<td>'+nameCell+'<div class="mt1">'+recTag+'</div></td>'
+      + '<td><span class="fs12 sec">'+tc.cat+'</span></td>'
+      + '<td><span class="fs12 muted">'+tc.applies+'</span></td>'
+      + '<td class="tr">'+rateCell(tc,i)+'</td>'
+      + '<td><span class="fs12 muted">'+tc.base+'</span></td>'
+      + '<td class="tc"><label class="switch"><input type="checkbox" '+(tc.recov?'checked':'')+' onchange="editTaxCode('+i+',\'recov\',this.checked)"><span class="track"></span></label></td>'
+      + '<td>'+glPick(tc.account,i,true)+'</td>'
+      + '<td><input class="tc-in" style="width:150px" value="'+(tc.notes||'').replace(/"/g,'&quot;')+'" onchange="editTaxCode('+i+',\'notes\',this.value)"></td>'
+      + '<td class="tc"><div class="flex ac g1" style="justify-content:flex-end">'+actionBtn+removeBtn+'</div></td>'
     + '</tr>';
   }).join('');
 
+  // AI summary — save all recommended at once
+  var aiBox = c.recUnsaved>0
+    ? '<div class="card mb5" style="border-color:var(--color-action-subtle);background:var(--color-action-wash)">'
+      + '<div class="flex jb ac" style="padding:16px 20px;gap:16px;flex-wrap:wrap">'
+        + '<div class="flex g3 ac" style="align-items:flex-start;flex:1;min-width:280px">'
+          + '<span style="width:38px;height:38px;border-radius:var(--radius-md);background:#fff;color:var(--color-action);display:flex;align-items:center;justify-content:center;flex-shrink:0">'+svg('scale')+'</span>'
+          + '<div><div class="fw7 fs15" style="color:var(--color-action)">'+c.recUnsaved+' recommended tax code'+(c.recUnsaved>1?'s':'')+' ready to save</div>'
+            + '<div class="fs12.5" style="margin-top:3px;max-width:560px;color:var(--color-text-secondary);line-height:1.55">Pre-filled to Indonesian standards with the correct rate and tax base. Review them, then <b>save all at once</b> — or save any code individually. Remove the ones your entity doesn\'t use. Only saved codes go to your live ERP.</div></div>'
+        + '</div>'
+        + '<div class="flex g2 ac" style="flex-shrink:0"><button class="btn btn-primary btn-sm" onclick="saveAllRecommendedTax()">'+svg('check')+'Save all '+c.recUnsaved+'</button></div>'
+      + '</div></div>'
+    : '';
+
   var workspace = ''
+    + aiBox
+    + '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:18px">'
+      + statCard('Tax codes',visibleCodes.length,'scale','var(--color-action)')
+      + statCard('Saved for go-live',c.saved,'checkCircle','var(--success-text)')
+      + statCard('Recommended',c.recUnsaved,'scale','var(--color-brand)')
+    + '</div>'
     + '<div class="card mb5" style="overflow:hidden">'
       + '<div class="card-pad" style="padding-bottom:0"><div class="flex jb ac mb2"><div class="disp" style="font-size:19px">Tax Codes</div><span class="badge b-neutral" style="font-size:10px">'+visibleCodes.length+' codes</span></div>'
-        + '<div class="fs13 muted mb4" style="line-height:1.5">The master list of tax codes your ERP applies to transactions. Standard codes have their <b>category, applies-to and tax base</b> locked to Indonesian rules; you can edit the <b>rate, account, recoverable flag, notes</b>. Codes that don\'t apply to your entity are switched <b>Off</b> by default — turn one <b>On</b> only if you\'re obligated to use it. Each active code needs an account (AI-recommended '+aiDot()+').</div></div>'
+        + '<div class="fs13 muted mb4" style="line-height:1.5">The standard list of tax codes Klay recommends. Standard codes have their <b>category, applies-to and tax base</b> locked to Indonesian rules; you can edit the <b>rate, account, recoverable flag, notes</b>. <b>Save</b> the codes your entity uses (bulk or individually) and <b>remove</b> the ones you don\'t. Each saved code needs an account (AI-recommended '+aiDot()+').</div></div>'
       + '<div class="prev-scroll"><div class="prev-scroll-inner"><table class="tbl tax-tbl"><thead><tr>'
-        + '<th>Tax Code</th><th>Tax Name</th><th>Tax Category</th><th>Applies To</th><th class="tr">Rate</th><th>Tax Base</th><th class="tc">Recoverable</th><th>Account</th><th>Notes</th><th class="tc">Active</th><th></th>'
+        + '<th>Tax Code</th><th>Tax Name</th><th>Tax Category</th><th>Applies To</th><th class="tr">Rate</th><th>Tax Base</th><th class="tc">Recoverable</th><th>Account</th><th>Notes</th><th class="tc"></th>'
         + '</tr></thead><tbody>'+rows+'</tbody></table></div></div>'
       + '<div class="card-pad" style="padding-top:14px"><button class="btn btn-ghost btn-sm" onclick="addTaxCode()">'+svg('plus')+'Add tax code</button></div>'
     + '</div>';
 
   var rail = aiSummaryCard('tax') + activityLogCard('tax');
 
-  // validation: an active tax code that posts tax must have an account chosen
-  var incomplete = visibleCodes.filter(function(tc){ return tc.active && !tc.account; });
-  var taxReady = incomplete.length===0;
-  var blockBanner = taxReady ? '' :
-    '<div class="flex g2 ac mb5" style="align-items:flex-start;background:var(--warning-surface);border:1px solid var(--warning-border);border-radius:var(--radius-md);padding:12px 15px;font-size:12.5px;color:var(--warning-text);line-height:1.55">'+svg('alert')+'<span><b>'+incomplete.length+' active tax code'+(incomplete.length>1?'s':'')+' still need'+(incomplete.length>1?'':'s')+' an account.</b> Choose an account for '+incomplete.map(function(c){return c.code;}).join(', ')+' before continuing — or turn the code off if your entity doesn\'t use it.</span></div>';
+  // validation: a SAVED tax code must have an account chosen
+  var incomplete = visibleCodes.filter(function(tc){ return tc.saved && !tc.account; });
+  var taxReady = incomplete.length===0 && c.saved>0;
+  var blockBanner = incomplete.length>0 ?
+    '<div class="flex g2 ac mb5" style="align-items:flex-start;background:var(--warning-surface);border:1px solid var(--warning-border);border-radius:var(--radius-md);padding:12px 15px;font-size:12.5px;color:var(--warning-text);line-height:1.55">'+svg('alert')+'<span><b>'+incomplete.length+' saved tax code'+(incomplete.length>1?'s':'')+' still need'+(incomplete.length>1?'':'s')+' an account.</b> Choose an account for '+incomplete.map(function(c){return c.code;}).join(', ')+' before continuing — or remove the code if your entity doesn\'t use it.</span></div>' : '';
 
   return '<div class="canvas">'
     + '<div class="page-head-row"><div><div class="page-eyebrow">Stage 3 of 6 · <span class="days">Day '+STAGES[2].day+' of 30</span></div>'
       + '<div class="page-title">Tax Configuration</div>'
-      + '<div class="page-sub">Set up the tax codes your ERP applies to transactions — rate, tax base, and the account each one posts to. Klay recommends the accounts; adjust where your entity differs.</div></div>'
-      + '<button class="btn btn-primary" '+(taxReady?'onclick="confirmStage(\'tax\')"':'disabled title="Resolve the missing accounts first"')+'>'+svg('check')+'Confirm &amp; continue '+svg('arrowRight')+'</button></div>'
+      + '<div class="page-sub">Klay recommends the standard Indonesian tax codes. <b>Save</b> the ones your entity uses, <b>remove</b> the ones you don\'t, and <b>add</b> any custom codes. Each saved code posts to an account Klay recommends.</div></div>'
+      + '<button class="btn btn-primary" '+(taxReady?'onclick="confirmStage(\'tax\')"':'disabled title="Save at least one tax code and resolve missing accounts"')+'>'+svg('check')+'Confirm &amp; continue '+svg('arrowRight')+'</button></div>'
     + blockBanner
     + '<div class="flex g2 ac mb5" style="align-items:flex-start;background:var(--color-surface-base);border:1px solid var(--color-border-default);border-radius:var(--radius-md);padding:12px 15px;font-size:12.5px;color:var(--color-text-secondary);line-height:1.55">'+svg('info')+'<span>Your entity tax profile — PKP status, NPWP and e-Faktur — is on your migration dashboard. This entity is set up as <b>'+(t.pkp?'PKP (collects &amp; remits PPN)':'Non-PKP')+'</b>'+(t.pkp?'':' — PPN codes are hidden')+'.</span></div>'
     + '<div class="ws-2col">'
@@ -3803,7 +3837,39 @@ function pickTaxCodeAccount(i){
     + '<style>.picker-item{display:flex;align-items:center;gap:8px;padding:9px 10px;border-radius:var(--radius-sm);cursor:pointer}.picker-item:hover{background:var(--color-action-wash)}</style>');
 }
 function setTaxCodeAccount(i,code){ APP.taxCfg.taxCodes[i].account=code; closeDrawer(); renderPage(); toast('Account set',code||'cleared','success'); }
-function deleteTaxCode(i){ var n=APP.taxCfg.taxCodes[i].code; APP.taxCfg.taxCodes.splice(i,1); renderPage(); toast('Tax code removed',n,'info'); }
+function saveTaxCode(i){
+  var tc=APP.taxCfg.taxCodes[i]; if(!tc) return;
+  if(!tc.account){ pickTaxCodeAccount(i); toast('Choose an account first','Saved codes need a posting account.','info'); return; }
+  tc.saved=true; renderPage(); toast('Tax code saved',tc.code+' will be created in your live ERP.','success');
+}
+function unsaveTaxCode(i){ var tc=APP.taxCfg.taxCodes[i]; if(tc){tc.saved=false;} renderPage(); toast('Removed from go-live',(tc?tc.code:'Code')+' won\u2019t be created until saved again.','info'); }
+function removeTaxCode(i){
+  var tc=APP.taxCfg.taxCodes[i]; if(!tc) return;
+  // Guard: removing a PPN code for a PKP entity is almost always a mistake
+  var isPpn = tc.cat.indexOf('VAT')>=0 || tc.code.indexOf('PPN')>=0;
+  if(isPpn && APP.taxCfg.pkp){
+    openModal('<div class="modal-card"><div class="modal-icon" style="background:var(--warning-surface)"><svg viewBox="0 0 24 24" style="stroke:var(--warning-text)">'+IC.alert+'</svg></div>'
+      + '<div class="modal-title">Remove a PPN code?</div>'
+      + '<div class="modal-text">This entity is registered as <b>PKP</b>, so it\u2019s normally required to use <b>'+tc.name+'</b>. Removing it means Klay won\u2019t apply this VAT treatment. Remove only if you\u2019re sure your entity doesn\u2019t use it.</div>'
+      + '<div class="modal-foot"><button class="btn btn-ghost" onclick="closeModal()">Keep it</button><button class="btn btn-danger" onclick="closeModal();doRemoveTaxCode('+i+')">Remove anyway</button></div></div>');
+    return;
+  }
+  doRemoveTaxCode(i);
+}
+function doRemoveTaxCode(i){ var n=APP.taxCfg.taxCodes[i].code; APP.taxCfg.taxCodes.splice(i,1); renderPage(); toast('Tax code removed',n,'info'); }
+function saveAllRecommendedTax(){
+  var n=0, needAcct=0;
+  APP.taxCfg.taxCodes.forEach(function(tc){
+    if(tc.recommend && !tc.saved){
+      if(!tc.account){ needAcct++; return; }
+      tc.saved=true; n++;
+    }
+  });
+  renderPage();
+  if(needAcct>0) toast(n+' saved · '+needAcct+' need an account', needAcct+' recommended code'+(needAcct>1?'s':'')+' still need a posting account before they can be saved.', n?'success':'info');
+  else toast(n+' tax codes saved','Recommended codes will be created in your live ERP.','success');
+}
+function deleteTaxCode(i){ doRemoveTaxCode(i); }
 function addTaxCode(){
   APP.taxDraft={ code:'', name:'', cat:'Withholding Tax', applies:'Vendor Payment', rateType:'pct', rate:'', base:'DPP', recov:false, account:'', notes:'' };
   openTaxCodeDrawer();
@@ -3861,8 +3927,8 @@ function saveNewTaxCode(){
   if(!d.name || !d.name.trim()){ toast('Tax name required','Give the code a readable name.','warning'); return; }
   var rate = d.rateType==='pct' ? (parseFloat(String(d.rate).replace(/[^0-9.]/g,''))||0) : undefined;
   APP.taxCfg.taxCodes.push({ code:d.code.trim().toUpperCase(), name:d.name.trim(), cat:d.cat, applies:d.applies,
-    rateType:d.rateType, rate:rate, base:d.base, recov:!!d.recov, account:d.account||'', notes:d.notes||'', active:true, builtin:false });
-  APP.taxDraft=null; closeDrawer(); renderPage(); toast('Tax code added',d.code.trim().toUpperCase()+' added to your tax codes.','success');
+    rateType:d.rateType, rate:rate, base:d.base, recov:!!d.recov, account:d.account||'', notes:d.notes||'', saved:true, recommend:null, builtin:false });
+  APP.taxDraft=null; closeDrawer(); renderPage(); toast('Tax code added',d.code.trim().toUpperCase()+' added and saved for go-live.','success');
 }
 function togglePph(i,v){ APP.taxCfg.pph[i].on=v; renderPage(); toast(APP.taxCfg.pph[i].code+(v?' enabled':' disabled'),'','info'); }
 </script>
